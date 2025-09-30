@@ -14,5 +14,9 @@
     "@types/pg": "^8.15.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
+  },
+  "scripts":{
+    "prepare": "tsc -p ./tsconfig.json",
+    "server": "npm run prepare && node dist/server"
   }
 }
