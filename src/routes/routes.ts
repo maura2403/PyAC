@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { Client } from "pg";
-import { cargarAlumnosDesdeCsvContenido } from "../pyac.js";
+import { loadStudentsFromCsvContent } from "../pyac.js";
 
 const router = Router();
 
@@ -15,7 +15,7 @@ router.post("/api/v0/alumnos", async (req, res) => {
     await client.connect();
 
     try {
-        await cargarAlumnosDesdeCsvContenido(client, req.body);
+        await loadStudentsFromCsvContent(client, req.body);
         res.status(201).send({ ok: true });
     } catch (err) {
         console.error(err);

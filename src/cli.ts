@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 const client = new Client()
 await client.connect()
  
-const filePath = resolve('./recursos/queries/insert-ejemplo-alumnos.sql');
+const filePath = resolve('./resources/queries/insert-ejemplo-alumnos.sql');
 const contents = await readFile(filePath, { encoding: 'utf8' });
 console.log(contents);
 await client.query(contents);

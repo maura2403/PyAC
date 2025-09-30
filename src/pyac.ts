@@ -1,36 +1,36 @@
 import { Client } from 'pg'
-import { leerYParsearCsvDesdePath, leerYParsearCsvDesdeContenido } from './csv.js'
+import { parseCsvFromPath, parseCsvFromContent } from './csv.js'
 
 
-export async function agregarUnAlumno(clientDb: Client, datosDelAlumno: string[], columnas: string[]){
-    const placeholders = columnas.map((_, i) => `$${i + 1}`).join(', ');
+export async function insertStudent(clientDb: Client, studentData: string[], columns: string[]){
+    const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
 
     const query = `
-        INSERT INTO pyac.alumnos (${columnas.join(', ')})
+        INSERT INTO pyac.alumnos (${columns.join(', ')})
         VALUES (${placeholders})
     `;
 
-    const valores = datosDelAlumno.map(value => value === '' ? null : value);
+    const values = studentData.map(value => value === '' ? null : value);
     
     // console.log('Query:', query);
-    // console.log('Valores:', valores);
+    // console.log('Valores:', values);
     
-    await clientDb.query(query, valores);
+    await clientDb.query(query, values);
 }
 
-export async function agregarMultiplesAlumnos(clientDb: Client, listaDeDatosDeAlumnos: string[][], columnas: string[]){
-    for (const datosDeUnAlumno of listaDeDatosDeAlumnos){
-        await agregarUnAlumno(clientDb, datosDeUnAlumno, columnas)
+export async function insertMultipleStudents(clientDb: Client, studentsDataList: string[][], columns: string[]){
+    for (const studentData of studentsDataList){
+        await insertStudent(clientDb, studentData, columns)
     }
 }
 
 
-export async function cargarAlumnosDesdeCsv(clientDb: Client, pathArchivoCsv: string){
-    var {dataLines: listaDeDatosDeAlumnos, columns: columnas} = await leerYParsearCsvDesdePath(pathArchivoCsv)
-    await agregarMultiplesAlumnos(clientDb, listaDeDatosDeAlumnos, columnas);
+export async function loadStudentsFromCsvPath(clientDb: Client, filePath: string){
+    var {dataLines: studentsDataList, columns: columns} = await parseCsvFromPath(filePath)
+    await insertMultipleStudents(clientDb, studentsDataList, columns);
 }
 
-export async function cargarAlumnosDesdeCsvContenido(clientDb: Client, contenido: string){
-    var {dataLines: listaDeDatosDeAlumnos, columns: columnas} = await leerYParsearCsvDesdeContenido(contenido)
-    await agregarMultiplesAlumnos(clientDb, listaDeDatosDeAlumnos, columnas);
+export async function loadStudentsFromCsvContent(clientDb: Client, content: string){
+    var {dataLines: studentsDataList, columns: columns} = await parseCsvFromContent(content)
+    await insertMultipleStudents(clientDb, studentsDataList, columns);
 }
