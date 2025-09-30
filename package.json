@@ -2,6 +2,7 @@
   "name": "pyac",
   "type": "module",
   "dependencies": {
+    "ejs": "^3.1.10",
     "express": "^5.1.0",
     "node-fetch": "^3.3.2",
     "pg": "^8.16.3"
@@ -11,6 +12,7 @@
     "@types/node": "^24.6.0",
     "@types/node-fetch": "^2.6.13",
     "@types/pg": "^8.15.5",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }
 }
