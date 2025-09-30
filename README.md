@@ -35,7 +35,7 @@ npm run server
 4. Abrir el navegador en:
 
 ```
-http://localhost:3000/app/menu
+http://localhost:3000
 ```
 
 ---
@@ -57,5 +57,5 @@ npm run server
 Luego de ejecutar este comando, el servidor estará disponible en:
 
 ```
-http://localhost:3000/app/menu
+http://localhost:3000
 ```

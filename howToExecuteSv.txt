@@ -2,4 +2,4 @@ Compilamos los archivos ts a js:
 npx tsc
 
 Ejecutamos el servidor desde la carpeta compilada (js):
-node ../dist/servidor.js
+node ../dist/server.js

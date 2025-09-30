@@ -18,5 +18,5 @@ app.use(express.text({ type: "text/csv", limit: "10mb" }));
 app.use(routes);
 
 app.listen(PORT, () => {
-    console.log(`Example app listening on port http://localhost:${PORT}/app/menu`);
+    console.log(`Example app listening on port http://localhost:${PORT}`);
 });
