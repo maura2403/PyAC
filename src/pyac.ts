@@ -1,6 +1,15 @@
 import { Client } from 'pg'
 import { parseCsvFromPath, parseCsvFromContent } from './csv.js'
+import { Student } from './abstractions/student.js'
 
+export async function insertStudent2(clientDb: Client, student: Student) {
+    const query = `
+        INSERT INTO pyac.alumnos (id_alumno, nombre, apellido)
+        VALUES (100, ${student.name}, ${student.lastName})
+    `;
+    console.log(query);
+    await clientDb.query(query);
+}
 
 export async function insertStudent(clientDb: Client, studentData: string[], columns: string[]){
     const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
@@ -24,7 +33,6 @@ export async function insertMultipleStudents(clientDb: Client, studentsDataList:
     }
 }
 
-
 export async function loadStudentsFromCsvPath(clientDb: Client, filePath: string){
     var {dataLines: studentsDataList, columns: columns} = await parseCsvFromPath(filePath)
     await insertMultipleStudents(clientDb, studentsDataList, columns);
@@ -33,4 +41,10 @@ export async function loadStudentsFromCsvPath(clientDb: Client, filePath: string
 export async function loadStudentsFromCsvContent(clientDb: Client, content: string){
     var {dataLines: studentsDataList, columns: columns} = await parseCsvFromContent(content)
     await insertMultipleStudents(clientDb, studentsDataList, columns);
+}
+
+export async function getStudentsFromDatabase(clientDb: Client) {
+    const query = 'SELECT * FROM pyac.alumnos';
+    const res = await clientDb.query(query);
+    return res.rows;
 }

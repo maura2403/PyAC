@@ -1,12 +1,28 @@
 import { Router } from "express";
 import { Client } from "pg";
-import { loadStudentsFromCsvContent } from "../pyac.js";
+import { loadStudentsFromCsvContent, getStudentsFromDatabase, insertStudent2 } from "../pyac.js";
+import { Student } from "../abstractions/student.js";
 
 const router = Router();
 
 // Ruta GET para subir CSV
 router.get("/app/v0/archivo", (_, res) => {
     res.render("html_upload");
+});
+
+router.get("/app/alumnos", async (req, res) => {
+    const client = new Client();
+    await client.connect();
+    res.render("handleStudent", { "alumnos" : await getStudentsFromDatabase(client)});
+    await client.end();
+});
+
+router.post("/app/v0/agregar-alumno", async (req, res) => {
+    const client = new Client();
+    await client.connect();
+    await insertStudent2(client, Student.FromJson(req.body));
+    res.redirect("/app/alumnos");
+    await client.end();
 });
 
 // Ruta POST para procesar CSV
