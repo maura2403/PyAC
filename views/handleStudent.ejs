@@ -6,44 +6,33 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Gestión de Alumnos - Menú Principal</title>
+    <title>Gestión de Alumnos - Tabla de alumnos</title>
     <link rel="stylesheet" href="/css/mainMenu.css">
 </head>
 
 <body>
     <table>
         <tr>
-            <th>DNI</th>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Curso</th>
-            <th>Modalidad</th>
-            <th>Responsable</th>
-            <th>PRUEBA_R1</th>
+            <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
+                <th><%= meta.label %></th>
+            <% } %>
         </tr>
         <% for (const student of students) { %>
             <tr>
-                <td><%=student.id_alumno%></td>
-                <td><%=student.nombre%></td>
-                <td><%=student.apellido%></td>
-                <td><%=student.curso%></td>
-                <td><%=student.modalidad%></td>
-                <td><%=student.responsable_de_pagos%></td>
-                <td><%=student.responsable1%></td>
+                <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
+                    <td><%=student[key]%></td>
+                <% } %>
                 <td><button onclick="deleteStudent(<%= student.id_alumno %>)">Eliminar</button></td>
             </tr>
         <% } %>
     </table>
     <form method="POST" action="/api/alumnos">
-        DNI:         <input type="number" name="id_alumno"><br>
-        Nombre:      <input type="text" name="nombre"><br>
-        Apellido:    <input type="text" name="apellido"><br>
-        Curso:       <input type="text" name="curso"><br>
-        Modalidad:   <input type="text" name="modalidad"><br>
-        Responsable: <input type="text" name="responsable_de_pagos"><br>
-        PRUEBA_R1: <input type="text" name="responsable1"><br>
+        <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
+            <%= meta.label %> <input type="<%= meta.type %>" name="<%= key %>" value="<%= meta.value%>"><br>
+        <% } %>
         <input type="submit">
     </form>
+
 </body>
 
 <script>

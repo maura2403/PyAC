@@ -13,7 +13,7 @@ router.get("/app/v0/archivo", (_, res) => {
 router.get("/app/alumnos", async (req, res) => {
     const client = new Client();
     await client.connect();
-    res.render("handleStudent", { "students" : await getStudentsFromDatabase(client)});
+    res.render("handleStudent", { "students" : await getStudentsFromDatabase(client), "studentColumnMeta" : studentColumnMeta });
     await client.end();
 });
 
@@ -33,6 +33,41 @@ const primaryKey = 'id_alumno';  // Por ahora solo sirve cuando |primaryKeys| ==
 const nonPrimaryColumns = ['nombre', 'apellido', 'curso', 'modalidad', 'responsable_de_pagos', 'responsable1'];
 const allColumns = [primaryKey, ...nonPrimaryColumns];
 
+interface ColumnMeta {
+  label: string;
+  type: string;
+}
+
+const studentColumnMeta: Record<string, ColumnMeta> = {
+  id_alumno: {
+    label: "DNI del alumno",
+    type: "number",
+  },
+  nombre: {
+    label: "Nombre",
+    type: "text",
+  },
+  apellido: {
+    label: "Apellido",
+    type: "text",
+  },
+  curso: {
+    label: "Curso",
+    type: "text",
+  },
+  modalidad: {
+    label: "Modalidad",
+    type: "text",
+  },
+  responsable_de_pagos: {
+    label: "Responsable de pagos",
+    type: "text",
+  },
+  responsable1: {
+    label: "Responsable1",
+    type: "text",
+  },
+};
 
 // CREATE
 router.post("/api/alumnos", async (req, res) => {
