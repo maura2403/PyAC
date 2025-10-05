@@ -13,10 +13,11 @@ router.get("/app/v0/archivo", (_, res) => {
 router.get("/app/alumnos", async (req, res) => {
     const client = new Client();
     await client.connect();
-    res.render("handleStudent", { "alumnos" : await getStudentsFromDatabase(client)});
+    res.render("handleStudent", { "students" : await getStudentsFromDatabase(client)});
     await client.end();
 });
 
+/*
 router.post("/app/v0/agregar-alumno", async (req, res) => {
     const client = new Client();
     await client.connect();
@@ -24,6 +25,59 @@ router.post("/app/v0/agregar-alumno", async (req, res) => {
     res.redirect("/app/alumnos");
     await client.end();
 });
+*/
+
+// INICIO CRUD alumnos
+
+// CREATE
+router.post("/api/alumnos", async (req, res) => {
+    const client = new Client();
+    await client.connect();
+
+    const query = `
+        INSERT INTO pyac.alumnos (id_alumno, nombre, apellido, curso, modalidad, responsable_de_pagos, responsable1)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `
+    const values = [req.body['id_alumno'], req.body['nombre'], req.body['apellido'], req.body['curso'], req.body['modalidad'],
+                    req.body['responsable_de_pagos'], req.body['responsable1']];
+
+    await client.query(query, values);
+
+    res.redirect("/app/alumnos");
+    await client.end();
+});
+
+// READ
+router.get("/api/alumnos", async (req, res) => {
+    const client = new Client();
+    await client.connect();
+    
+    const query = `
+        SELECT *
+        FROM pyac.alumnos
+    `
+    const items = await client.query(query);
+    res.json(items.rows);
+
+    await client.end();
+});
+
+// DELETE
+router.delete("/api/alumnos/:id_alumno", async (req, res) => {
+    const client = new Client();
+    await client.connect();
+
+    const query = `
+        DELETE FROM pyac.alumnos
+        WHERE id_alumno = $1
+    `
+
+    await client.query(query, [req.params.id_alumno])
+    await client.end()
+});
+
+
+// FIN CRUD alumnos
 
 // Ruta POST para procesar CSV
 router.post("/api/v0/alumnos", async (req, res) => {

@@ -13,21 +13,45 @@
 <body>
     <table>
         <tr>
-            <th>id</th>
-            <th>nombre</th>
-            <th>apellido</th>
+            <th>DNI</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Curso</th>
+            <th>Modalidad</th>
+            <th>Responsable</th>
+            <th>PRUEBA_R1</th>
         </tr>
-        <% for (let i = 0; i < alumnos.length; i++) { %>
+        <% for (const student of students) { %>
             <tr>
-                <td><%=alumnos[i].id_alumno%></td>
-                <td><%=alumnos[i].nombre%></td>
-                <td><%=alumnos[i].apellido%></td>
+                <td><%=student.id_alumno%></td>
+                <td><%=student.nombre%></td>
+                <td><%=student.apellido%></td>
+                <td><%=student.curso%></td>
+                <td><%=student.modalidad%></td>
+                <td><%=student.responsable_de_pagos%></td>
+                <td><%=student.responsable1%></td>
+                <td><button onclick="deleteStudent(<%= student.id_alumno %>)">Eliminar</button></td>
             </tr>
         <% } %>
     </table>
-    <form method="POST" action="/app/v0/agregar-alumno">
-        Nombre: <input type="text" name="name"><br>
-        Apellido: <input type="text" name="lastName"><br>
+    <form method="POST" action="/api/alumnos">
+        DNI:         <input type="number" name="id_alumno"><br>
+        Nombre:      <input type="text" name="nombre"><br>
+        Apellido:    <input type="text" name="apellido"><br>
+        Curso:       <input type="text" name="curso"><br>
+        Modalidad:   <input type="text" name="modalidad"><br>
+        Responsable: <input type="text" name="responsable_de_pagos"><br>
+        PRUEBA_R1: <input type="text" name="responsable1"><br>
         <input type="submit">
     </form>
 </body>
+
+<script>
+async function deleteStudent(dni){
+    if (confirm(`¿Desea eliminar al alumno con DNI: ${dni}?`)){
+        const response = await fetch(`/api/alumnos/${dni}`, {
+            method: 'DELETE'
+        });
+    }
+}
+</script>
