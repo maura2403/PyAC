@@ -69,7 +69,30 @@ const studentColumnMeta: Record<string, ColumnMeta> = {
 };
 
 
-createApiCrud(router, '/api', 'pyac', 'alumnos', primaryKey, nonPrimaryColumns);
+// CRUD alumnos:
+const apiBaseRoute = '/api';
+const schema = 'pyac';
+const table = 'alumnos';
+
+createApiCrud(router, apiBaseRoute, schema, table, primaryKey, nonPrimaryColumns);
+
+router.get(`/app/alumnos/editar/:${primaryKey}`, async (req, res) => {
+    const client = new Client();
+    await client.connect();
+
+    const query = `
+        SELECT *
+        FROM ${schema}.${table}
+        WHERE ${primaryKey} = $1 
+    `;
+    const result = await client.query(query, [req.params[primaryKey]]);
+    console.log(result.rows);
+    const student = result.rows[0];
+
+    res.render("studentEditForm", { "student" : student, "studentColumnMeta" : studentColumnMeta });
+
+    await client.end();
+})
 
 
 // Ruta POST para procesar CSV

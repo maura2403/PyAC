@@ -12,12 +12,8 @@
 
 <h2>Editar Alumno</h2>
 <form method="POST" action="/api/alumnos/editar/<%= student.id_alumno %>">
-    DNI:         <input type="number" name="id_alumno" value="<%= student.id_alumno %>" readonly><br>
-    Nombre:      <input type="text" name="nombre" value="<%= student.nombre %>"><br>
-    Apellido:    <input type="text" name="apellido" value="<%= student.apellido %>"><br>
-    Curso:       <input type="text" name="curso" value="<%= student.curso %>"><br>
-    Modalidad:   <input type="text" name="modalidad" value="<%= student.modalidad %>"><br>
-    Responsable: <input type="text" name="responsable_de_pagos" value="<%= student.responsable_de_pagos %>"><br>
-    responsable1: <input type="text" name="responsable1" value="<%= student.responsable1 %>"><br>
+    <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
+        <%= meta.label + ':' %> <input type="<%= meta.type %>" name="<%= key %>" value="<%= meta.value%>"><br>
+    <% } %>
     <input type="submit" value="Actualizar">
 </form>
