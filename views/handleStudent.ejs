@@ -23,6 +23,11 @@
                     <td><%=student[key]%></td>
                 <% } %>
                 <td><button onclick="deleteStudent(<%= student.id_alumno %>)">Eliminar</button></td>
+                <td>
+                    <a href="/app/alumnos/editar/<%= student.id_alumno %>">
+                        <button>Actualizar</button>
+                    </a>
+                </td>
             </tr>
         <% } %>
     </table>

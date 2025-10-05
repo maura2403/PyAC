@@ -38,6 +38,31 @@ export async function createApiCrud(app: Router, apiBaseRoute: string, schema: s
         await client.end();
     });
 
+
+    // UPDATE
+    console.log(`${route}/editar/:${primaryKey}`
+
+    )
+    app.post(`${route}/editar/:${primaryKey}`, async (req, res) => {
+        console.log("hhola!!")
+        const client = new Client();
+        await client.connect()
+
+        const values = allColumns.map(col => req.body[col]);
+
+        const query = `
+            UPDATE ${schema}.${table}
+            SET ${nonPrimaryColumns.map ((col, i) => `${col} = $${i+2}`).join(', ')}
+            WHERE ${primaryKey} = $1
+        `;
+
+        console.log(query);
+        await client.query(query, values);
+        
+        res.redirect("/app/alumnos");  // Revisar.
+        await client.end()
+    })
+
     // DELETE
     app.delete(`${route}/:${primaryKey}`, async (req, res) => {
         const client = new Client();
@@ -51,4 +76,24 @@ export async function createApiCrud(app: Router, apiBaseRoute: string, schema: s
         await client.query(query, [req.params[primaryKey]]);
         await client.end();
     });
+
+    // EXTRA (Update):
+    app.get(`/app/alumnos/editar/:${primaryKey}`, async (req, res) => {
+        const client = new Client();
+        await client.connect();
+
+        const query = `
+            SELECT *
+            FROM ${schema}.${table}
+            WHERE ${primaryKey} = $1 
+        `;
+        const result = await client.query(query, [req.params[primaryKey]]);
+        console.log(result.rows);
+        const student = result.rows[0];
+
+        res.render("studentEditForm", { "student" : student});
+
+        await client.end();
+    })
+
 }
