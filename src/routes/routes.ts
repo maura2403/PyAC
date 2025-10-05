@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { Client } from "pg";
-import { loadStudentsFromCsvContent, getStudentsFromDatabase, insertStudent2 } from "../pyac.js";
+import { loadStudentsFromCsvContent } from "../pyac.js";
 import { Student } from "../abstractions/student.js";
+import { createApiCrud } from "../basicCrud.js"
 
 const router = Router();
 
@@ -11,10 +12,8 @@ router.get("/app/v0/archivo", (_, res) => {
 });
 
 router.get("/app/alumnos", async (req, res) => {
-    const client = new Client();
-    await client.connect();
-    res.render("handleStudent", { "students" : await getStudentsFromDatabase(client), "studentColumnMeta" : studentColumnMeta });
-    await client.end();
+    const response = await fetch("http://localhost:3000/api/alumnos");
+    res.render("handleStudent", { "students" : await response.json(), "studentColumnMeta" : studentColumnMeta });
 });
 
 /*
@@ -31,7 +30,7 @@ router.post("/app/v0/agregar-alumno", async (req, res) => {
 
 const primaryKey = 'id_alumno';  // Por ahora solo sirve cuando |primaryKeys| == 1.
 const nonPrimaryColumns = ['nombre', 'apellido', 'curso', 'modalidad', 'responsable_de_pagos', 'responsable1'];
-const allColumns = [primaryKey, ...nonPrimaryColumns];
+
 
 interface ColumnMeta {
   label: string;
@@ -69,55 +68,9 @@ const studentColumnMeta: Record<string, ColumnMeta> = {
   },
 };
 
-// CREATE
-router.post("/api/alumnos", async (req, res) => {
-    const client = new Client();
-    await client.connect();
 
-    const placeholders = allColumns.map((_, i) => `$${i + 1}`).join(', ');
-    const query = `
-        INSERT INTO pyac.alumnos (${allColumns.join(', ')})
-        VALUES (${placeholders})
-    `
-    const values = allColumns.map(col => req.body[col]);
+createApiCrud(router, '/api', 'pyac', 'alumnos', primaryKey, nonPrimaryColumns);
 
-    await client.query(query, values);
-
-    res.redirect("/app/alumnos");
-    await client.end();
-});
-
-// READ
-router.get("/api/alumnos", async (req, res) => {
-    const client = new Client();
-    await client.connect();
-    
-    const query = `
-        SELECT *
-        FROM pyac.alumnos
-    `
-    const items = await client.query(query);
-    res.json(items.rows);
-
-    await client.end();
-});
-
-// DELETE
-router.delete(`/api/alumnos/:${primaryKey}`, async (req, res) => {
-    const client = new Client();
-    await client.connect();
-
-    const query = `
-        DELETE FROM pyac.alumnos
-        WHERE ${primaryKey} = $1
-    `
-
-    await client.query(query, [req.params[primaryKey]]);
-    await client.end();
-});
-
-
-// FIN CRUD alumnos
 
 // Ruta POST para procesar CSV
 router.post("/api/v0/alumnos", async (req, res) => {
