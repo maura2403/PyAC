@@ -29,17 +29,22 @@ router.post("/app/v0/agregar-alumno", async (req, res) => {
 
 // INICIO CRUD alumnos
 
+const primaryKey = 'id_alumno';  // Por ahora solo sirve cuando |primaryKeys| == 1.
+const nonPrimaryColumns = ['nombre', 'apellido', 'curso', 'modalidad', 'responsable_de_pagos', 'responsable1'];
+const allColumns = [primaryKey, ...nonPrimaryColumns];
+
+
 // CREATE
 router.post("/api/alumnos", async (req, res) => {
     const client = new Client();
     await client.connect();
 
+    const placeholders = allColumns.map((_, i) => `$${i + 1}`).join(', ');
     const query = `
-        INSERT INTO pyac.alumnos (id_alumno, nombre, apellido, curso, modalidad, responsable_de_pagos, responsable1)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        INSERT INTO pyac.alumnos (${allColumns.join(', ')})
+        VALUES (${placeholders})
     `
-    const values = [req.body['id_alumno'], req.body['nombre'], req.body['apellido'], req.body['curso'], req.body['modalidad'],
-                    req.body['responsable_de_pagos'], req.body['responsable1']];
+    const values = allColumns.map(col => req.body[col]);
 
     await client.query(query, values);
 
@@ -63,17 +68,17 @@ router.get("/api/alumnos", async (req, res) => {
 });
 
 // DELETE
-router.delete("/api/alumnos/:id_alumno", async (req, res) => {
+router.delete(`/api/alumnos/:${primaryKey}`, async (req, res) => {
     const client = new Client();
     await client.connect();
 
     const query = `
         DELETE FROM pyac.alumnos
-        WHERE id_alumno = $1
+        WHERE ${primaryKey} = $1
     `
 
-    await client.query(query, [req.params.id_alumno])
-    await client.end()
+    await client.query(query, [req.params[primaryKey]]);
+    await client.end();
 });
 
 
