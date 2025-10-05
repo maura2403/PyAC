@@ -15,7 +15,7 @@ export async function createApiCrud(app: Router, apiBaseRoute: string, schema: s
             INSERT INTO ${schema}.${table} (${allColumns.join(', ')})
             VALUES (${placeholders})
         `
-        const values = allColumns.map(col => req.body[col]);
+        const values = allColumns.map(col => req.body[col] === '' ? null : req.body[col]);
 
         await client.query(query, values);
 
@@ -48,7 +48,7 @@ export async function createApiCrud(app: Router, apiBaseRoute: string, schema: s
         const client = new Client();
         await client.connect()
 
-        const values = allColumns.map(col => req.body[col]);
+        const values = allColumns.map(col => req.body[col] === '' ? null : req.body[col]);
 
         const query = `
             UPDATE ${schema}.${table}
