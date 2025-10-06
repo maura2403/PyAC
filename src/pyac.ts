@@ -1,15 +1,6 @@
 import { Client } from 'pg'
 import { parseCsvFromPath, parseCsvFromContent } from './csv.js'
-import { Student } from './abstractions/student.js'
 
-export async function insertStudent2(clientDb: Client, student: Student) {
-    const query = `
-        INSERT INTO pyac.alumnos (id_alumno, nombre, apellido)
-        VALUES (100, ${student.name}, ${student.lastName})
-    `;
-    console.log(query);
-    await clientDb.query(query);
-}
 
 export async function insertStudent(clientDb: Client, studentData: string[], columns: string[]){
     const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');

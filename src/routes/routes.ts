@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { Client } from "pg";
 import { loadStudentsFromCsvContent } from "../pyac.js";
-import { Student } from "../abstractions/student.js";
 import { createApiCrud } from "../basicCrud.js"
 
 const router = Router();
@@ -26,11 +25,9 @@ router.post("/app/v0/agregar-alumno", async (req, res) => {
 });
 */
 
-// INICIO CRUD alumnos
 
 const primaryKey = 'id_alumno';  // Por ahora solo sirve cuando |primaryKeys| == 1.
 const nonPrimaryColumns = ['nombre', 'apellido', 'curso', 'modalidad', 'responsable_de_pagos', 'responsable1'];
-
 
 interface ColumnMeta {
   label: string;
