@@ -13,7 +13,13 @@
 <h2>Editar Alumno</h2>
 <form method="POST" action="/api/alumnos/editar/<%= student.id_alumno %>">
     <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
-        <%= meta.label + ':' %> <input type="<%= meta.type %>" name="<%= key %>" value="<%= student[key]%>"><br>
+        <%= meta.label + ':' %>
+        <input
+            type="<%= meta.type %>"
+            name="<%= key %>"
+            value="<%= student[key]%>"
+            <%= meta.modificable ? '' : 'readonly' %>
+        ><br>
     <% } %>
     <input type="submit" value="Actualizar">
 </form>

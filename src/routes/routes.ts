@@ -35,36 +35,44 @@ const nonPrimaryColumns = ['nombre', 'apellido', 'curso', 'modalidad', 'responsa
 interface ColumnMeta {
   label: string;
   type: string;
+  modificable: boolean;
 }
 
 const studentColumnMeta: Record<string, ColumnMeta> = {
   id_alumno: {
     label: "DNI del alumno",
     type: "number",
+    modificable: false
   },
   nombre: {
     label: "Nombre",
     type: "text",
+    modificable: true
   },
   apellido: {
     label: "Apellido",
     type: "text",
+    modificable: true
   },
   curso: {
     label: "Curso",
     type: "text",
+    modificable: true
   },
   modalidad: {
     label: "Modalidad",
     type: "text",
+    modificable: true
   },
   responsable_de_pagos: {
     label: "Responsable de pagos",
     type: "text",
+    modificable: true
   },
   responsable1: {
     label: "Responsable1",
     type: "text",
+    modificable: true
   },
 };
 
