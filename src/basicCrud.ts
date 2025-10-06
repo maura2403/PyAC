@@ -38,13 +38,26 @@ export async function createApiCrud(app: Router, apiBaseRoute: string, schema: s
         await client.end();
     });
 
+    for (const field of allColumns) {
+        app.get(`${route}/${field}/:${field}`, async (req, res) => {
+            const client = new Client();
+            await client.connect();
+            
+            const query = `
+                SELECT *
+                FROM ${schema}.${table}
+                WHERE ${table}.${field} = $1
+            `
+            const items = await client.query(query, [req.params[field]]);
+            res.json(items.rows);
+
+            await client.end();
+        });
+    }
+
 
     // UPDATE
-    console.log(`${route}/editar/:${primaryKey}`
-
-    )
     app.post(`${route}/editar/:${primaryKey}`, async (req, res) => {
-        console.log("hhola!!")
         const client = new Client();
         await client.connect()
 
