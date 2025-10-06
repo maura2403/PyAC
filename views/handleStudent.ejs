@@ -33,7 +33,7 @@
     </table>
     <form method="POST" action="/api/alumnos">
         <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
-            <%= meta.label %> <input type="<%= meta.type %>" name="<%= key %>" value="<%= meta.value%>"><br>
+            <%= meta.label %> <input type="<%= meta.type %>" name="<%= key %>"><br>
         <% } %>
         <input type="submit" value="Agregar alumno">
     </form>
@@ -41,9 +41,9 @@
 </body>
 
 <script>
-async function deleteStudent(dni){
-    if (confirm(`¿Desea eliminar al alumno con DNI: ${dni}?`)){
-        const response = await fetch(`/api/alumnos/${dni}`, {
+async function deleteStudent(id_alumno){
+    if (confirm(`¿Desea eliminar al alumno con DNI: ${id_alumno}?`)){
+        const response = await fetch(`/api/alumnos/${id_alumno}`, {
             method: 'DELETE'
         });
     }
