@@ -14,7 +14,8 @@ app.set("views", path.join(__dirname, "../views"));
 
 app.use(express.text({ type: "text/csv", limit: "10mb" }));
 
-app.use(express.urlencoded({ extended: true }));
+//app.use(express.urlencoded({ extended: true }));
+app.use(express.json())
 
 app.use(express.static(path.join(__dirname, "../static")));
 

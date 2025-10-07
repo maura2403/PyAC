@@ -59,8 +59,7 @@ export async function createApiCrud(app: Router, apiBaseRoute: string, schema: s
     // UPDATE
     app.post(`${route}/editar/:${primaryKey}`, async (req, res) => {
         const client = new Client();
-        await client.connect()
-
+        await client.connect();
         const values = allColumns.map(col => req.body[col] === '' ? null : req.body[col]);
 
         const query = `
@@ -71,9 +70,8 @@ export async function createApiCrud(app: Router, apiBaseRoute: string, schema: s
 
         console.log(query);
         await client.query(query, values);
-        
-        res.redirect("/app/alumnos");  // Revisar.
-        await client.end()
+        await client.end();
+        res.status(200).json({ ok: true });
     })
 
     // DELETE
@@ -88,5 +86,6 @@ export async function createApiCrud(app: Router, apiBaseRoute: string, schema: s
 
         await client.query(query, [req.params[primaryKey]]);
         await client.end();
+        res.status(200).json({ ok: true });
     });
 }

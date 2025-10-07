@@ -97,7 +97,7 @@ router.get(`/app/alumnos/editar/:${primaryKey}`, async (req, res) => {
     const query = `
         SELECT *
         FROM ${schema}.${table}
-        WHERE ${primaryKey} = $1 
+        WHERE ${primaryKey} = $1
     `;
     const result = await client.query(query, [req.params[primaryKey]]);
     console.log(result.rows);
