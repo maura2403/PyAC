@@ -127,7 +127,7 @@ router.post("/api/v0/alumnos", async (req, res) => {
 
 // Ruta GET principal
 router.get("/", (_, res) => {
-    res.render("mainmenu");
+    res.render("mainMenu");
 });
 
 export default router;
