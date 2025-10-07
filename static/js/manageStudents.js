@@ -12,6 +12,48 @@ async function deleteStudent(deleteButtonElement) {
     }
 }
 
+function startAddingStudent() {
+    const row = document.getElementById("add-student-row");
+    row.style.display = "table-row";
+}
+
+async function addNewStudent() {
+    const row = document.getElementById("add-student-row");
+
+    // Llenamos un form data con los datos del alumno nuevo
+    const newData = {};
+    row.querySelectorAll("td").forEach(td => {
+        const key = td.dataset.key;
+        if (!key) { return; }
+        const input = td.querySelector("input");
+        newData[key] = input.value;
+    });
+
+    row.querySelectorAll("input").forEach(input => {
+        input.value = "";
+    });
+
+    const response = await fetch("/api/alumnos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newData)
+    });
+
+    if (response.ok) {
+        location.reload();
+    } else {
+        alert("Error al agregar el alumno");
+    }
+}
+
+function cancelAddingStudent() {
+    const row = document.getElementById("add-student-row");
+    row.querySelectorAll("input").forEach(input => {
+        input.value = "";
+    });
+    row.style.display = "none";
+}
+
 function startEditingStudent(editButtonElement) {
     const row = editButtonElement.closest("tr");
 
@@ -43,7 +85,7 @@ async function confirmEdit(confirmButton) {
         updatedData[key] = input.value;
     });
 
-    response = await fetch(`/api/alumnos/editar/${id}`, {
+    const response = await fetch(`/api/alumnos/editar/${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedData)
@@ -59,7 +101,6 @@ async function confirmEdit(confirmButton) {
 
 function cancelEdit(cancelButtonElement) {
     const row = cancelButtonElement.closest("tr");
-    const id = row.dataset.id;
 
     // Recuperamos los valores originales
     row.querySelectorAll("td").forEach(td => {
@@ -70,6 +111,6 @@ function cancelEdit(cancelButtonElement) {
     const buttonsTd = row.querySelector("td:last-child");
     buttonsTd.innerHTML = `
         <button class="edit" onclick="startEditingStudent(this)"></button>
-        <button class="delete" onclick="deleteStudent(${id})"></button>
+        <button class="delete" onclick="deleteStudent(this)"></button>
     `;
 }

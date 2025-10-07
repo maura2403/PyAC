@@ -15,12 +15,12 @@ export async function createApiCrud(app: Router, apiBaseRoute: string, schema: s
             INSERT INTO ${schema}.${table} (${allColumns.join(', ')})
             VALUES (${placeholders})
         `
+
         const values = allColumns.map(col => req.body[col] === '' ? null : req.body[col]);
 
         await client.query(query, values);
-
-        res.redirect("/app/alumnos");  // Revisar.
         await client.end();
+        res.status(200).json({ ok: true });
     });
 
     // READ
@@ -68,7 +68,6 @@ export async function createApiCrud(app: Router, apiBaseRoute: string, schema: s
             WHERE ${primaryKey} = $1
         `;
 
-        console.log(query);
         await client.query(query, values);
         await client.end();
         res.status(200).json({ ok: true });

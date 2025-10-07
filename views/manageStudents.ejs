@@ -9,14 +9,22 @@
     <title>Gestión de Alumnos - Tabla de alumnos</title>
     <link rel="stylesheet" href="/css/manageStudents.css">
 </head>
-
 <body>
     <table>
         <tr>
             <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
             <th><%= meta.label %></th>
             <% } %>
-            <th><button class="add">+</button></th>
+            <th><button class="add" onclick="startAddingStudent()">+</button></th>
+        </tr>
+        <tr id="add-student-row">
+            <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
+            <td data-key="<%=key%>"><input type="text"></td>
+            <% } %>
+            <td>
+                <button class="confirm" onclick="addNewStudent()"></button>
+                <button class="delete" onclick="cancelAddingStudent()"></button>
+            </td>
         </tr>
         <% for (const student of students) { %>
         <tr data-id="<%=student.id_alumno%>">
