@@ -1,0 +1,79 @@
+/*
+Color palette
+
+*/
+
+table {
+    width: 80%;
+    margin: 30px auto;
+    border-collapse: collapse;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    table-layout: fixed;
+}
+
+th, td {
+  text-align: left;
+}
+
+th {
+    background: #4a90e2;
+    color: white;
+    padding: 12px 15px;
+    font-size: 1rem;
+}
+
+td {
+    color: #333333;
+    padding: 10px 15px;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #dddddd;
+    border-right: 1px solid #dddddd;
+}
+
+th:last-child,
+td:last-child {
+  width: 80px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+table tr:nth-child(even) td {
+    background-color: #f0f0f0;
+}
+
+table button {
+    width: 35px;
+    height: 35px;
+    margin: 0 3px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease-in-out;
+}
+
+button.edit {
+    background-color: #4a90e2;
+}
+
+button.edit:hover {
+    background-color: #357abd;
+}
+
+button.delete {
+    background-color:#c70000;
+}
+
+button.delete:hover {
+    background-color:#b30000;
+}
+
+button.add {
+    background-color: #4a90e2;
+}
+
+button.add:hover {
+    background-color: #357abd;
+}

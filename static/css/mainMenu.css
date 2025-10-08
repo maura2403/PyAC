@@ -1,0 +1,65 @@
+:root {
+    --color-primary: #4a90e2;
+    --color-primary-dark: #2F6CC3;
+    --color-primary-light: #cbe2fd;
+    --color-accent: #f5a623;
+    --color-text-dark:  #080d18;
+    --color-text-light: #F8FAFC;
+}
+
+html, body {
+    height: 100%;
+    margin:0;
+    padding: 0;
+    font-family: Verdana, sans-serif;
+}
+
+body{
+    display: flex;
+    flex-direction: column;
+}
+
+main{
+    flex: 1;
+    padding: 2rem;
+    background-color: var(--color-primary-light, white);
+}
+
+header{
+    background-color: var(--color-primary, cyan);
+    text-align: center;
+    margin: 0;
+    color: var(--color-text-light, white);
+    padding: 2em;
+}
+
+footer{
+    background-color: var(--color-primary-dark, blue);
+    text-align: center;
+    color: var(--color-text-dark, blue);
+    padding: 1em;
+}
+
+.button-container > .btn {
+  display: inline-block;
+  text-decoration: none;
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
+  padding: 2em 2em;
+  border-radius: 5px;
+  text-align: center;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.button-container {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 auto;
+  width: 90%;
+  gap: 1em;
+  justify-content: center;
+}

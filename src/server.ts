@@ -16,6 +16,8 @@ app.use(express.text({ type: "text/csv", limit: "10mb" }));
 
 app.use(express.urlencoded({ extended: true }));
 
+app.use(express.static(path.join(__dirname, "../static")));
+
 // Montamos todas las rutas
 app.use(routes);
 

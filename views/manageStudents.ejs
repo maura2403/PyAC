@@ -7,9 +7,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Gestión de Alumnos - Tabla de alumnos</title>
-    <link rel="stylesheet" href="/css/mainMenu.css">
+    <link rel="stylesheet" href="/css/manageStudents.css">
 </head>
 
+<body>
+    <table>
+        <tr>
+            <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
+            <th><%= meta.label %></th>
+            <% } %>
+            <th><button class="add">+</button></th>
+        </tr>
+        <% for (const student of students) { %>
+        <tr>
+            <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
+                <td><%=student[key]%></td>
+            <% } %>
+            <td>
+                <button class="edit"></button>
+                <!--TODO: cambiar como pasamos este parametro, tiene que haber una mejor manera de hacerlo-->
+                <button class="delete" onclick="deleteStudent(<%= student.id_alumno %>)"></button>
+            </td>
+        </tr>
+        <% } %>
+    </table>
+</body>
+
+<!--
 <body>
     <table>
         <tr>
@@ -39,7 +63,7 @@
     </form>
 
 </body>
-
+-->
 <script>
 async function deleteStudent(id_alumno){
     if (confirm(`¿Desea eliminar al alumno con DNI: ${id_alumno}?`)){

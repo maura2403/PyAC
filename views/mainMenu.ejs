@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Presente y A Comer!</title>
+    <link rel="stylesheet" href="/css/mainMenu.css">
+</head>
+
+<body>
+    <header >
+        <h1>Presente y A Comer!</h1>
+        <!-- <img src="/img/logoInstituto.png" alt="logoInstituto"> -->
+        <!-- <a href="/about" class="btn btn-primary w-25" style="margin-bottom:1%">Acerca del Sistema</a> -->
+    </header>
+
+    <main>
+        <div class="button-container">
+            <a href="/app/alumnos" class="btn">Ver listado de Alumnos (CRUD)</a>
+            <a href="/app/v0/archivo" class="btn">Cargar desde CSV</a>
+            <a href="/app/asistencia" class="btn">Tomar Presente</a>
+            <a href="/about" class="btn">Sobre el Sistema</a>
+        </div>
+    </main>
+    <%- include('partials/footer') %>
+</body>
+</html>

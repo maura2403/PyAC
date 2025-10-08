@@ -80,13 +80,13 @@ createApiCrud(router, apiBaseRoute, schema, table, primaryKey, nonPrimaryColumns
 
 router.get("/app/alumnos", async (req, res) => {
     const response = await fetch("http://localhost:3000/api/alumnos");
-    res.render("handleStudent", { "students" : await response.json(), "studentColumnMeta" : studentColumnMeta });
+    res.render("manageStudents", { "students" : await response.json(), "studentColumnMeta" : studentColumnMeta });
 });
 
 for (const field of allColumns) {
     router.get(`/app/alumnos/${field}/:${field}`, async (req, res) => {
         const response = await fetch(`http://localhost:3000/api/alumnos/${field}/${req.params[field]}`);
-        res.render("handleStudent", { "students" : await response.json(), "studentColumnMeta" : studentColumnMeta });
+        res.render("manageStudents", { "students" : await response.json(), "studentColumnMeta" : studentColumnMeta });
     });
 }
 
@@ -127,7 +127,7 @@ router.post("/api/v0/alumnos", async (req, res) => {
 
 // Ruta GET principal
 router.get("/", (_, res) => {
-    res.render("mainmenu");
+    res.render("mainMenu");
 });
 
 export default router;
