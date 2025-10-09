@@ -2,6 +2,7 @@ import { Router } from "express";
 import { Client } from "pg";
 import { loadStudentsFromCsvContent } from "../pyac.js";
 import { createApiCrud } from "../basicCrud.js"
+import { requireAuth } from "../server.js"
 
 const router = Router();
 
@@ -78,7 +79,7 @@ const table = 'alumnos';
 
 createApiCrud(router, apiBaseRoute, schema, table, primaryKey, nonPrimaryColumns);
 
-router.get("/app/alumnos", async (req, res) => {
+router.get("/app/alumnos", requireAuth, async (req, res) => {
     const response = await fetch("http://localhost:3000/api/alumnos");
     res.render("manageStudents", { "students" : await response.json(), "studentColumnMeta" : studentColumnMeta });
 });
@@ -129,5 +130,6 @@ router.post("/api/v0/alumnos", async (req, res) => {
 router.get("/", (_, res) => {
     res.render("mainMenu");
 });
+
 
 export default router;

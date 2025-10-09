@@ -2,20 +2,24 @@
   "name": "pyac",
   "type": "module",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
+    "express-session": "^1.18.2",
     "node-fetch": "^3.3.2",
     "pg": "^8.16.3"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.3",
+    "@types/express-session": "^1.18.2",
     "@types/node": "^24.6.0",
     "@types/node-fetch": "^2.6.13",
     "@types/pg": "^8.15.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   },
-  "scripts":{
+  "scripts": {
     "prepare": "tsc -p ./tsconfig.json",
     "server": "npm run prepare && node dist/server"
   }
