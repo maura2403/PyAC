@@ -9,67 +9,40 @@
     <title>Gestión de Alumnos - Tabla de alumnos</title>
     <link rel="stylesheet" href="/css/manageStudents.css">
 </head>
-
 <body>
+    <div class="search-container">
+        <form id="searchForm" action="/app/alumnos" method="get">
+            <input type="text" id="filter-input" placeholder="Buscar..." name="search"/>
+        </form>
+    </div>
+
     <table>
         <tr>
             <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
             <th><%= meta.label %></th>
             <% } %>
-            <th><button class="add">+</button></th>
+            <th><button class="add" onclick="startAddingStudent()">+</button></th>
         </tr>
-        <% for (const student of students) { %>
-        <tr>
+        <tr id="add-student-row">
             <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
-                <td><%=student[key]%></td>
+            <td data-key="<%=key%>"><input type="text"></td>
             <% } %>
             <td>
-                <button class="edit"></button>
-                <!--TODO: cambiar como pasamos este parametro, tiene que haber una mejor manera de hacerlo-->
-                <button class="delete" onclick="deleteStudent(<%= student.id_alumno %>)"></button>
+                <button class="confirm" onclick="addNewStudent()"></button>
+                <button class="delete" onclick="cancelAddingStudent()"></button>
+            </td>
+        </tr>
+        <% for (const student of students) { %>
+        <tr data-id="<%=student.id_alumno%>">
+            <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
+                <td data-key="<%=key%>"><%=student[key]%></td>
+            <% } %>
+            <td>
+                <button class="edit" onclick="startEditingStudent(this)"></button>
+                <button class="delete" onclick="deleteStudent(this)"></button>
             </td>
         </tr>
         <% } %>
     </table>
 </body>
-
-<!--
-<body>
-    <table>
-        <tr>
-            <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
-                <th><%= meta.label %></th>
-            <% } %>
-        </tr>
-        <% for (const student of students) { %>
-            <tr>
-                <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
-                    <td><%=student[key]%></td>
-                <% } %>
-                <td><button onclick="deleteStudent(<%= student.id_alumno %>)">Eliminar</button></td>
-                <td>
-                    <a href="/app/alumnos/editar/<%= student.id_alumno %>">
-                        <button>Actualizar</button>
-                    </a>
-                </td>
-            </tr>
-        <% } %>
-    </table>
-    <form method="POST" action="/api/alumnos">
-        <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
-            <%= meta.label %> <input type="<%= meta.type %>" name="<%= key %>"><br>
-        <% } %>
-        <input type="submit" value="Agregar alumno">
-    </form>
-
-</body>
--->
-<script>
-async function deleteStudent(id_alumno){
-    if (confirm(`¿Desea eliminar al alumno con DNI: ${id_alumno}?`)){
-        const response = await fetch(`/api/alumnos/${id_alumno}`, {
-            method: 'DELETE'
-        });
-    }
-}
-</script>
+<script src="/js/manageStudents.js"></script>

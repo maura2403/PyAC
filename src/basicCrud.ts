@@ -15,12 +15,12 @@ export async function createApiCrud(app: Router, apiBaseRoute: string, schema: s
             INSERT INTO ${schema}.${table} (${allColumns.join(', ')})
             VALUES (${placeholders})
         `
+
         const values = allColumns.map(col => req.body[col] === '' ? null : req.body[col]);
 
         await client.query(query, values);
-
-        res.redirect("/app/alumnos");  // Revisar.
         await client.end();
+        res.status(200).json({ ok: true });
     });
 
     // READ
@@ -59,8 +59,7 @@ export async function createApiCrud(app: Router, apiBaseRoute: string, schema: s
     // UPDATE
     app.post(`${route}/editar/:${primaryKey}`, async (req, res) => {
         const client = new Client();
-        await client.connect()
-
+        await client.connect();
         const values = allColumns.map(col => req.body[col] === '' ? null : req.body[col]);
 
         const query = `
@@ -69,11 +68,9 @@ export async function createApiCrud(app: Router, apiBaseRoute: string, schema: s
             WHERE ${primaryKey} = $1
         `;
 
-        console.log(query);
         await client.query(query, values);
-        
-        res.redirect("/app/alumnos");  // Revisar.
-        await client.end()
+        await client.end();
+        res.status(200).json({ ok: true });
     })
 
     // DELETE
@@ -87,6 +84,24 @@ export async function createApiCrud(app: Router, apiBaseRoute: string, schema: s
         `
 
         await client.query(query, [req.params[primaryKey]]);
+        await client.end();
+        res.status(200).json({ ok: true });
+    });
+
+    app.get(`${route}/search/:value`, async (req, res) => {
+        const client = new Client();
+        await client.connect();
+
+        const value = `${req.params.value}%`;
+
+        const query = `
+            SELECT *
+            FROM ${schema}.${table}
+            WHERE ${allColumns.map(c => `${c}::text ILIKE $1`).join(' OR ')}
+        `
+        const items = await client.query(query, [value]);
+        res.json(items.rows);
+
         await client.end();
     });
 }

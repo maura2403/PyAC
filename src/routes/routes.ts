@@ -79,8 +79,17 @@ const table = 'alumnos';
 createApiCrud(router, apiBaseRoute, schema, table, primaryKey, nonPrimaryColumns);
 
 router.get("/app/alumnos", async (req, res) => {
-    const response = await fetch("http://localhost:3000/api/alumnos");
-    res.render("manageStudents", { "students" : await response.json(), "studentColumnMeta" : studentColumnMeta });
+    const search = (req.query.search ?? "").toString().trim();
+    let url = "http://localhost:3000/api/alumnos";
+
+    if (search !== "") {
+        url = `http://localhost:3000/api/alumnos/search/${encodeURIComponent(search)}`;
+    }
+
+    const response = await fetch(url);
+    const students = await response.json();
+
+    res.render("manageStudents", { "students" : students, "studentColumnMeta" : studentColumnMeta });
 });
 
 for (const field of allColumns) {
@@ -97,7 +106,7 @@ router.get(`/app/alumnos/editar/:${primaryKey}`, async (req, res) => {
     const query = `
         SELECT *
         FROM ${schema}.${table}
-        WHERE ${primaryKey} = $1 
+        WHERE ${primaryKey} = $1
     `;
     const result = await client.query(query, [req.params[primaryKey]]);
     console.log(result.rows);
