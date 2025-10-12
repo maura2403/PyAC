@@ -85,8 +85,8 @@ async function confirmEdit(confirmButton) {
         updatedData[key] = input.value;
     });
 
-    const response = await fetch(`/api/alumnos/editar/${id}`, {
-        method: "POST",
+    const response = await fetch(`/api/alumnos/${id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedData)
     });

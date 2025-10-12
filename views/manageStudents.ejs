@@ -10,12 +10,6 @@
     <link rel="stylesheet" href="/css/manageStudents.css">
 </head>
 <body>
-    <div class="search-container">
-        <form id="searchForm" action="/app/alumnos" method="get">
-            <input type="text" id="filter-input" placeholder="Buscar..." name="search"/>
-        </form>
-    </div>
-
     <table>
         <tr>
             <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
