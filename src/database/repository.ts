@@ -20,8 +20,7 @@ export abstract class Repository {
             INSERT INTO ${this.schema}.${this.table} (${this.allColumns.join(', ')})
             VALUES (${placeholders})
         `;
-        const values = Object.values(row);
-
+        const values = this.allColumns.map(key => row[key]);
         await this.pool.query(query, values);
     }
 
@@ -44,8 +43,7 @@ export abstract class Repository {
             SET ${this.allColumns.map((col, i) => `${col} = $${i+2}`).join(', ')}
             WHERE ${this.primaryKey} = $1
         `;
-        const values = Object.values(row);
-
+        const values = this.allColumns.map(key => row[key]);
         await this.pool.query(query, [originalPK, ...values]);
     }
 
@@ -54,7 +52,6 @@ export abstract class Repository {
             DELETE FROM ${this.schema}.${this.table}
             WHERE ${this.primaryKey} = $1
         `
-
         await this.pool.query(query, [primaryKey]);
     }
 }
