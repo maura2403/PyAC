@@ -4,7 +4,7 @@ create schema pyac;
 grant usage on schema pyac to pyac_admin;
 
 create table pyac.alumnos (
-    id_alumno integer primary key,
+    dni integer primary key,
     apellido text not null,
     nombre text not null,
     curso text not null,

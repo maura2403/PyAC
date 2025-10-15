@@ -93,11 +93,16 @@ export abstract class Repository {
 }
 
 export class StudentRepository extends Repository {
-    public readonly primaryKeys: string[] = ["id_alumno"];
+    public readonly primaryKeys: string[] = ["dni"];
     public readonly nonPrimaryKeys: string[] = ["nombre", "apellido", "curso", "modalidad", "responsable_de_pagos", "responsable1"];
     public readonly schema: string = "pyac";
     public readonly table: string = "alumnos";
 
+    public async getByDNI(dni: number): Promise<Record<string, any> | undefined> {
+        const matchingStudents = await this.read({"dni" : dni});
+        return matchingStudents[0];
+    }
+    
     // Ejemplo que no se usa. El punto es que podemos agregar lo que queramos en cada caso.
     // Después lo conectamos a un endpoint y listo!
     public async getSortedById(): Promise<Record<string, any>[]> {
@@ -109,4 +114,25 @@ export class StudentRepository extends Repository {
         const items = await this.pool.query(query);
         return items.rows;
     }
+}
+
+export class AttendanceRepository extends Repository {
+    public readonly primaryKeys: string[] = ["dni", "fecha"];
+    public readonly nonPrimaryKeys: string[] = [];
+    public readonly schema: string = "pyac";
+    public readonly table: string = "presentes";
+}
+
+export class LevelRepository extends Repository {
+    public readonly primaryKeys: string[] = ["nivel"];
+    public readonly nonPrimaryKeys: string[] = ["precio"];
+    public readonly schema: string = "pyac";
+    public readonly table: string = "niveles";
+}
+
+export class InvoiceRepository extends Repository {
+    public readonly primaryKeys: string[] = ["dni", "fecha_de_emision"];
+    public readonly nonPrimaryKeys: string[] = ["precio", "fecha_de_pago"];
+    public readonly schema: string = "pyac";
+    public readonly table: string = "facturas";
 }
