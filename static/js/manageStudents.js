@@ -2,7 +2,7 @@ async function deleteStudent(deleteButtonElement) {
     const row = deleteButtonElement.closest("tr");
     const id_alumno = row.dataset.id;
     if (confirm(`¿Desea eliminar al alumno con DNI: ${id_alumno}?`)) {
-        const response = await fetch(`/api/alumnos/${id_alumno}`, { method: 'DELETE' });
+        const response = await fetch(`/api/alumnos/?id_alumno=${id_alumno}`, { method: 'DELETE' });
         if (response.ok) {
             location.reload();
         }
@@ -85,7 +85,7 @@ async function confirmEdit(confirmButton) {
         updatedData[key] = input.value;
     });
 
-    const response = await fetch(`/api/alumnos/${id}`, {
+    const response = await fetch(`/api/alumnos/?id_alumno=${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedData)
