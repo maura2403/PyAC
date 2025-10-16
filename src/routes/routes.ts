@@ -2,7 +2,8 @@ import { Router } from "express";
 import { Pool } from "pg";
 import { createAPICrud } from "../basicCrud.js"
 import { StudentRepository } from "../database/repository.js";
-import { requireAuth } from "../server.js"
+import { requireAuth } from "../middleware/auth.js"
+import authRoutes from "./auth.js";
 
 const router = Router();
 const pool = new Pool();
@@ -76,6 +77,9 @@ router.get("/app/alumnos", requireAuth, async (req, res) => {
 router.get("/", (_, res) => {
     res.render("mainMenu");
 });
+
+
+router.use(authRoutes);
 
 
 export default router;
