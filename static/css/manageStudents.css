@@ -1,13 +1,8 @@
-/*
-Color palette
-
-*/
-
 table {
     width: 80%;
-    margin: 30px auto;
+    margin: 1em auto;
     border-collapse: collapse;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', sans-serif;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     overflow: hidden;
@@ -44,6 +39,16 @@ table tr:nth-child(even) td {
     background-color: #f0f0f0;
 }
 
+table input {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    border: none;
+    border-bottom: 1px solid #dddddd;
+}
+
 table button {
     width: 35px;
     height: 35px;
@@ -62,6 +67,14 @@ button.edit:hover {
     background-color: #357abd;
 }
 
+button.confirm {
+    background-color:#00c700;
+}
+
+button.confirm:hover {
+    background-color:#00b300;
+}
+
 button.delete {
     background-color:#c70000;
 }
@@ -72,8 +85,14 @@ button.delete:hover {
 
 button.add {
     background-color: #4a90e2;
+    color: white;
+    font-size: 1rem;
 }
 
 button.add:hover {
     background-color: #357abd;
+}
+
+#add-student-row {
+    display: none;
 }

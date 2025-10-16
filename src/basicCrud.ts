@@ -1,92 +1,53 @@
 import type { Router } from "express";
-import { Client } from "pg";
+import type { Repository } from "./database/repository.js";
 
-export async function createApiCrud(app: Router, apiBaseRoute: string, schema: string, table: string, primaryKey: string, nonPrimaryColumns: string[]){
-    const route: string = `${apiBaseRoute}/${table}`;
-    const allColumns = [primaryKey, ...nonPrimaryColumns];
+// req.body: Contenido para la DB (objeto en CREATE y UPDATE)
+// req.query: Parametros para filtrar (en el filtros en el READ o PKs en UPDATE y DELETE)
+export async function createAPICrud(router: Router, repository: Repository) {
+    const route: string = `/api/${repository.table}`;
 
-    // CREATE
-    app.post(route, async (req, res) => {
-        const client = new Client();
-        await client.connect();
-
-        const placeholders = allColumns.map((_, i) => `$${i + 1}`).join(', ');
-        const query = `
-            INSERT INTO ${schema}.${table} (${allColumns.join(', ')})
-            VALUES (${placeholders})
-        `
-        const values = allColumns.map(col => req.body[col] === '' ? null : req.body[col]);
-
-        await client.query(query, values);
-
-        res.redirect("/app/alumnos");  // Revisar.
-        await client.end();
+    // Create
+    router.post(route, async (req, res) => {
+        try {
+            await repository.create(req.body);
+            res.status(200).json({ ok: true });
+        }
+        catch (err) {
+            console.error(err);
+            res.status(500).json({ ok: false, error: (err as Error).message });
+        }
     });
-
-    // READ
-    app.get(route, async (req, res) => {
-        const client = new Client();
-        await client.connect();
-        
-        const query = `
-            SELECT *
-            FROM ${schema}.${table}
-        `
-        const items = await client.query(query);
-        res.json(items.rows);
-
-        await client.end();
+    // Read
+    router.get(route, async (req, res) => {
+        try {
+            const rows = await repository.read(req.query);
+            res.status(200).json(rows);
+        }
+        catch (err) {
+            console.error(err);
+            res.status(500).json({ ok: false, error: (err as Error).message });
+        }
     });
-
-    for (const field of allColumns) {
-        app.get(`${route}/${field}/:${field}`, async (req, res) => {
-            const client = new Client();
-            await client.connect();
-            
-            const query = `
-                SELECT *
-                FROM ${schema}.${table}
-                WHERE ${table}.${field} = $1
-            `
-            const items = await client.query(query, [req.params[field]]);
-            res.json(items.rows);
-
-            await client.end();
-        });
-    }
-
-
-    // UPDATE
-    app.post(`${route}/editar/:${primaryKey}`, async (req, res) => {
-        const client = new Client();
-        await client.connect()
-
-        const values = allColumns.map(col => req.body[col] === '' ? null : req.body[col]);
-
-        const query = `
-            UPDATE ${schema}.${table}
-            SET ${nonPrimaryColumns.map ((col, i) => `${col} = $${i+2}`).join(', ')}
-            WHERE ${primaryKey} = $1
-        `;
-
-        console.log(query);
-        await client.query(query, values);
-        
-        res.redirect("/app/alumnos");  // Revisar.
-        await client.end()
-    })
-
-    // DELETE
-    app.delete(`${route}/:${primaryKey}`, async (req, res) => {
-        const client = new Client();
-        await client.connect();
-
-        const query = `
-            DELETE FROM ${schema}.${table}
-            WHERE ${primaryKey} = $1
-        `
-
-        await client.query(query, [req.params[primaryKey]]);
-        await client.end();
+    // Update
+    router.patch(`${route}`, async (req, res) => {
+        try {
+            await repository.update(req.query, req.body);
+            res.status(200).json({ ok: true });
+        }
+        catch (err) {
+            console.error(err);
+            res.status(500).json({ ok: false, error: (err as Error).message });
+        }
+    });
+    // Delete
+    router.delete(`${route}`, async (req, res) => {
+        try {
+            await repository.delete(req.query);
+            res.status(200).json({ ok: true });
+        }
+        catch (err) {
+            console.error(err);
+            res.status(500).json({ ok: false, error: (err as Error).message });
+        }
     });
 }
