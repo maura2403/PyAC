@@ -119,8 +119,8 @@
 <body>
     <div class="login-container">
         <div class="login-header">
-            <h1>🎓 AIDA</h1>
-            <p>Sistema de Gestión de Alumnos</p>
+            <h1>🎓 PyAC</h1>
+            <p>Presente y A Comer!</p>
         </div>
 
         <div id="errorMessage" class="error-message"></div>
@@ -154,7 +154,7 @@
         </form>
 
         <div class="footer-text">
-            <p>© 2025 AIDA - UBA</p>
+            <p>© 2025 PyAC - UBA</p>
         </div>
     </div>
 
@@ -181,7 +181,7 @@
 
                 if (response.ok) {
                     // Login exitoso, redirigir al menú principal
-                    window.location.href = '/app/menu';
+                    window.location.href = '/';  // Cambiar si se quiere que se rediriga a otro lugar.
                 } else {
                     // Mostrar error
                     errorMessage.textContent = data.error || 'Error al iniciar sesión';
