@@ -1,6 +1,7 @@
 create table pyac.presentes (
-    dni integer primary key,
-    fecha date primary key,
+    dni integer,
+    fecha date,
+    primary key (dni, fecha),
     foreign key (dni) references pyac.alumnos(dni) on update cascade
 );
 

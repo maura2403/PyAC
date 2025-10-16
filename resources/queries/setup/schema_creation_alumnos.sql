@@ -9,6 +9,7 @@ create table pyac.alumnos (
     nombre text not null,
     curso text not null,
     modalidad text not null,
+	nivel text not null,
     responsable1 text,
     responsable2 text,
     responsable_de_pagos text not null
