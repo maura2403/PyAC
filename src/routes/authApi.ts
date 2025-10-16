@@ -1,23 +1,8 @@
 import express, { Router }  from "express";
 import { autenticarUsuario, crearUsuario } from '../login/auth.js';
 import { getDbClient } from "../database/client.js"
-import type { User } from '../login/auth.js';
 
 const router = Router();
-
-declare module 'express-session' {
-    interface SessionData {
-        user?: User;
-    }
-}
-
-// Página de login
-router.get('/app/login', (req, res) => {
-    if (req.session.user) {
-        return res.redirect('/');
-    }
-    res.render("login");
-});
 
 // API de login
 router.post('/api/v0/auth/login', express.json(), async (req, res) => {

@@ -3,7 +3,8 @@ import { Pool } from "pg";
 import { createAPICrud } from "../basicCrud.js"
 import { StudentRepository } from "../database/repository.js";
 import { requireAuth } from "../middleware/auth.js"
-import authRoutes from "./auth.js";
+import authApiRoutes from "./authApi.js";
+import authPagesRoutes from "./authPages.js";
 
 const router = Router();
 const pool = new Pool();
@@ -79,7 +80,8 @@ router.get("/", (_, res) => {
 });
 
 
-router.use(authRoutes);
+router.use(authApiRoutes);
+router.use(authPagesRoutes);
 
 
 export default router;
