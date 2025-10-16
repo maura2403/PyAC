@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Pool } from "pg";
 import { createAPICrud } from "../basicCrud.js"
-import { StudentRepository, AttendanceRepository, LevelRepository, InvoiceRepository } from "../database/repository.js";
+import { StudentRepository, AttendanceRepository, LevelRepository, InvoiceRepository, type Invoice } from "../database/repository.js";
 
 const router = Router();
 const pool = new Pool();
@@ -38,6 +38,11 @@ const studentColumnMeta: Record<string, ColumnMeta> = {
         type: "text",
         modificable: true
     },
+    nivel: {
+        label: "Nivel",
+        type: "text",
+        modificable: true
+    },
     responsable_de_pagos: {
         label: "Responsable de pagos",
         type: "text",
@@ -69,15 +74,17 @@ createAPICrud(router, invoiceRepo);
 router.post("/api/presentes", async (req, res) => {
     try {
         await attendanceRepo.create(req.body);
-        /*const student = studentRepo.getByDNI(req.body.dni);
-        if (student.modalidad == )
-
-        const invoiceData = {
-            "dni" : req.body.dni,
-            "fecha_de_emision" : new Date(),
-            "precio" : 
+        const student = await studentRepo.getByDNI(req.body.dni);
+        if (student.modalidad == "Eventual") {
+            const price = await levelRepo.getPrice(student.nivel);
+            const invoiceData: Invoice = {
+                "dni" : req.body.dni,
+                "fecha_de_emision" : new Date(),
+                "precio" : price,
+                "fecha_de_pago" : null
+            }
+            await invoiceRepo.create(invoiceData);
         }
-        await invoiceRepo.create();*/
         res.status(200).json({ ok: true });
     }
     catch (err) {

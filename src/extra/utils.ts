@@ -4,3 +4,10 @@ export function arraySameElements(arr1: any[], arr2: any[]): boolean {
     res &&= arr2.every(element => arr1.includes(element));
     return res;
 }
+
+export function accessAt<T>(arr: T[], index: number): T {
+    if (arr[index] == undefined) {
+        throw new Error(`Index ${index} is out of bounds for array ${arr}.`);
+    }
+    return arr[index];
+}
