@@ -3,11 +3,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import routes from "./routes/routes.js"; // Importamos el router con las rutas para nuestro servidor
 import session from 'express-session';
-import * as fs from 'fs';
-
-import type { User } from './login/auth.js';
-import type SessionData from 'express-session';
-import type { Request, Response, NextFunction } from "express";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,20 +36,3 @@ app.use(routes);
 app.listen(PORT, () => {
     console.log(`Example app listening on port http://localhost:${PORT}`);
 });
-
-declare module 'express-session' {
-    interface SessionData {
-        user?: User;
-    }
-}
-
-///////////////////////////
-
-// Página de login
-app.get('/app/login', (req, res) => {
-    if (req.session.user) {
-        return res.redirect('/');
-    }
-    res.render("login");
-});
-
