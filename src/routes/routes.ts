@@ -68,7 +68,12 @@ router.get("/app/alumnos", requireAuth, async (req, res) => {
         url += `?${queryString}`;
     }
 
-    const response = await fetch(url, { method : "GET" });
+    const response = await fetch(url, {
+        method : "GET",
+        headers: {
+            cookie: req.headers.cookie ?? '',
+        }
+    });
     const students = await response.json();
 
     res.render("manageStudents", { "students" : students, "studentColumnMeta" : studentColumnMeta });
