@@ -1,0 +1,17 @@
+/* Para el styling de elementos que querramos que todas las páginas compartan */
+:root {
+    --primary-color: #4a90e2;
+    --primary-color-hover: #357abd;
+
+    --secondary-color: #cbe2fd;
+    --secondary-color-hover: #97c8ff;
+
+    --accept-color: #00c700;
+    --accept-color-hover: #00b300;
+
+    --cancel-color: #c70000;
+    --cancel-color-hover: #b30000;
+
+    --text-dark-color:  #080d18;
+    --text-light-color: #f8fafc;
+}
