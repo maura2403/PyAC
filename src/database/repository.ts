@@ -107,7 +107,7 @@ export type StudentPK = Pick<Student, "dni">;
 
 export class StudentRepository extends Repository<Student, StudentPK> {
     public readonly primaryKeys: (keyof StudentPK)[] = ["dni"];
-    public readonly nonPrimaryKeys: (keyof Omit<Student, keyof StudentPK>)[] = ["nombre", "apellido", "curso", "modalidad", "responsable_de_pagos", "responsable1"];
+    public readonly nonPrimaryKeys: (keyof Omit<Student, keyof StudentPK>)[] = ["nombre", "apellido", "curso", "modalidad", "nivel", "responsable_de_pagos", "responsable1"];
     public readonly schema: string = "pyac";
     public readonly table: string = "alumnos";
 
