@@ -1,3 +1,4 @@
+import { requireAuthAPI } from "./middleware/auth.js"
 import type { Router } from "express";
 import type { Repository } from "./database/repository.js";
 
@@ -7,7 +8,7 @@ export async function createAPICrud<T extends PK, PK extends Record<string, any>
     const route: string = `/api/${repository.table}`;
 
     // Create
-    router.post(route, async (req, res) => {
+    router.post(route, requireAuthAPI, async (req, res) => {
         try {
             await repository.create(req.body as T);
             res.status(200).json({ ok: true });
@@ -18,7 +19,7 @@ export async function createAPICrud<T extends PK, PK extends Record<string, any>
         }
     });
     // Read
-    router.get(route, async (req, res) => {
+    router.get(route, requireAuthAPI, async (req, res) => {
         try {
             const rows = await repository.read(req.query as Partial<T>);
             res.status(200).json(rows);
@@ -29,7 +30,7 @@ export async function createAPICrud<T extends PK, PK extends Record<string, any>
         }
     });
     // Update
-    router.patch(`${route}`, async (req, res) => {
+    router.patch(route, requireAuthAPI, async (req, res) => {
         try {
             await repository.update(req.query as PK, req.body as T);
             res.status(200).json({ ok: true });
@@ -40,7 +41,7 @@ export async function createAPICrud<T extends PK, PK extends Record<string, any>
         }
     });
     // Delete
-    router.delete(`${route}`, async (req, res) => {
+    router.delete(route, requireAuthAPI, async (req, res) => {
         try {
             await repository.delete(req.query as PK);
             res.status(200).json({ ok: true });

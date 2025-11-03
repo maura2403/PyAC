@@ -14,14 +14,14 @@ th, td {
 }
 
 th {
-    background: #4a90e2;
-    color: white;
+    background: var(--primary-color);
+    color: var(--text-light-color);
     padding: 12px 15px;
     font-size: 1rem;
 }
 
 td {
-    color: #333333;
+    color: var(--text-dark-color);
     padding: 10px 15px;
     font-size: 0.95rem;
     border-bottom: 1px solid #dddddd;
@@ -60,37 +60,37 @@ table button {
 }
 
 button.edit {
-    background-color: #4a90e2;
+    background-color: var(--primary-color);
 }
 
 button.edit:hover {
-    background-color: #357abd;
+    background-color: var(--primary-color-hover);
 }
 
 button.confirm {
-    background-color:#00c700;
+    background-color: var(--accept-color);
 }
 
 button.confirm:hover {
-    background-color:#00b300;
+    background-color: var(--accept-color-hover);
 }
 
 button.delete {
-    background-color:#c70000;
+    background-color:var(--cancel-color);
 }
 
 button.delete:hover {
-    background-color:#b30000;
+    background-color:var(--cancel-color-hover);
 }
 
 button.add {
-    background-color: #4a90e2;
+    background-color: var(--primary-color);
     color: white;
     font-size: 1rem;
 }
 
 button.add:hover {
-    background-color: #357abd;
+    background-color: var(--primary-color-hover);
 }
 
 #add-student-row {
