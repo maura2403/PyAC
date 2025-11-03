@@ -16,9 +16,9 @@ const dbConfig: ClientConfig =
 
 
 export async function getDbClient(){
-    const clientDb = new Client (dbConfig);
+    const clientDb = new Client(dbConfig);
     await clientDb.connect();
     return clientDb;
 }
 
-export const poolDb = new Pool (dbConfig);
+export const poolDb = new Pool(dbConfig);
