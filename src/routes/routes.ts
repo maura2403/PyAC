@@ -65,7 +65,8 @@ const studentRepo = new StudentRepository(pool);
 createAPICrud(router, studentRepo);
 
 const attendanceRepo = new AttendanceRepository(pool);
-//createAPICrud(router, attendanceRepo);
+// No debería tener el CRUD completo. Temporal.
+createAPICrud(router, attendanceRepo);
 
 const levelRepo = new LevelRepository(pool);
 createAPICrud(router, levelRepo);
@@ -114,6 +115,37 @@ router.get("/app/alumnos", requireAuth, async (req, res) => {
     const students = await response.json();
 
     res.render("manageStudents", { "students" : students, "studentColumnMeta" : studentColumnMeta });
+});
+
+router.get("/app/presentes", requireAuth, (req, res) => {
+    const today = new Date().toISOString().split("T")[0];  // YYYY-MM-DD
+    res.redirect(`/app/presentes/${today}`);
+});
+
+router.get("/app/presentes/:fecha", requireAuth, async (req, res) => {
+    const { fecha } = req.params;
+    // TODO: Hacer refactor para evitar el hardcodeo de la query y pensar en donde debe estar la responsabilidad.
+    const query = `
+        SELECT 
+            a.dni,
+            a.apellido,
+            a.nombre,
+            a.curso,
+            a.modalidad,
+            a.nivel,
+            a.responsable1,
+            a.responsable2,
+            a.responsable_de_pagos,
+            p.fecha
+        FROM pyac.alumnos AS a
+        LEFT JOIN pyac.presentes AS p
+            ON a.dni = p.dni
+            AND p.fecha = $1
+        ORDER BY a.apellido, a.nombre;
+    `;
+
+    const students = (await pool.query(query, [fecha])).rows;
+    res.render("attendanceForm", { fecha, students, studentColumnMeta });
 });
 
 // Ruta GET principal
