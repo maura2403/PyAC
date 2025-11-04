@@ -115,6 +115,23 @@ export class StudentRepository extends Repository<Student, StudentPK> {
         const matchingStudents = await this.read({"dni" : dni});
         return accessAt(matchingStudents, 0);
     }
+
+    // Se podría intertar abstraer para poder utilizar la implementación de los filtros hechos en el read.
+    // Tiene los nombres dni, fecha, apellido, nombre hardcodeados.
+    public async getwithAttendance(fecha: string): Promise<(Student & { presente: boolean })[]>{
+        const query = `
+            SELECT 
+                a.*,
+                p.fecha
+            FROM ${this.schema}.alumnos AS a
+            LEFT JOIN ${this.schema}.presentes AS p
+                ON a.dni = p.dni AND p.fecha = $1
+            ORDER BY a.apellido, a.nombre;
+        `;
+        const items = await this.pool.query(query, [fecha]);
+        return items.rows;
+    }
+
 }
 
 export type Attendance = {

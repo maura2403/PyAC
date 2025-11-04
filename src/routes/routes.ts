@@ -74,6 +74,7 @@ createAPICrud(router, levelRepo);
 const invoiceRepo = new InvoiceRepository(pool);
 createAPICrud(router, invoiceRepo);
 
+/*
 // Create de presente
 router.post("/api/presentes", async (req, res) => {
     try {
@@ -96,6 +97,7 @@ router.post("/api/presentes", async (req, res) => {
         res.status(500).json({ ok: false, error: (err as Error).message });
     }
 });
+*/
 
 // Esto tambien lo podriamos generalizar para todos los Repositories.
 router.get("/app/alumnos", requireAuth, async (req, res) => {
@@ -123,28 +125,14 @@ router.get("/app/presentes", requireAuth, (req, res) => {
 });
 
 router.get("/app/presentes/:fecha", requireAuth, async (req, res) => {
-    const { fecha } = req.params;
-    // TODO: Hacer refactor para evitar el hardcodeo de la query y pensar en donde debe estar la responsabilidad.
-    const query = `
-        SELECT 
-            a.dni,
-            a.apellido,
-            a.nombre,
-            a.curso,
-            a.modalidad,
-            a.nivel,
-            a.responsable1,
-            a.responsable2,
-            a.responsable_de_pagos,
-            p.fecha
-        FROM pyac.alumnos AS a
-        LEFT JOIN pyac.presentes AS p
-            ON a.dni = p.dni
-            AND p.fecha = $1
-        ORDER BY a.apellido, a.nombre;
-    `;
+    const fecha = req.params.fecha;
+    // TODO: Revisar que efectivamente sea una fecha válida.
+    if (!fecha) {
+        res.status(400).json({ error: 'Requiere parametro fecha.' });
+        return;
+    }
 
-    const students = (await pool.query(query, [fecha])).rows;
+    const students = await studentRepo.getwithAttendance(fecha);
     res.render("attendanceForm", { fecha, students, studentColumnMeta });
 });
 
