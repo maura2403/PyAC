@@ -5,9 +5,9 @@ import { StudentRepository } from "../database/repository.js";
 import { requireAuth } from "../middleware/auth.js"
 import authApiRoutes from "./authApi.js";
 import authPagesRoutes from "./authPages.js";
+import { poolDb } from "../database/client.js";
 
 const router = Router();
-const pool = new Pool();
 
 interface ColumnMeta {
     label: string;
@@ -56,7 +56,7 @@ const studentColumnMeta: Record<string, ColumnMeta> = {
 // Tecnicamente createAPICrud podria ir adentro de Repository.
 // Hay que decidir si todos los Repositories van a tener un CRUD.
 // Por ahora quedan separados.
-const StudentRepo = new StudentRepository(pool);
+const StudentRepo = new StudentRepository(poolDb);
 createAPICrud(router, StudentRepo);
 
 // Esto tambien lo podriamos generalizar para todos los Repositories.
