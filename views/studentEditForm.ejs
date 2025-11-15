@@ -11,7 +11,7 @@
 </head>
 
 <h2>Editar Alumno</h2>
-<form method="POST" action="/api/alumnos/editar/<%= student.id_alumno %>">
+<form method="POST" action="/api/alumnos/editar/<%= student.dni %>">
     <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
         <%= meta.label + ':' %>
         <input

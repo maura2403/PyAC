@@ -28,7 +28,7 @@
             </td>
         </tr>
         <% for (const student of students) { %>
-        <tr data-id="<%=student.id_alumno%>">
+        <tr data-id="<%=student.dni%>">
             <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
                 <td data-key="<%=key%>"><%=student[key]%></td>
             <% } %>

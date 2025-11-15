@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Pool } from "pg";
 import { createAPICrud } from "../basicCrud.js"
-import { StudentRepository } from "../database/repository.js";
+import { StudentRepository, AttendanceRepository, LevelRepository, InvoiceRepository, type Invoice } from "../database/repository.js";
 import { requireAuth } from "../middleware/auth.js"
 import authApiRoutes from "./authApi.js";
 import authPagesRoutes from "./authPages.js";
@@ -16,7 +16,7 @@ interface ColumnMeta {
 }
 
 const studentColumnMeta: Record<string, ColumnMeta> = {
-    id_alumno: {
+    dni: {
         label: "DNI del alumno",
         type: "number",
         modificable: false
@@ -41,6 +41,11 @@ const studentColumnMeta: Record<string, ColumnMeta> = {
         type: "text",
         modificable: true
     },
+    nivel: {
+        label: "Nivel",
+        type: "text",
+        modificable: true
+    },
     responsable_de_pagos: {
         label: "Responsable de pagos",
         type: "text",
@@ -56,8 +61,40 @@ const studentColumnMeta: Record<string, ColumnMeta> = {
 // Tecnicamente createAPICrud podria ir adentro de Repository.
 // Hay que decidir si todos los Repositories van a tener un CRUD.
 // Por ahora quedan separados.
-const StudentRepo = new StudentRepository(poolDb);
-createAPICrud(router, StudentRepo);
+const studentRepo = new StudentRepository(pool);
+createAPICrud(router, studentRepo);
+
+const attendanceRepo = new AttendanceRepository(pool);
+//createAPICrud(router, attendanceRepo);
+
+const levelRepo = new LevelRepository(pool);
+createAPICrud(router, levelRepo);
+
+const invoiceRepo = new InvoiceRepository(pool);
+createAPICrud(router, invoiceRepo);
+
+// Create de presente
+router.post("/api/presentes", async (req, res) => {
+    try {
+        await attendanceRepo.create(req.body);
+        const student = await studentRepo.getByDNI(req.body.dni);
+        if (student.modalidad == "Eventual") {
+            const price = await levelRepo.getPrice(student.nivel);
+            const invoiceData: Invoice = {
+                "dni" : req.body.dni,
+                "fecha_de_emision" : new Date(),
+                "precio" : price,
+                "fecha_de_pago" : null
+            }
+            await invoiceRepo.create(invoiceData);
+        }
+        res.status(200).json({ ok: true });
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ ok: false, error: (err as Error).message });
+    }
+});
 
 // Esto tambien lo podriamos generalizar para todos los Repositories.
 router.get("/app/alumnos", requireAuth, async (req, res) => {

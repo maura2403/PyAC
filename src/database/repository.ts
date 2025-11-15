@@ -1,10 +1,10 @@
 import { Pool } from "pg";
-import { arraySameElements } from "../extra/utils.js";
+import { accessAt, arraySameElements } from "../extra/utils.js";
 
-export abstract class Repository {
-    public abstract readonly primaryKeys: string[];
-    public abstract readonly nonPrimaryKeys: string[];
-    public get allColumns(): string[] {
+export abstract class Repository<T extends PK, PK extends Record<string, any>> {
+    public abstract readonly primaryKeys: (keyof PK)[];
+    public abstract readonly nonPrimaryKeys: (keyof Omit<T, keyof PK>)[];
+    public get allColumns(): (keyof T)[] {
         return [...this.primaryKeys, ...this.nonPrimaryKeys];
     }
     public abstract readonly schema: string;
@@ -16,28 +16,28 @@ export abstract class Repository {
         this.pool = pool;
     }
 
-    private assertPrimaryKey(pk: Record<string, any>): void {
+    private assertPrimaryKey(pk: PK): void {
         const keys = Object.keys(pk);
         if (!arraySameElements(keys, this.primaryKeys)) {
             throw new Error(`The object ${JSON.stringify(pk)} isn't a valid PK for ${this.constructor.name}.`);
         }
     }
 
-    private assertFullObject(row: Record<string, any>): void {
+    private assertFullObject(row: T): void {
         const keys = Object.keys(row);
         if (!arraySameElements(keys, this.allColumns)) {
             throw new Error(`The object ${JSON.stringify(row)} isn't a valid Object for ${this.constructor.name}.`);
         }
     }
 
-    private assertFilter(filter: Record<string, any>) {
+    private assertFilter(filter: Partial<T>) {
         const keys = Object.keys(filter);
         if (keys.some(key => !this.allColumns.includes(key))) {
             throw new Error(`The object ${JSON.stringify(filter)} isn't a valid Filter for ${this.constructor.name}.`);
         }
     }
 
-    public async create(row: Record<string, any>): Promise<void> {
+    public async create(row: T): Promise<void> {
         this.assertFullObject(row);
 
         const placeholders = this.allColumns.map((_, i) => `$${i + 1}`).join(', ');
@@ -49,7 +49,7 @@ export abstract class Repository {
         await this.pool.query(query, values);
     }
 
-    public async read(filters: Record<string, any>): Promise<Record<string, any>[]> {
+    public async read(filters: Partial<T>): Promise<T[]> {
         this.assertFilter(filters);
 
         let query = `SELECT * FROM ${this.schema}.${this.table}`;
@@ -65,7 +65,7 @@ export abstract class Repository {
         return items.rows;
     }
 
-    public async update(originalPKs: Record<string, any>, row: Record<string, any>): Promise<void> {
+    public async update(originalPKs: PK, row: T): Promise<void> {
         this.assertPrimaryKey(originalPKs);
         this.assertFullObject(row);
 
@@ -79,7 +79,7 @@ export abstract class Repository {
         await this.pool.query(query, [...keyValues, ...allValues]);
     }
 
-    public async delete(originalPKs: Record<string, any>): Promise<void> {
+    public async delete(originalPKs: PK): Promise<void> {
         this.assertPrimaryKey(originalPKs);
 
         const primaryKeys = Object.keys(originalPKs);
@@ -92,21 +92,76 @@ export abstract class Repository {
     }
 }
 
-export class StudentRepository extends Repository {
-    public readonly primaryKeys: string[] = ["id_alumno"];
-    public readonly nonPrimaryKeys: string[] = ["nombre", "apellido", "curso", "modalidad", "responsable_de_pagos", "responsable1"];
+export type Student = {
+    "dni" : number,
+    "nombre" : string,
+    "apellido" : string,
+    "curso" : string,
+    "modalidad" : ("Eventual" | "Mensual" | "Fijo"),
+    "nivel" : ("Jardin" | "Primaria"),
+    "responsable_de_pagos" : string,
+    "responsable1" : string
+};
+
+export type StudentPK = Pick<Student, "dni">;
+
+export class StudentRepository extends Repository<Student, StudentPK> {
+    public readonly primaryKeys: (keyof StudentPK)[] = ["dni"];
+    public readonly nonPrimaryKeys: (keyof Omit<Student, keyof StudentPK>)[] = ["nombre", "apellido", "curso", "modalidad", "nivel", "responsable_de_pagos", "responsable1"];
     public readonly schema: string = "pyac";
     public readonly table: string = "alumnos";
 
-    // Ejemplo que no se usa. El punto es que podemos agregar lo que queramos en cada caso.
-    // Después lo conectamos a un endpoint y listo!
-    public async getSortedById(): Promise<Record<string, any>[]> {
-        const query = `
-            SELECT *
-            FROM ${this.schema}.${this.table}
-            ORDER BY ${this.primaryKeys}
-        `
-        const items = await this.pool.query(query);
-        return items.rows;
+    public async getByDNI(dni: number): Promise<Student> {
+        const matchingStudents = await this.read({"dni" : dni});
+        return accessAt(matchingStudents, 0);
     }
+}
+
+export type Attendance = {
+    "dni" : number,
+    "fecha" : Date
+};
+
+export type AttendancePK = Pick<Attendance, "dni" | "fecha">;
+
+export class AttendanceRepository extends Repository<Attendance, AttendancePK> {
+    public readonly primaryKeys: (keyof AttendancePK)[] = ["dni", "fecha"];
+    public readonly nonPrimaryKeys: (keyof Omit<Attendance, keyof AttendancePK>)[] = [];
+    public readonly schema: string = "pyac";
+    public readonly table: string = "presentes";
+}
+
+export type Level = {
+    "nivel" : ("Jardin" | "Primaria"),
+    "precio" : number
+};
+
+export type LevelPK = Pick<Level, "nivel">;
+
+export class LevelRepository extends Repository<Level, LevelPK> {
+    public readonly primaryKeys: (keyof LevelPK)[] = ["nivel"];
+    public readonly nonPrimaryKeys: (keyof Omit<Level, keyof LevelPK>)[] = ["precio"];
+    public readonly schema: string = "pyac";
+    public readonly table: string = "niveles";
+
+    public async getPrice(nivel: "Jardin" | "Primaria"): Promise<number> {
+        const matchingLevels = await this.read({"nivel" : nivel});
+        return accessAt(matchingLevels, 0).precio;
+    }
+}
+
+export type Invoice = {
+    "dni" : number,
+    "fecha_de_emision" : Date,
+    "precio" : number,
+    "fecha_de_pago" : Date | null
+};
+
+export type InvoicePK = Pick<Invoice, "dni" | "fecha_de_emision">;
+
+export class InvoiceRepository extends Repository<Invoice, InvoicePK> {
+    public readonly primaryKeys: (keyof InvoicePK)[] = ["dni", "fecha_de_emision"];
+    public readonly nonPrimaryKeys: (keyof Omit<Invoice, keyof InvoicePK>)[] = ["precio", "fecha_de_pago"];
+    public readonly schema: string = "pyac";
+    public readonly table: string = "facturas";
 }
