@@ -5,9 +5,9 @@ import { StudentRepository, AttendanceRepository, LevelRepository, InvoiceReposi
 import { requireAuth } from "../middleware/auth.js"
 import authApiRoutes from "./authApi.js";
 import authPagesRoutes from "./authPages.js";
+import { poolDb } from "../database/client.js";
 
 const router = Router();
-const pool = new Pool();
 
 interface ColumnMeta {
     label: string;
