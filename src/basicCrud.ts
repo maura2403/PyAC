@@ -51,4 +51,15 @@ export async function createAPICrud(router: Router, repository: Repository) {
             res.status(500).json({ ok: false, error: (err as Error).message });
         }
     });
+
+    // Metadata
+    router.get(`${route}/metadata`, requireAuthAPI, async(req, res) => {
+        try {
+            res.status(200).json(repository.frontData);
+        }
+        catch(err) {
+            console.error(err);
+            res.status(500).json({ ok: false, error: (err as Error).message });
+        }
+    })
 }

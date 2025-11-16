@@ -17,6 +17,17 @@ export class Model {
         return this.allColumns.filter(key => !this.columns[key]!.primaryKey);
     }
 
+    public get frontData(): Record<string, any> {
+        const entries = Object.entries(this.columns);
+        const res: Record<string, any> = {};
+
+        entries.forEach(([name, type]) => {
+            res[name] = type.frontData;
+        });
+
+        return res;
+    }
+
     constructor(columns: Record<string, DatabaseType>, modelSchema: string, modelTable: string) {
         this.schema = modelSchema;
         this.tableName = modelTable;
@@ -59,12 +70,15 @@ export class Model {
 }
 
 abstract class DatabaseType {
-    public readonly allowNull;
-    public readonly primaryKey;
+    public readonly allowNull: boolean;
+    public readonly primaryKey: boolean;
+    protected readonly frontLabel: string;
+    protected abstract readonly inputType: string;
 
-    constructor(allowNull: boolean = false, primaryKey: boolean = false) {
+    constructor(allowNull: boolean, primaryKey: boolean, label: string = '') {
         this.allowNull = allowNull;
         this.primaryKey = primaryKey;
+        this.frontLabel = label;
     }
 
     validate(value: any): boolean {
@@ -74,49 +88,68 @@ abstract class DatabaseType {
         return this.validateType(value);
     }
 
+    public get frontData(): Record<string, any> {
+        return {
+            "label" : this.frontLabel,
+            "type" : this.inputType
+        };
+    }
+
     protected abstract validateType(value: any): boolean;
 }
 
 export class StringType extends DatabaseType {
-    validateType(value: any) {
+    protected readonly inputType: string = "text";
+    protected validateType(value: any) {
         return typeof value == "string";
     }
 }
 
 export class IntegerType extends DatabaseType {
-    validateType(value: any) {
+    protected readonly inputType: string = "number";
+    protected validateType(value: any) {
         value = Number(value);
         return Number.isInteger(value);
     }
 }
 
 export class FloatType extends DatabaseType {
-    validateType(value: any) {
+    protected readonly inputType: string = "number";
+    protected validateType(value: any) {
         value = Number(value);
         return typeof value == "number";
     }
 }
 
 export class BooleanType extends DatabaseType {
-    validateType(value: any) {
+    protected readonly inputType: string = "checkbox";
+    protected validateType(value: any) {
         return typeof value == "boolean";
     }
 }
 
 export class DateType extends DatabaseType {
-    validateType(value: any) {
+    protected readonly inputType: string = "date";
+    protected validateType(value: any) {
         return value instanceof Date;
     }
 }
 
-export class ModalidadType extends DatabaseType {
-    validateType(value: any) {
-        return ["Eventual", "Mensual", "Fijo"].includes(value);
+export class EnumType extends DatabaseType {
+    protected readonly inputType: string = "enum";
+    protected readonly values: string[];
+    constructor(allowNull: boolean, primaryKey: boolean, values: string[], label: string = '') {
+        super(allowNull, primaryKey, label);
+        this.values = values;
     }
-}
 
-export class NivelType extends DatabaseType {
-    validateType(value: any) {
-        return ["Jardin", "Primaria"].includes(value);
+    protected validateType(value: any): boolean {
+        return this.values.includes(value);
+    }
+
+    public get frontData(): Record<string, any> {
+        const res = super.frontData;
+        res["values"] = this.values;
+        return res;
     }
 }

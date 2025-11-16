@@ -1,9 +1,12 @@
 import { Pool } from "pg";
-import { DateType, FloatType, IntegerType, ModalidadType, Model, NivelType, StringType } from "./model.js";
+import { DateType, EnumType, FloatType, IntegerType, Model, StringType } from "./model.js";
 
 export abstract class Repository {
     public get tableName(): string {
         return this.model.tableName;
+    }
+    public get frontData(): Record<string, any> {
+        return this.model.frontData;
     }
     protected abstract readonly model: Model;
     protected readonly pool: Pool;
@@ -66,14 +69,14 @@ export abstract class Repository {
 export class StudentRepository extends Repository {
     protected readonly model: Model = new Model(
         {
-            dni: new IntegerType(false, true),
-            nombre: new StringType(),
-            apellido: new StringType(),
-            curso: new StringType(),
-            modalidad: new ModalidadType(),
-            nivel: new NivelType(),
-            responsable_de_pagos: new StringType(),
-            responsable1: new StringType(true)
+            dni: new IntegerType(false, true, "DNI del alumno"),
+            nombre: new StringType(false, false, "Nombre"),
+            apellido: new StringType(false, false, "Apellido"),
+            curso: new StringType(false, false, "Curso"),
+            modalidad: new EnumType(false, false, ["Eventual", "Mensual", "Fijo"], "Modalidad"),
+            nivel: new EnumType(false, false, ["Jardin", "Primaria"], "Nivel"),
+            responsable_de_pagos: new StringType(false, false, "Responsable de pagos"),
+            responsable1: new StringType(true, false, "Responsable 1")
         },
         "Pyac",
         "Alumnos"
@@ -94,8 +97,8 @@ export class AttendanceRepository extends Repository {
 export class LevelRepository extends Repository {
     protected readonly model: Model = new Model(
         {
-            nivel: new NivelType(false, true),
-            precio: new FloatType()
+            nivel:  new EnumType(false, true, ["Jardin", "Primaria"]),
+            precio: new FloatType(false, false)
         },
         "Pyac",
         "Niveles"
@@ -112,8 +115,8 @@ export class InvoiceRepository extends Repository {
         {
             dni: new IntegerType(false, true),
             fecha_de_emision: new DateType(false, true),
-            precio: new FloatType(),
-            fecha_de_pago: new DateType(true)
+            precio: new FloatType(false, false),
+            fecha_de_pago: new DateType(true, false)
         },
         "Pyac",
         "Facturas"
