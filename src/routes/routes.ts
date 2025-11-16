@@ -4,7 +4,7 @@ import { requireAuth } from "../middleware/auth.js"
 import authApiRoutes from "./authApi.js";
 import authPagesRoutes from "./authPages.js";
 import { poolDb } from "../database/client.js";
-import { AttendanceRepository, DatabaseType, InvoiceRepository, LevelRepository, Model, StudentRepository } from "../database/repository.js";
+import { AttendanceRepository, InvoiceRepository, LevelRepository, StudentRepository } from "../database/repository.js";
 
 const router = Router();
 
@@ -56,46 +56,6 @@ const studentColumnMeta: Record<string, ColumnMeta> = {
         modificable: true
     },
 };
-
-const StudentModel = new Model(
-    {
-        dni: {
-            type: DatabaseType.INTEGER,
-            options: { primaryKey: true, allowNull: false }
-        },
-        nombre: {
-            type: DatabaseType.STRING,
-            options: { allowNull: false }
-        },
-        apellido: {
-            type: DatabaseType.STRING,
-            options: { allowNull: false }
-        },
-        curso: {
-            type: DatabaseType.STRING,
-            options: { allowNull: false }
-        },
-        modalidad: {
-            type: DatabaseType.MODALIDADES,
-            options: { allowNull: false }
-        },
-        nivel: {
-            type: DatabaseType.NIVELES,
-            options: { allowNull: false }
-        },
-        responsable_de_pagos: {
-            type: DatabaseType.STRING,
-            options: { allowNull: true }
-        },
-        responsable1: {
-            type: DatabaseType.STRING,
-            options: { allowNull: true }
-        }
-    },
-    "Pyac",
-    "Alumnos"
-);
-
 
 const studentRepo = new StudentRepository(poolDb);
 createAPICrud(router, studentRepo);
