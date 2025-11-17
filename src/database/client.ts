@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { Client, Pool } from "pg";
+import { Pool } from "pg";
 import type { ClientConfig } from "pg";
 
 
@@ -13,12 +13,5 @@ const dbConfig: ClientConfig =
             user: process.env.PGUSER,
             password: process.env.PGPASSWORD,
         };
-
-
-export async function getDbClient(){
-    const clientDb = new Client(dbConfig);
-    await clientDb.connect();
-    return clientDb;
-}
 
 export const poolDb = new Pool(dbConfig);

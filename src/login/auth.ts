@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { Client } from 'pg';
+import { Pool } from "pg";
 
 const SALT_ROUNDS = 10;
 
@@ -29,12 +29,12 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
  * Retorna el usuario si las credenciales son correctas, null en caso contrario
  */
 export async function autenticarUsuario(
-    client: Client,
+    pool: Pool,
     username: string,
     password: string
 ): Promise<User | null> {
     try {
-        const result = await client.query(
+        const result = await pool.query(
             'SELECT id, username, password_hash, nombre, email FROM pyac.usuarios WHERE username = $1',
             [username]
         );
@@ -77,7 +77,7 @@ export async function autenticarUsuario(
  * Crea un nuevo usuario
  */
 export async function crearUsuario(
-    client: Client,
+    pool: Pool,
     username: string,
     password: string,
     nombre?: string,
@@ -86,7 +86,7 @@ export async function crearUsuario(
     try {
         const passwordHash = await hashPassword(password);
 
-        const result = await client.query(
+        const result = await pool.query(
             `INSERT INTO pyac.usuarios (username, password_hash, nombre, email)
              VALUES ($1, $2, $3, $4)
              RETURNING id, username, nombre, email`,
@@ -104,14 +104,14 @@ export async function crearUsuario(
  * Cambia la contraseña de un usuario
  */
 export async function cambiarPassword(
-    client: Client,
+    pool: Pool,
     userId: number,
     newPassword: string
 ): Promise<boolean> {
     try {
         const passwordHash = await hashPassword(newPassword);
 
-        await client.query(
+        await pool.query(
             'UPDATE pyac.usuarios SET password_hash = $1 WHERE id = $2',
             [passwordHash, userId]
         );
