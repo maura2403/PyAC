@@ -26,7 +26,7 @@ async function addNewStudent() {
         const key = td.dataset.key;
         if (!key) { return; }
         const input = td.querySelector("input");
-        newData[key] = input.value;
+        newData[key] = input.value === "" ? null : input.value;
     });
 
     row.querySelectorAll("input").forEach(input => {
@@ -82,7 +82,7 @@ async function confirmEdit(confirmButton) {
         const key = td.dataset.key;
         if (!key) { return; }
         const input = td.querySelector("input");
-        updatedData[key] = input.value;
+        updatedData[key] = input.value === "" ? null : input.value;
     });
 
     const response = await fetch(`/api/alumnos/?dni=${id}`, {

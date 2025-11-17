@@ -13,13 +13,13 @@
 <body>
     <table>
         <tr>
-            <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
+            <% for (const [key, meta] of Object.entries(metadata)) { %>
             <th><%= meta.label %></th>
             <% } %>
             <th><button class="add" onclick="startAddingStudent()">+</button></th>
         </tr>
         <tr id="add-student-row">
-            <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
+            <% for (const [key, meta] of Object.entries(metadata)) { %>
             <td data-key="<%=key%>"><input type="text"></td>
             <% } %>
             <td>
@@ -29,7 +29,7 @@
         </tr>
         <% for (const student of students) { %>
         <tr data-id="<%=student.dni%>">
-            <% for (const [key, meta] of Object.entries(studentColumnMeta)) { %>
+            <% for (const [key, meta] of Object.entries(metadata)) { %>
                 <td data-key="<%=key%>"><%=student[key]%></td>
             <% } %>
             <td>
