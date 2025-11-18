@@ -12,20 +12,16 @@
 </head>
 
 <body>
-    <header >
+    <%- include('partials/nav') %>
+
+    <header>
         <h1>Presente y A Comer!</h1>
-        <!-- <img src="/img/logoInstituto.png" alt="logoInstituto"> -->
-        <!-- <a href="/about" class="btn btn-primary w-25" style="margin-bottom:1%">Acerca del Sistema</a> -->
     </header>
 
     <main>
-        <div class="button-container">
-            <a href="/app/alumnos" class="btn">Ver listado de Alumnos (CRUD)</a>
-            <a href="/app/v0/archivo" class="btn">Cargar desde CSV</a>
-            <a href="/app/asistencia" class="btn">Tomar Presente</a>
-            <a href="/about" class="btn">Sobre el Sistema</a>
-        </div>
+        <div class="about-us">Sistema de toma de Asistencia para un comedor de colegio...</div>
     </main>
     <%- include('partials/footer') %>
+    <script src="/js/nav.js"></script>
 </body>
 </html>
