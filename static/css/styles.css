@@ -37,7 +37,7 @@ body{
 
 main{
     flex: 1;
-    padding: 4rem;
+    padding: 2rem 0;
 }
 
 footer{
@@ -58,6 +58,7 @@ nav {
   align-items: stretch;
   height: 4rem;
   position: relative;
+  z-index:10;
 }
 
 .logo {
@@ -140,4 +141,81 @@ nav {
     nav.open .nav-links a:hover {
         background-color: var(--primary-color-dark);
     }
+}
+
+
+/* Table Layout */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto; /* scroll horizontal*/
+  display: flex;
+}
+
+table {
+  width: 80%;
+  border-collapse: collapse;
+  margin: 0.5rem auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-width: 40rem;
+  text-align: center;
+}
+
+th {
+    background: var(--primary-color);
+    color: var(--text-light-color);
+    padding: 0.5rem 0;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+td {
+    color: var(--text-dark-color);
+    padding: 0.5rem 0.5rem;
+    font-size: 0.95rem;
+    border-top: 1px solid var(--text-mid-color);
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+table tr:nth-child(even) td {
+    background-color: #f0f0f0;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  table, thead, tbody, tr, td, th {
+    display: block;
+    width: 100%;
+    overflow-x: hidden;
+    min-width: unset;
+  }
+
+
+  thead {
+    display: none;
+  }
+
+  tr {
+    background: #fff;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+  }
+
+  td {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 0.5rem;
+    border: none;
+  }
+
+  td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    text-align: left;
+    flex: 0 0 45%;
+  }
 }
