@@ -25,4 +25,4 @@ jobs:
         steps:
           - name: Disparar deploy (GET)
             run: |
-                curl "${{ secrets.URL_DEPLOYMENT }}"
+                curl "${{ secrets.RENDER_TOKEN }}"
