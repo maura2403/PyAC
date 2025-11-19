@@ -1,0 +1,28 @@
+name: MiSegundoWorkflow
+on:
+    push:
+        branches:
+          - '*' # cualquier branch
+    pull_request:
+        branches:
+          - '*' # opcional, por si querés que también funcione en PR
+
+jobs:
+    job1:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v4
+          - name: Step del Job 1
+            run: echo "Este es el Job 1"
+    job2:
+        needs: job1
+        if: |
+            github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        environment:
+            name: DEPLOYMENT
+        steps:
+          - name: Disparar deploy (GET)
+            run: |
+                curl "${{ secrets.URL_DEPLOYMENT }}"

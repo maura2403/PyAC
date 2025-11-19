@@ -1,0 +1,16 @@
+name: MiPrimerWorkflow
+
+on:
+    push:
+        branches:
+          - '*' # cualquier branch
+jobs:
+    saludo:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Descargar el repositorio
+            uses: actions/checkout@v4
+          - name: Saludar por consola
+            run: echo "Hola! Este es mi primer pipeline"
+          - name: Mostrar archivos del proyecto
+            run: ls -la
