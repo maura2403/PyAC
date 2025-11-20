@@ -1,3 +1,8 @@
+/*
+DROP USER IF EXISTS pyac_owner;
+DROP USER IF EXISTS pyac_admin;
+*/
+
 create user pyac_owner nologin;
 create user pyac_admin password 'cambiar_esta_clave';
 

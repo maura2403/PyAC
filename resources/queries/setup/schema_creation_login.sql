@@ -1,10 +1,10 @@
-CREATE TABLE pyac.usuarios (
-    id SERIAL PRIMARY KEY,
-    username TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
-    nombre TEXT,
-    email TEXT
-);
 
-grant select, insert, update, delete on pyac.usuarios to pyac_admin;
-grant usage, select on all sequences in schema pyac to pyac_admin;
+
+CREATE TABLE IF NOT EXISTS pyac.usuario(
+    idUsuario INT PRIMARY KEY,
+    nombre VARCHAR(120),
+    usuario VARCHAR(120),
+    email VARCHAR(120),
+    passHash VARCHAR(250)
+);
+GRANT SELECT, INSERT, UPDATE, DELETE ON pyac.usuario TO pyac_admin;
