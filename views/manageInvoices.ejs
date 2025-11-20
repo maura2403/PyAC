@@ -1,0 +1,9 @@
+<!-- Recibe metadata y invoices como datos-->
+<!DOCTYPE html>
+<html lang="es">
+<% const title = "Gestión de Facturas Impagas - Tabla de Facturas"; %>
+<% const cssRoute = "/css/pages/manageStudents.css"; %>
+<% const idCampo = "dni"; %>
+
+<%- include("manageCRUDdata", { title: title, cssRoute: cssRoute, iterableData: students, idCampo: idCampo, metadata: metadata,
+c: false, r: true, u:true, d:false}) %>

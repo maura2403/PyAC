@@ -15,42 +15,52 @@ interface ColumnMeta {
 }
 
 const studentRepo = new StudentRepository(poolDb);
-createAPICrud(router, studentRepo);
+createAPICrud(router, studentRepo, true, true, true, true); // Creamos el CRUD con funcionalidad completa
 
 const attendanceRepo = new AttendanceRepository(poolDb);
 
 const levelRepo = new LevelRepository(poolDb);
 
 const invoiceRepo = new InvoiceRepository(poolDb);
+createAPICrud(router, invoiceRepo, false, true, true, false); // De las facturas vamos a querer verlas y editarlas. La edición es limitada a los campos a rellenar al pagarlas. 
 
-router.get("/app/alumnos", requireAuth, async (req, res) => {
-    const queryParams = req.query;
-    let queryString = Object.keys(queryParams).map(key => `${key}=${queryParams[key]}`).join('&');
-    const url = 'http://localhost:3000/api/alumnos';
-    if (queryString !== '') {
-        queryString = `?${queryString}`;
-    }
-
-    // Fetch students
-    const studentsResponse = await fetch(`${url}${queryString}`, {
-        method : "GET",
-        headers: {
-            cookie: req.headers.cookie ?? '',
+function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName: string, iterableDataName: string){
+    router.get(`/app/${specificRoute}`, requireAuth, async (req, res) => {
+        const queryParams = req.query;
+        let queryString = Object.keys(queryParams).map(key => `${key}=${queryParams[key]}`).join('&');
+        const url = `http://localhost:3000/api/${specificRoute}`;
+        if (queryString !== '') {
+            queryString = `?${queryString}`;
         }
-    });
-    const students = await studentsResponse.json();
 
-    // Fetch metadata
-    const metadataResponse = await fetch(`${url}/metadata`, {
-        method : "GET",
-        headers: {
-            cookie: req.headers.cookie ?? '',
-        }
-    });
-    const metadata = await metadataResponse.json();
 
-    res.render("manageStudents", { "students" : students, "metadata" : metadata });
-});
+        // Fetch data
+        const response = await fetch(`${url}${queryString}`, {
+            method : "GET",
+            headers: {
+                cookie: req.headers.cookie ?? '',
+            }
+        });
+        const students = await response.json();
+
+        // Fetch metadata
+        const metadataResponse = await fetch(`${url}/metadata`, {
+            method : "GET",
+            headers: {
+                cookie: req.headers.cookie ?? '',
+            }
+        });
+        const metadata = await metadataResponse.json();
+
+        res.render(templateFrontEndName, { iterableDataName : students, "metadata" : metadata });
+    });
+
+}
+
+createMainRouteForBasicCRUD("alumnos", "manageStudents", "students");
+createMainRouteForBasicCRUD("facturas", "manageInvoices", "invoices");
+
+
 
 // Ruta GET principal
 router.get("/", (_, res) => {

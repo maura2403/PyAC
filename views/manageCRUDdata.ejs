@@ -1,0 +1,72 @@
+<!-- Se usa para el formato generico de CRUD. Requiere recibir las variables:
+ title -> El título del documento
+ c,r,u,d -> Booleanos que indican que funcionalidades implementa la pantalla
+ metadata -> Metadatos del iterable
+ data -> Algún iterable, como students
+ cssRoute -> Path del css a usar
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title><%=title%></title>
+    <link rel="stylesheet" href= <%= cssRoute %> >
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <table>
+        <tr>
+            <% for (const [key, meta] of Object.entries(metadata)) { %>
+            <th><%= meta.label %></th>
+            <% } %>
+            <% if (c === true) { %>
+            <th><button class="add" onclick="startAdding()">+</button></th>
+            <% } %>
+        </tr>
+        <tr id="add-row">
+            <% for (const [key, meta] of Object.entries(metadata)) { %>
+            <td data-key="<%=key%>"><input type="text"></td>
+            <% } %>
+            <% if (c === true) { %>
+            <td>
+                <button class="confirm" onclick="addNew()"></button>
+                <button class="delete" onclick="cancelAdding()"></button>
+            </td>
+            <% } %>
+        </tr>
+        <% for (const element of iterableData) { %>
+        <tr data-id="<%=element[idCampo]%>">
+            <% for (const [key, meta] of Object.entries(metadata)) { %>
+                <td data-key="<%=key%>"><%=element[key]%></td>
+            <% } %>
+            
+            <% if (u === true || d === true) { %>
+            <td>
+                
+                <% if (u === true) { %>
+                <button class="edit" onclick="startEditing(this)"></button>
+                <% } %>
+                
+                <% if (d === true) { %>
+                <button class="delete" onclick="deleteRow(this)"></button>
+                <% } %>
+            </td>
+            <% } %>
+        </tr>
+        <% } %>
+    </table>
+</body>
+
+
+<% if (c === true) { %>
+<script src="/js/createInCRUD.js"></script>
+<% } %>
+
+<% if (u === true) { %>
+<script src="/js/updateInCRUD.js"></script>
+<% } %>
+
+<% if (d === true) { %>
+<script src="/js/deleteInCRUD.js"></script>
+<% } %>

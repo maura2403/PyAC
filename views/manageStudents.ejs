@@ -1,43 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
+<% const title = "Gestión de Alumnos - Tabla de alumnos"; %>
+<% const cssRoute = "/css/pages/manageStudents.css"; %>
+<% const scriptJS = "/js/manageStudents.js";%>
+<% const idCampo = "dni"; %>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Gestión de Alumnos - Tabla de alumnos</title>
-    <link rel="stylesheet" href="/css/pages/manageStudents.css">
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-<body>
-    <table>
-        <tr>
-            <% for (const [key, meta] of Object.entries(metadata)) { %>
-            <th><%= meta.label %></th>
-            <% } %>
-            <th><button class="add" onclick="startAddingStudent()">+</button></th>
-        </tr>
-        <tr id="add-student-row">
-            <% for (const [key, meta] of Object.entries(metadata)) { %>
-            <td data-key="<%=key%>"><input type="text"></td>
-            <% } %>
-            <td>
-                <button class="confirm" onclick="addNewStudent()"></button>
-                <button class="delete" onclick="cancelAddingStudent()"></button>
-            </td>
-        </tr>
-        <% for (const student of students) { %>
-        <tr data-id="<%=student.dni%>">
-            <% for (const [key, meta] of Object.entries(metadata)) { %>
-                <td data-key="<%=key%>"><%=student[key]%></td>
-            <% } %>
-            <td>
-                <button class="edit" onclick="startEditingStudent(this)"></button>
-                <button class="delete" onclick="deleteStudent(this)"></button>
-            </td>
-        </tr>
-        <% } %>
-    </table>
-</body>
-<script src="/js/manageStudents.js"></script>
+<%- include("manageCRUDdata", { title: title, cssRoute: cssRoute, scriptJS: scriptJS, iterableData: students, idCampo: idCampo}) %>

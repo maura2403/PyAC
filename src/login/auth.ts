@@ -21,6 +21,8 @@ export async function hashPassword(password: string): Promise<string> {
  * Verifica una contraseña contra su hash
  */
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+    console.log(password);
+    console.log(hash);
     return await bcrypt.compare(password, hash);
 }
 
@@ -34,11 +36,14 @@ export async function autenticarUsuario(
     password: string
 ): Promise<User | null> {
     try {
+        console.log("PEPE1");
+        console.log(typeof(password));
         const result = await pool.query(
-            'SELECT id, username, password_hash, nombre, email FROM pyac.usuarios WHERE username = $1',
+            'SELECT idusuario, usuario, passhash, nombre, email FROM pyac.usuario WHERE usuario = $1',
             [username]
         );
 
+        console.log("PEPE2");
         if (result.rows.length === 0) {
             return null;
         }
@@ -48,7 +53,8 @@ export async function autenticarUsuario(
         /*if (!user.activo) {
             return null;
         }*/
-
+        console.log("TIPOS", typeof(password));
+        console.log(typeof(user.password_hash));
         const passwordValida = await verifyPassword(password, user.password_hash);
 
         if (!passwordValida) {
