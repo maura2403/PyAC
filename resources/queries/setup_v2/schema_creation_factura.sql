@@ -6,9 +6,14 @@ CREATE TABLE IF NOT EXISTS pyac.factura (
     dni INT NOT NULL,
     fechaEmision DATE NOT NULL,
     esMensual BOOLEAN NOT NULL,
-    monto FLOAT NOT NULL,
+    montoEmitido FLOAT NOT NULL,
+    modalidadAplicable VARCHAR(120),
+    nivelAplicable VARCHAR(120),
+    cursoAplicable VARCHAR(120),
     pagado BOOLEAN NOT NULL DEFAULT FALSE,
     fechaPago DATE,
+    montoPagado FLOAT,
+    descuentoAplicado FLOAT NOT NULL,
     PRIMARY KEY (dni, fechaEmision, esMensual),
     FOREIGN KEY (dni, fechaEmision) REFERENCES pyac.asistencia(dni, fecha)
 );
