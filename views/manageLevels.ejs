@@ -1,0 +1,14 @@
+<!-- Recibe metadata, levels como datos-->
+ <!DOCTYPE html>
+<% const title = "Gestión de Niveles - Tabla de Niveles"; %>
+<% const cssRoute = "/css/pages/manageCRUD.css"; %>
+<html lang="es">
+<head>
+    <%- include("headCRUDdata", {title: title, cssRoute: cssRoute}) %>
+</head>
+<body>
+    <%- include("bodyCRUDdata", { iterableData: levels, metadata: metadata,
+        c: true, r: true, u: true, d: true, route: '/factura', primaryKeys: ['nivel']}) %>
+</body>
+
+

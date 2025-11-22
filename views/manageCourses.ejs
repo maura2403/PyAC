@@ -1,0 +1,14 @@
+<!-- Recibe metadata y courses como datos-->
+ <!DOCTYPE html>
+<% const title = "Gestión de Cursos - Tabla de Cursos"; %>
+<% const cssRoute = "/css/pages/manageCRUD.css"; %>
+<html lang="es">
+<head>
+    <%- include("headCRUDdata", {title: title, cssRoute: cssRoute}) %>
+</head>
+<body>
+    <%- include("bodyCRUDdata", { iterableData: courses, metadata: metadata,
+        c: true, r: true, u:true, d:true, route: '/factura', primaryKeys: ['curso']}) %>
+</body>
+
+

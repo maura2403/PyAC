@@ -95,7 +95,7 @@ export class AttendanceRepository extends Repository {
 export class LevelRepository extends Repository {
     protected readonly model: Model = new Model(
         {
-            nivel:  new EnumType(false, true, ["Jardin", "Primaria"]),
+            nivel:  new EnumType(false, true, ["Jardin", "Primaria"], "Nivel"),
             preciodiario: new FloatType(false, false)
         },
         "pyac",
@@ -120,5 +120,41 @@ export class InvoiceRepository extends Repository {
         },
         "pyac",
         "factura"
+    );
+}
+
+export class ModalityRepository extends Repository {
+    protected readonly model: Model = new Model(
+        {
+            modalidad: new EnumType(false, true, ["Eventual", "Fijo", "Mensual"], "Modalidad"),
+            descuento: new FloatType(false, false, "Descuento")
+        },
+        "pyac",
+        "modalidad"
+    );
+}
+
+export class UserRepository extends Repository {
+    protected readonly model: Model = new Model(
+        {
+            idusuario: new IntegerType(false, true, "idUsuario"),
+            nombre: new StringType(true, false, "Nombre"),
+            usuario: new StringType(false, false, "Username"),
+            email: new StringType(true, false, "Email"),
+            passhash: new StringType(false, false, "Hashed Password")
+        },
+        "pyac",
+        "usuario"
+    );
+}
+
+export class CourseRepository extends Repository {
+    protected readonly model: Model = new Model(
+        {
+            curso: new StringType(false, true, "Curso"),
+            nivel: new StringType(false, false, "Nivel")
+        },
+        "pyac",
+        "curso"
     );
 }

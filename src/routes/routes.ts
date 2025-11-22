@@ -4,7 +4,7 @@ import { requireAuth } from "../middleware/auth.js"
 import authApiRoutes from "./authApi.js";
 import authPagesRoutes from "./authPages.js";
 import { poolDb } from "../database/client.js";
-import { AttendanceRepository, InvoiceRepository, LevelRepository, StudentRepository } from "../database/repository.js";
+import { AttendanceRepository, InvoiceRepository, LevelRepository, StudentRepository, ModalityRepository, CourseRepository, UserRepository} from "../database/repository.js";
 
 const router = Router();
 
@@ -20,9 +20,20 @@ createAPICrud(router, studentRepo, true, true, true, true); // Creamos el CRUD c
 const attendanceRepo = new AttendanceRepository(poolDb);
 
 const levelRepo = new LevelRepository(poolDb);
+createAPICrud(router, levelRepo, true, true, true, true); // Creamos el CRUD con funcionalidad completa para Niveles
 
 const invoiceRepo = new InvoiceRepository(poolDb);
 createAPICrud(router, invoiceRepo, false, true, true, false); // De las facturas vamos a querer verlas y editarlas. La edición es limitada a los campos a rellenar al pagarlas. 
+
+const modalityRepo = new ModalityRepository(poolDb);
+createAPICrud(router, modalityRepo, false, true, true, false);
+
+const userRepo = new UserRepository(poolDb);
+createAPICrud(router, userRepo, false, true, true, false);
+
+const courseRepo = new CourseRepository(poolDb);
+createAPICrud(router, courseRepo, false, true, true, false);
+
 
 function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName: string, iterableDataName: string, campoPK: string){
     router.get(`/app/${specificRoute}`, requireAuth, async (req, res) => {
@@ -59,6 +70,10 @@ function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName
 
 createMainRouteForBasicCRUD("alumno", "manageStudents", "students", "dni");
 createMainRouteForBasicCRUD("factura", "manageInvoices", "invoices", "dni");
+createMainRouteForBasicCRUD("curso", "manageCourses", "courses", "curso");
+createMainRouteForBasicCRUD("nivel", "manageLevels", "levels", "nivel");
+createMainRouteForBasicCRUD("modalidad", "manageModalities", "modalities", "modalidad");
+createMainRouteForBasicCRUD("usuario", "manageUsers", "users", "idusuario");
 
 
 
