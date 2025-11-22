@@ -26,13 +26,13 @@ const invoiceRepo = new InvoiceRepository(poolDb);
 createAPICrud(router, invoiceRepo, false, true, true, false); // De las facturas vamos a querer verlas y editarlas. La edición es limitada a los campos a rellenar al pagarlas. 
 
 const modalityRepo = new ModalityRepository(poolDb);
-createAPICrud(router, modalityRepo, false, true, true, false);
+createAPICrud(router, modalityRepo, true, true, true, true);
 
 const userRepo = new UserRepository(poolDb);
-createAPICrud(router, userRepo, false, true, true, false);
+createAPICrud(router, userRepo, true, true, true, true);
 
 const courseRepo = new CourseRepository(poolDb);
-createAPICrud(router, courseRepo, false, true, true, false);
+createAPICrud(router, courseRepo, true, true, true, true);
 
 
 function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName: string, iterableDataName: string, campoPK: string){

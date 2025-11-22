@@ -6,7 +6,7 @@ import type { Repository } from "./database/repository.js";
 // req.query: Parametros para filtrar (en el filtros en el READ o PKs en UPDATE y DELETE)
 export async function createAPICrud(router: Router, repository: Repository, c: boolean, r: boolean, u:boolean, d:boolean) {
     const route: string = `/api/${repository.tableName}`;
-
+    
     // Creamos las rutas dependiendo de que funcionalidades se piden (bits C,R,U,D)
     // Create
     if(c) {

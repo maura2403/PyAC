@@ -31,9 +31,18 @@ export abstract class Repository {
         let query = `SELECT * FROM ${this.model.schema}.${this.model.tableName}`;
         const filterKeys = Object.keys(filters);
 
+        // Condiciones de filtro específicas
         if (filterKeys.length > 0) {
             const placeholders = filterKeys.map((key, i) => `${key} = $${i + 1}`).join(' AND ');
             query += ` WHERE ${placeholders}`;
+        }
+
+        if(this.model.allColumns.includes('activo')){
+            if(filterKeys.length > 0){ // Ya hay un WHERE
+            query+= ` AND activo = TRUE`;
+            } else {
+            query+= ` WHERE activo = TRUE`; // No había where, esta es la única condición de filtro.    
+            }
         }
 
         const values = filterKeys.map(key => filters[key]);
@@ -57,11 +66,24 @@ export abstract class Repository {
     public async delete(originalPKs: Record<string, any>): Promise<void> {
         this.model.assertPrimaryKey(originalPKs);
         const primaryKeys = Object.keys(originalPKs);
-        const query = `
+
+        // Miramos si la tabla tiene la columna 'activo' para saber si tenemos que hacer un borrado lógico o físico
+        const logicalDelete = this.model.allColumns.includes('activo'); // Si tiene activo, entonces hacemos borrado lógico
+        let query: string;
+        const values = primaryKeys.map(key => originalPKs[key]);
+        
+        if(logicalDelete) {
+            query = `
+            UPDATE ${this.model.schema}.${this.model.tableName}
+            SET activo = FALSE
+            WHERE ${primaryKeys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')}
+            `;
+        } else { // Si no tiene activo, entonces hacemos borrado físico
+            query = `
             DELETE FROM ${this.model.schema}.${this.model.tableName}
             WHERE ${primaryKeys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')}
-        `
-        const values = primaryKeys.map(key => originalPKs[key]);
+            `;
+        }
         await this.pool.query(query, values);
     }
 }
@@ -75,6 +97,7 @@ export class StudentRepository extends Repository {
             cursoactual: new StringType(false, false, "Curso"),
             modalidadactual: new EnumType(false, false, ["Eventual", "Mensual", "Fijo"], "Modalidad"),
             cuitresppagos: new StringType(false, false, "CUIT de Responsable de pagos"),
+            activo: new BooleanType(false, false, "activo")
         },
         "pyac",
         "alumno"
@@ -96,7 +119,8 @@ export class LevelRepository extends Repository {
     protected readonly model: Model = new Model(
         {
             nivel:  new EnumType(false, true, ["Jardin", "Primaria"], "Nivel"),
-            preciodiario: new FloatType(false, false)
+            preciodiario: new FloatType(false, false, "Precio Diario Base"),
+            activo: new BooleanType(false, false, "activo")
         },
         "pyac",
         "nivel"
@@ -104,7 +128,7 @@ export class LevelRepository extends Repository {
 
     public async getPrice(nivel: "Jardin" | "Primaria"): Promise<number> {
         const rows = await this.read({ nivel : nivel });
-        return rows[0]!.precio;
+        return rows[0]!.preciodiario;
     }
 }
 
@@ -127,7 +151,8 @@ export class ModalityRepository extends Repository {
     protected readonly model: Model = new Model(
         {
             modalidad: new EnumType(false, true, ["Eventual", "Fijo", "Mensual"], "Modalidad"),
-            descuento: new FloatType(false, false, "Descuento")
+            descuento: new FloatType(false, false, "Descuento"),
+            activo: new BooleanType(false, false, "activo")
         },
         "pyac",
         "modalidad"
@@ -152,7 +177,8 @@ export class CourseRepository extends Repository {
     protected readonly model: Model = new Model(
         {
             curso: new StringType(false, true, "Curso"),
-            nivel: new StringType(false, false, "Nivel")
+            nivel: new StringType(false, false, "Nivel"),
+            activo: new BooleanType(false, false, "activo")
         },
         "pyac",
         "curso"

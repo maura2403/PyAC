@@ -27,7 +27,8 @@ GRANT ALL PRIVILEGES ON TABLES TO pyac_admin;
 -- Tabla Nivel
 CREATE TABLE IF NOT EXISTS pyac.nivel (
     nivel VARCHAR(120) PRIMARY KEY,
-    precioDiario NUMERIC NOT NULL
+    precioDiario NUMERIC NOT NULL,
+    activo BOOLEAN -- Campo que se usa para borrado lógico. Activo = 1 significa no borrado.
 );
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON pyac.nivel TO pyac_admin;
@@ -37,6 +38,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON pyac.nivel TO pyac_admin;
 CREATE TABLE IF NOT EXISTS pyac.curso (
     curso VARCHAR(120) PRIMARY KEY,
     nivel VARCHAR(120) NOT NULL,
+    activo BOOLEAN, -- Campo que se usa para borrado lógico. Activo = 1 significa no borrado.
     FOREIGN KEY (nivel) REFERENCES pyac.nivel(nivel)
 );
 
@@ -45,7 +47,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON pyac.curso TO pyac_admin;
 -- Tabla Modalidad
 CREATE TABLE IF NOT EXISTS pyac.modalidad (
     modalidad varchar(120) PRIMARY KEY, -- Eventual, Fijo, Mensual
-    descuento NUMERIC NOT NULL -- Eventual: 1, Mensual: 0.8, Fijo: 0.9
+    descuento NUMERIC NOT NULL, -- Eventual: 1, Mensual: 0.8, Fijo: 0.9
+    activo BOOLEAN -- Campo que se usa para borrado lógico. Activo = 1 significa no borrado.
 );
 GRANT SELECT, INSERT, UPDATE, DELETE ON pyac.modalidad TO pyac_admin;
 
@@ -58,6 +61,7 @@ CREATE TABLE IF NOT EXISTS pyac.alumno (
     cursoActual VARCHAR(120),
     modalidadActual VARCHAR(120),
     CUITRespPagos varchar(120), -- Cuit del responsable de pagos del alumno
+    activo BOOLEAN, -- Campo que se usa para borrado lógico. Activo = 1 significa no borrado.
     FOREIGN KEY (modalidadActual) REFERENCES pyac.modalidad(modalidad),
     FOREIGN KEY (cursoActual) REFERENCES pyac.curso(curso)
 );

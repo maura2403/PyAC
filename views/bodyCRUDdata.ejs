@@ -4,9 +4,13 @@
  data -> Algún iterable, como students
  postRoute -> Una ruta para hacer post al añadir un elemento (sin /api). Por ejemplo /alumno
 -->
+ 
+<a href="/" class="btn">Regresar al Menú Principal</a>
     <table>
         <tr>
-            <% for (const [key, meta] of Object.entries(metadata)) { %>
+            <% for (const [key, meta] of Object.entries(metadata)) {
+            if(key === 'activo') continue; // Salteamos la columna activo (si hubiese)
+            %>
             <th><%= meta.label %></th>
             <% } %>
             <th>
@@ -19,7 +23,9 @@
             </th>
         </tr>
         <tr id="add-row">
-            <% for (const [key, meta] of Object.entries(metadata)) { %>
+            <% for (const [key, meta] of Object.entries(metadata)) { 
+                if (key === 'activo') continue;    
+            %>
             <td data-key="<%=key%>"><input type="text"></td>
             <% } %>
             <% if (c === true) { %>
@@ -31,7 +37,9 @@
         </tr>
         <% for (const element of iterableData) { %>
         <tr data-id="<%=element[idCampo]%>">
-            <% for (const [key, meta] of Object.entries(metadata)) { %>
+            <% for (const [key, meta] of Object.entries(metadata)) { 
+                if(key === 'activo') continue;    
+            %>
                 <td data-key="<%=key%>"><%=element[key]%></td>
             <% } %>
             

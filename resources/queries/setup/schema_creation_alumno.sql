@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS pyac.alumno (
     cursoActual VARCHAR(120),
     modalidadActual VARCHAR(120),
     CUITRespPagos varchar(120), -- Cuit del responsable de pagos del alumno
+    activo BOOLEAN, -- Campo que se usa para borrado lógico. Activo = 1 significa no borrado.
     FOREIGN KEY (modalidadActual) REFERENCES pyac.modalidad(modalidad),
     FOREIGN KEY (cursoActual) REFERENCES pyac.curso(curso)
 );

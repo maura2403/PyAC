@@ -36,3 +36,19 @@ app.use(routes);
 app.listen(PORT, () => {
     console.log(`Example app listening on port http://localhost:${PORT}`);
 });
+
+/*
+app.router.stack.forEach((middleware: any) => {
+  if (middleware.route) {
+    // middleware.route.path, middleware.route.methods
+    console.log(`${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
+  } else if (middleware.name === 'router') {
+    middleware.handle.stack.forEach((handler: any) => {
+      const route = handler.route;
+      if (route) {
+        console.log(`${Object.keys(route.methods).join(', ').toUpperCase()} ${route.path}`);
+      }
+    });
+  }
+});
+*/
