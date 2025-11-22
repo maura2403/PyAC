@@ -35,11 +35,11 @@ export async function createAPICrud(router: Router, repository: Repository, c: b
         });
     }
 
-    // Update
+    // PATCH
     if(u){
         router.patch(route, requireAuthAPI, async (req, res) => {
             try {
-                await repository.update(req.query, req.body);
+                await repository.patch(req.query, req.body);
                 res.status(200).json({ ok: true });
             }
             catch (err) {

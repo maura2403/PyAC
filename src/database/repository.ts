@@ -63,6 +63,30 @@ export abstract class Repository {
         await this.pool.query(query, [...keyValues, ...allValues]);
     }
 
+    public async patch(originalPKs: Record<string, any>, row: Record<string, any>): Promise<void> {
+        this.model.assertPrimaryKey(originalPKs);
+        const primaryKeys = Object.keys(originalPKs);
+        const columnsToPatch = Object.keys(row).filter(col => this.model.allColumns.includes(col));
+
+        if(columnsToPatch.length === 0) throw new Error("PATCH debe incluir al menos una columna a actualizar");
+
+        const setClauses = columnsToPatch.map((col, idx) => `${col} = $${idx + 1}`);
+
+        const setValues = columnsToPatch.map(col => row[col]);
+
+
+        const whereClauses = this.model.primaryKeys.map((key, i) => `${key} = $${columnsToPatch.length + i + 1}`);
+        const pkValues = this.model.primaryKeys.map(key => originalPKs[key]);
+
+    const query = `
+        UPDATE ${this.model.schema}.${this.model.tableName}
+        SET ${setClauses.join(", ")}
+        WHERE ${whereClauses.join(" AND ")}
+    `;
+
+    await this.pool.query(query, [...setValues, ...pkValues]);
+    }
+
     public async delete(originalPKs: Record<string, any>): Promise<void> {
         this.model.assertPrimaryKey(originalPKs);
         const primaryKeys = Object.keys(originalPKs);
@@ -136,7 +160,7 @@ export class InvoiceRepository extends Repository {
     protected readonly model: Model = new Model(
         {
             dni: new IntegerType(false, true, "DNI del alumno"),
-            fecha_de_emision: new DateType(false, true, "Fecha de Emisión de Factura"),
+            fechaemision: new DateType(false, true, "Fecha de Emisión de Factura"),
             esmensual: new BooleanType(false, true, "Es Mensual"),
             monto: new FloatType(false, false, "Monto"),
             pagado: new BooleanType(true, false, "Esta Paga"),

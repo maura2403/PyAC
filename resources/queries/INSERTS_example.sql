@@ -73,10 +73,10 @@ INSERT INTO pyac.alumno(dni, nombre, apellido, cursoActual, modalidadActual, CUI
 DELETE FROM pyac.asistencia;
 
 INSERT INTO pyac.asistencia(dni, fecha) VALUES
-(43573030, '2025-10-01'),
+(43573030, '2025-12-01'),
 (41234567, '2025-10-01'),
-(39876543, '2025-10-01'),
-(40123456, '2025-10-01'),
+(39876543, '2025-09-14'),
+(40123456, '2025-07-01'),
 (42345678, '2025-10-01');
 
 
@@ -91,10 +91,10 @@ INSERT INTO pyac.factura(
     pagado, fechaPago
 )
 VALUES
-(43573030, '2025-10-01', TRUE, 3000.0, TRUE, '2025-10-25'),
+(43573030, '2025-12-01', TRUE, 3000.0, TRUE, '2025-10-25'),
 (41234567, '2025-10-01', TRUE, 3000.0, FALSE, NULL),
-(39876543, '2025-10-01', TRUE, 3000.0, TRUE, '2025-10-22'),
-(40123456, '2025-10-01', TRUE, 2500.0, TRUE, '2025-10-23'),
+(39876543, '2025-09-14', TRUE, 3000.0, TRUE, '2025-10-22'),
+(40123456, '2025-07-01', TRUE, 2500.0, TRUE, '2025-10-23'),
 (42345678, '2025-10-01', TRUE, 2500.0, FALSE, NULL);
 
 -- INSERT into pyac.usuario(idusuario, nombre, usuario, email, passhash) 

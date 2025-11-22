@@ -34,6 +34,26 @@ createAPICrud(router, userRepo, true, true, true, true);
 const courseRepo = new CourseRepository(poolDb);
 createAPICrud(router, courseRepo, true, true, true, true);
 
+// Normaliza las fechas a formato YY-MM-DDDD si tiene fechas.
+function normaliceDates(data: Record<string,  any>[]): Record<string, any>[] {
+    return data.map(row => {
+        const newRow: Record<string, any> = {};
+
+        for (const key in row) {
+            const value = row[key];
+
+            // Si es string con formato YYYY-MM-DDT...
+            if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
+                newRow[key] = value.slice(0, 10);  // "2025-10-01"
+            }
+            else {
+                newRow[key] = value; // copiar tal cual
+            }
+        }
+
+        return newRow;
+    });
+}
 
 function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName: string, iterableDataName: string, campoPK: string){
     router.get(`/app/${specificRoute}`, requireAuth, async (req, res) => {
@@ -63,7 +83,8 @@ function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName
             }
         });
         const metadata = await metadataResponse.json();
-        res.render(templateFrontEndName, { [iterableDataName] : data, "metadata" : metadata, idCampo: campoPK});
+        const normalizedData = normaliceDates(data); // Pasa los dates (si hubiese) de los campos a formato YY-MM-DDDD
+        res.render(templateFrontEndName, { [iterableDataName] : normalizedData, "metadata" : metadata, idCampo: campoPK});
     });
 
 }
