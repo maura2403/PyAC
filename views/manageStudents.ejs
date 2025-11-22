@@ -1,8 +1,13 @@
+<!-- Requiere students, idCampo y metadata-->
 <!DOCTYPE html>
-<html lang="es">
 <% const title = "Gestión de Alumnos - Tabla de alumnos"; %>
-<% const cssRoute = "/css/pages/manageStudents.css"; %>
-<% const scriptJS = "/js/manageStudents.js";%>
+<% const cssRoute = "/css/pages/manageCRUD.css"; %>
 <% const idCampo = "dni"; %>
-
-<%- include("manageCRUDdata", { title: title, cssRoute: cssRoute, scriptJS: scriptJS, iterableData: students, idCampo: idCampo}) %>
+<html lang="es">
+<head>
+    <%- include("headCRUDdata", {title: title, cssRoute: cssRoute}) %>
+</head>
+<body>
+    <%- include("bodyCRUDdata", { iterableData: students, idCampo: idCampo, 
+        metadata: metadata, c: true, r: true, u:true, d:true, route: '/alumno', primaryKeys: ['dni']}) %>
+</body>

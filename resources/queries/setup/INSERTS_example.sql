@@ -57,21 +57,22 @@ INSERT INTO pyac.curso(curso, nivel) VALUES
 DELETE FROM pyac.alumno;
 
 INSERT INTO pyac.alumno(dni, nombre, apellido, cursoActual, modalidadActual, CUITRespPagos) VALUES
-(43573030, 'Alicia', 'González', '6to B', 'Eventual', NULL),
-(41234567, 'Juan', 'Fernández', '5to A', 'Mensual', NULL),
-(39876543, 'Sofía', 'Pérez', '4to C', 'Eventual', NULL),
-(40123456, 'Martín', 'López', '3ro A', 'Mensual', NULL),
-(42345678, 'Camila', 'Rodríguez', '2do B', 'Fijo', NULL),
-(41237890, 'Tomás', 'Sánchez', '1ro C', 'Mensual', NULL),
-(43456789, 'Lucía', 'Ramírez', '5to B', 'Eventual', NULL),
-(41567890, 'Emiliano', 'Torres', '6to A', 'Fijo', NULL),
-(39812345, 'Valentina', 'Ruiz', '3ro B', 'Mensual', NULL),
-(40987654, 'Agustina', 'Moreno', '4to A', 'Eventual', NULL),
-(42349876, 'Lucas', 'Flores', '2do A', 'Mensual', NULL),
-(41234568, 'Julián', 'Vega', '6to C', 'Fijo', NULL),
-(43451234, 'Milagros', 'Castro', '4to C', 'Mensual', NULL),
-(40129876, 'Bruno', 'Domínguez', '4to B', 'Eventual', NULL),
-(42345679, 'Catalina', 'Molina', '1ro A', 'Fijo', NULL);
+(43573030, 'Alicia', 'González', '6to B', 'Eventual', '20-43573030-1'),
+(41234567, 'Juan', 'Fernández', '5to A', 'Mensual', '20-41234567-2'),
+(39876543, 'Sofía', 'Pérez', '4to C', 'Eventual', '27-39876543-3'),
+(40123456, 'Martín', 'López', '3ro A', 'Mensual', '27-40123456-4'),
+(42345678, 'Camila', 'Rodríguez', '2do B', 'Fijo', '20-42345678-5'),
+(41237890, 'Tomás', 'Sánchez', '1ro C', 'Mensual', '20-41237890-6'),
+(43456789, 'Lucía', 'Ramírez', '5to B', 'Eventual', '27-43456789-7'),
+(41567890, 'Emiliano', 'Torres', '6to A', 'Fijo', '20-41567890-8'),
+(39812345, 'Valentina', 'Ruiz', '3ro B', 'Mensual', '27-39812345-9'),
+(40987654, 'Agustina', 'Moreno', '4to A', 'Eventual', '20-40987654-1'),
+(42349876, 'Lucas', 'Flores', '2do A', 'Mensual', '20-42349876-2'),
+(41234568, 'Julián', 'Vega', '6to C', 'Fijo', '27-41234568-3'),
+(43451234, 'Milagros', 'Castro', '4to C', 'Mensual', '20-43451234-4'),
+(40129876, 'Bruno', 'Domínguez', '4to B', 'Eventual', '27-40129876-5'),
+(42345679, 'Catalina', 'Molina', '1ro A', 'Fijo', '20-42345679-6');
+
 
 
 

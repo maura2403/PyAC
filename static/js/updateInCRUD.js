@@ -9,10 +9,13 @@ function startEditing(editButtonElement) {
         td.setAttribute("data-og", value);
     });
 
+    const route = JSON.parse(editButtonElement.dataset.route);
+    const primaryKeys = JSON.parse(editButtonElement.dataset.pks);
+
     // Agarramos el td de los botones y ponemos los de confirmar y cancelar
     const buttonsTd = row.querySelector("td:last-child");
     buttonsTd.innerHTML = `
-        <button class="confirm" onclick="confirmEdit(this)"></button>
+        <button class="confirm" data-route=${route} data-pks=${primaryKeys} onclick="confirmEdit(this)"></button>
         <button class="delete" onclick="cancelEdit(this)"></button>
     `;
 }
@@ -20,6 +23,16 @@ function startEditing(editButtonElement) {
 async function confirmEdit(confirmButton) {
     const row = confirmButton.closest("tr");
     const id = row.dataset.id;
+
+    const route = JSON.parse(confirmButton.dataset.route);
+    const primaryKeys = JSON.parse(confirmButton.dataset.pks);
+
+    // Parseamos los datos de los valores de las PK (campos que identifican univocamente al registro a actualizar)
+    const pkParams = primaryKeys.map(key => {
+    const value = row.dataset[key]; // asumimos que cada td o el tr tiene dataset con la PK
+        return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
+    }).join('&');
+
 
     // Llenamos un form data con los datos nuevos
     const updatedData = {};
@@ -30,7 +43,7 @@ async function confirmEdit(confirmButton) {
         updatedData[key] = input.value === "" ? null : input.value;
     });
 
-    const response = await fetch(`/api/alumnos/?dni=${id}`, {
+    const response = await fetch(`/api/${route}?${pkParams}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedData)

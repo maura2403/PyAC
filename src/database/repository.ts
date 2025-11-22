@@ -1,5 +1,5 @@
 import { Pool } from "pg";
-import { DateType, EnumType, FloatType, IntegerType, Model, StringType } from "./model.js";
+import { BooleanType, DateType, EnumType, FloatType, IntegerType, Model, StringType } from "./model.js";
 
 export abstract class Repository {
     public get tableName(): string {
@@ -72,14 +72,12 @@ export class StudentRepository extends Repository {
             dni: new IntegerType(false, true, "DNI del alumno"),
             nombre: new StringType(false, false, "Nombre"),
             apellido: new StringType(false, false, "Apellido"),
-            curso: new StringType(false, false, "Curso"),
-            modalidad: new EnumType(false, false, ["Eventual", "Mensual", "Fijo"], "Modalidad"),
-            nivel: new EnumType(false, false, ["Jardin", "Primaria"], "Nivel"),
-            responsable_de_pagos: new StringType(false, false, "Responsable de pagos"),
-            responsable1: new StringType(true, false, "Responsable 1")
+            cursoactual: new StringType(false, false, "Curso"),
+            modalidadactual: new EnumType(false, false, ["Eventual", "Mensual", "Fijo"], "Modalidad"),
+            cuitresppagos: new StringType(false, false, "CUIT de Responsable de pagos"),
         },
-        "Pyac",
-        "Alumnos"
+        "pyac",
+        "alumno"
     );
 }
 
@@ -89,8 +87,8 @@ export class AttendanceRepository extends Repository {
             dni: new IntegerType(false, true),
             fecha: new DateType(false, true)
         },
-        "Pyac",
-        "Presentes"
+        "pyac",
+        "asistencia"
     );
 }
 
@@ -98,10 +96,10 @@ export class LevelRepository extends Repository {
     protected readonly model: Model = new Model(
         {
             nivel:  new EnumType(false, true, ["Jardin", "Primaria"]),
-            precio: new FloatType(false, false)
+            preciodiario: new FloatType(false, false)
         },
-        "Pyac",
-        "Niveles"
+        "pyac",
+        "nivel"
     );
 
     public async getPrice(nivel: "Jardin" | "Primaria"): Promise<number> {
@@ -113,12 +111,14 @@ export class LevelRepository extends Repository {
 export class InvoiceRepository extends Repository {
     protected readonly model: Model = new Model(
         {
-            dni: new IntegerType(false, true),
-            fecha_de_emision: new DateType(false, true),
-            precio: new FloatType(false, false),
-            fecha_de_pago: new DateType(true, false)
+            dni: new IntegerType(false, true, "DNI del alumno"),
+            fecha_de_emision: new DateType(false, true, "Fecha de Emisión de Factura"),
+            esmensual: new BooleanType(false, true, "Es Mensual"),
+            monto: new FloatType(false, false, "Monto"),
+            pagado: new BooleanType(true, false, "Esta Paga"),
+            fechapago: new DateType(true, false, "Fecha de Pago")
         },
-        "Pyac",
-        "Facturas"
+        "pyac",
+        "factura"
     );
 }

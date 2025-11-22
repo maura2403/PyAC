@@ -1,28 +1,22 @@
-<!-- Se usa para el formato generico de CRUD. Requiere recibir las variables:
- title -> El título del documento
+<!-- Se usa para el BODY del formato generico de CRUD. Requiere recibir las variables:
  c,r,u,d -> Booleanos que indican que funcionalidades implementa la pantalla
  metadata -> Metadatos del iterable
  data -> Algún iterable, como students
- cssRoute -> Path del css a usar
+ postRoute -> Una ruta para hacer post al añadir un elemento (sin /api). Por ejemplo /alumno
 -->
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title><%=title%></title>
-    <link rel="stylesheet" href= <%= cssRoute %> >
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-<body>
     <table>
         <tr>
             <% for (const [key, meta] of Object.entries(metadata)) { %>
             <th><%= meta.label %></th>
             <% } %>
-            <% if (c === true) { %>
-            <th><button class="add" onclick="startAdding()">+</button></th>
-            <% } %>
+            <th>
+                <% if (c === true) {%>
+                <button class="add" onclick="startAdding()">NEW</button>
+                <% } %>
+                <% if (c === false) { %>
+                ACCIONES
+                <% } %>
+            </th>
         </tr>
         <tr id="add-row">
             <% for (const [key, meta] of Object.entries(metadata)) { %>
@@ -30,8 +24,8 @@
             <% } %>
             <% if (c === true) { %>
             <td>
-                <button class="confirm" onclick="addNew()"></button>
-                <button class="delete" onclick="cancelAdding()"></button>
+                <button class="confirm" onclick="addNew('<%=route%>')">CF</button>
+                <button class="delete" onclick="cancelAdding()">CC</button>
             </td>
             <% } %>
         </tr>
@@ -45,28 +39,23 @@
             <td>
                 
                 <% if (u === true) { %>
-                <button class="edit" onclick="startEditing(this)"></button>
+                <button class="edit" data-route='<%- JSON.stringify(route) %>' data-pks='<%- JSON.stringify(primaryKeys) %>'
+                    onclick="startEditing(this)">E</button>
                 <% } %>
                 
                 <% if (d === true) { %>
-                <button class="delete" onclick="deleteRow(this)"></button>
+                <button class="delete"
+                        data-route='<%- JSON.stringify(route) %>'
+                        data-pks='<%- JSON.stringify(primaryKeys) %>'
+                        onclick="deleteRow(this)">D</button>
                 <% } %>
             </td>
             <% } %>
         </tr>
         <% } %>
     </table>
-</body>
 
 
-<% if (c === true) { %>
-<script src="/js/createInCRUD.js"></script>
-<% } %>
-
-<% if (u === true) { %>
+<script src="/js/addInCRUD.js"></script>
 <script src="/js/updateInCRUD.js"></script>
-<% } %>
-
-<% if (d === true) { %>
 <script src="/js/deleteInCRUD.js"></script>
-<% } %>

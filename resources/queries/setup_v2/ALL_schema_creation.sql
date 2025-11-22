@@ -113,7 +113,7 @@ Facturas:
 
 
 CREATE TABLE IF NOT EXISTS pyac.usuario(
-    idUsuario INT PRIMARY KEY,
+    idUsuario INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nombre VARCHAR(120),
     usuario VARCHAR(120),
     email VARCHAR(120),

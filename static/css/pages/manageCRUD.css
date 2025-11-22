@@ -93,6 +93,6 @@ button.add:hover {
     background-color: var(--primary-color-hover);
 }
 
-#add-student-row {
+#add-row {
     display: none;
 }

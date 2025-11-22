@@ -1,9 +1,15 @@
-<!-- Recibe metadata y invoices como datos-->
-<!DOCTYPE html>
-<html lang="es">
+<!-- Recibe metadata, invoices e idCampo como datos-->
+ <!DOCTYPE html>
 <% const title = "Gestión de Facturas Impagas - Tabla de Facturas"; %>
-<% const cssRoute = "/css/pages/manageStudents.css"; %>
+<% const cssRoute = "/css/pages/manageCRUD.css"; %>
 <% const idCampo = "dni"; %>
+<html lang="es">
+<head>
+    <%- include("headCRUDdata", {title: title, cssRoute: cssRoute}) %>
+</head>
+<body>
+    <%- include("bodyCRUDdata", { iterableData: invoices, idCampo: idCampo, metadata: metadata,
+        c: false, r: true, u:false, d:false, route: '/factura', primaryKeys: ['dni', 'fechaemision']}) %>
+</body>
 
-<%- include("manageCRUDdata", { title: title, cssRoute: cssRoute, iterableData: students, idCampo: idCampo, metadata: metadata,
-c: false, r: true, u:true, d:false}) %>
+

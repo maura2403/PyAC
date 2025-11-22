@@ -21,8 +21,6 @@ export async function hashPassword(password: string): Promise<string> {
  * Verifica una contraseña contra su hash
  */
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
-    console.log(password);
-    console.log(hash);
     return await bcrypt.compare(password, hash);
 }
 
@@ -50,7 +48,7 @@ export async function autenticarUsuario(
         /*if (!user.activo) {
             return null;
         }*/
-        const passwordValida = await verifyPassword(password, user.password_hash);
+        const passwordValida = await verifyPassword(password, user.passhash);
 
         if (!passwordValida) {
             return null;
@@ -88,9 +86,9 @@ export async function crearUsuario(
         const passwordHash = await hashPassword(password);
 
         const result = await pool.query(
-            `INSERT INTO pyac.usuarios (username, password_hash, nombre, email)
+            `INSERT INTO pyac.usuario (usuario, passhash, nombre, email)
              VALUES ($1, $2, $3, $4)
-             RETURNING id, username, nombre, email`,
+             RETURNING idusuario, usuario, nombre, email`,
             [username, passwordHash, nombre || null, email || null]
         );
 

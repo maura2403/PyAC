@@ -1,12 +1,16 @@
 -- Crear base de datos (ejecutar por separado si da error en pgAdmin)
 -- CREATE DATABASE pyac_db OWNER pyac_owner;
 
+/* --> Esta parte de acá arriba depende donde ejecutemos la bd. En postgress anda con permisos.
 -- Usar el rol propietario
 SET ROLE pyac_owner;
 
 -- Crear schema
 DROP SCHEMA IF EXISTS pyac CASCADE;
 CREATE SCHEMA pyac;
+*/
+
+
 GRANT USAGE ON SCHEMA pyac TO pyac_admin;
 GRANT CREATE ON SCHEMA pyac TO pyac_admin; -- Esto permite al admin crear tablas. Lo uso para no tener que logear dos veces para crear la DB.
 -- Le damos todos los privilegios al admin
@@ -108,7 +112,7 @@ Facturas:
 
 
 CREATE TABLE IF NOT EXISTS pyac.usuario(
-    idUsuario INT PRIMARY KEY,
+    idUsuario INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nombre VARCHAR(120),
     usuario VARCHAR(120),
     email VARCHAR(120),

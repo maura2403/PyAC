@@ -15,7 +15,7 @@ interface ColumnMeta {
 }
 
 const studentRepo = new StudentRepository(poolDb);
-createAPICrud(router, studentRepo, true, true, true, true); // Creamos el CRUD con funcionalidad completa
+createAPICrud(router, studentRepo, true, true, true, true); // Creamos el CRUD con funcionalidad completa para estudiantes
 
 const attendanceRepo = new AttendanceRepository(poolDb);
 
@@ -24,7 +24,7 @@ const levelRepo = new LevelRepository(poolDb);
 const invoiceRepo = new InvoiceRepository(poolDb);
 createAPICrud(router, invoiceRepo, false, true, true, false); // De las facturas vamos a querer verlas y editarlas. La edición es limitada a los campos a rellenar al pagarlas. 
 
-function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName: string, iterableDataName: string){
+function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName: string, iterableDataName: string, campoPK: string){
     router.get(`/app/${specificRoute}`, requireAuth, async (req, res) => {
         const queryParams = req.query;
         let queryString = Object.keys(queryParams).map(key => `${key}=${queryParams[key]}`).join('&');
@@ -41,7 +41,8 @@ function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName
                 cookie: req.headers.cookie ?? '',
             }
         });
-        const students = await response.json();
+        
+        const data = await response.json();
 
         // Fetch metadata
         const metadataResponse = await fetch(`${url}/metadata`, {
@@ -51,14 +52,13 @@ function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName
             }
         });
         const metadata = await metadataResponse.json();
-
-        res.render(templateFrontEndName, { iterableDataName : students, "metadata" : metadata });
+        res.render(templateFrontEndName, { [iterableDataName] : data, "metadata" : metadata, idCampo: campoPK});
     });
 
 }
 
-createMainRouteForBasicCRUD("alumnos", "manageStudents", "students");
-createMainRouteForBasicCRUD("facturas", "manageInvoices", "invoices");
+createMainRouteForBasicCRUD("alumno", "manageStudents", "students", "dni");
+createMainRouteForBasicCRUD("factura", "manageInvoices", "invoices", "dni");
 
 
 
