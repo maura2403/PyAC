@@ -32,6 +32,24 @@
         <input type="text" id="busquedaDni" placeholder="Ingrese DNI...">
     </label>
 
+    <!-- FILTROS DE FECHA: fecha exacta (prioridad), mes, año -->
+    <div class="date-filters">
+        <label>
+            Fecha exacta:
+            <input type="date" id="filterDateExact">
+        </label>
+
+        <label>
+            Mes y año:
+            <input type="month" id="filterMonth">
+        </label>
+
+        <label>
+            Año:
+            <input type="number" id="filterYear" min="1900" max="2100" placeholder="2025" style="width:100px">
+        </label>
+    </div>
+
     <button id="resetOrden">Restablecer</button>
 </div>
 
