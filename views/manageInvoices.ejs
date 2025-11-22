@@ -1,6 +1,6 @@
 <!-- Recibe metadata, invoices como datos. Recibe del back TODAS las facturas -->
 <!DOCTYPE html>
-<% const title = "Gestión de Facturas Impagas - Tabla de Facturas"; %>
+<% const title = "Gestión de Facturas - Tabla de Facturas"; %>
 <% const cssRoute = "/css/pages/manageInvoices.css"; %>
 <html lang="es">
 <head>
@@ -12,6 +12,7 @@
 
 <!-- CONTROLES -->
 <div id="controls" class="controls">
+    
     <label>
         <input type="checkbox" id="filtroSinPagar">
         Mostrar solo impagas
@@ -26,7 +27,12 @@
         </select>
     </label>
 
-    <button id="resetOrden">Restablecer orden</button>
+    <label>
+        Buscar por DNI:
+        <input type="text" id="busquedaDni" placeholder="Ingrese DNI...">
+    </label>
+
+    <button id="resetOrden">Restablecer</button>
 </div>
 
 <table class="manage-invoices-table">
@@ -63,7 +69,6 @@
     </tbody>
 </table>
 
-<!-- scripts: registerPaidInvoice.js contiene payInvoice y la lógica de filtros/orden -->
 <script src="/js/manageInvoicesScripts.js"></script>
 </body>
 </html>

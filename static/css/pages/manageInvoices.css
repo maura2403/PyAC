@@ -43,13 +43,52 @@
     padding: 8px;
 }
 
-/* Controles */
+/* CONTROLES */
 .controls {
     width: 80%;
     margin: 1rem auto;
     display: flex;
     align-items: center;
     gap: 16px;
+    flex-wrap: wrap;
+}
+
+.controls label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.95rem;
+}
+
+.controls input[type="text"] {
+    padding: 6px 8px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    width: 160px;
+}
+
+.controls select {
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    background: white;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+#resetOrden {
+    padding: 6px 12px;
+    background-color: #ddd;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+}
+#resetOrden:hover {
+    background-color: #eaeaea;
+    transform: translateY(-2px);
 }
 
 /* Botones */
@@ -81,10 +120,6 @@ a.btn {
     transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
 }
 
-/* Inputs (si usás la fila add-row en otras vistas) */
-#add-row input { width:100%; box-sizing:border-box; }
-
-/* pequeño ajuste responsive */
 @media (max-width: 900px) {
   .manage-invoices-table { width: 95%; }
   .controls { width: 95%; flex-wrap: wrap; }
