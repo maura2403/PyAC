@@ -1,8 +1,6 @@
 import { arraySameElements } from "../extra/utils.js";
 
 export class Model {
-    public readonly schema: string;
-    public readonly tableName: string;
     private columns: Record<string, DatabaseType>;
 
     public get allColumns(): string[] {
@@ -28,9 +26,7 @@ export class Model {
         return res;
     }
 
-    constructor(columns: Record<string, DatabaseType>, modelSchema: string, modelTable: string) {
-        this.schema = modelSchema;
-        this.tableName = modelTable;
+    constructor(columns: Record<string, DatabaseType>) {
         this.columns = columns;
     }
 

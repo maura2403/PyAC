@@ -1,10 +1,9 @@
-/*
-DROP USER IF EXISTS pyac_owner;
+-- Crear base de datos y usuarios
+DROP ROLE IF EXISTS pyac_owner;
 DROP USER IF EXISTS pyac_admin;
-*/
 
-create user pyac_owner nologin;
-create user pyac_admin password 'cambiar_esta_clave';
+CREATE ROLE pyac_owner;
+CREATE USER pyac_admin PASSWORD 'cambiar_esta_clave';
 
-create database pyac_db owner pyac_owner;
-grant connect on database pyac_db to pyac_admin;
+CREATE DATABASE pyac_db OWNER pyac_owner;
+GRANT CONNECT ON DATABASE pyac_db TO pyac_admin;

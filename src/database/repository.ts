@@ -1,15 +1,16 @@
 import { Pool } from "pg";
 import { BooleanType, DateType, EnumType, FloatType, IntegerType, Model, StringType } from "./model.js";
+import { BooleanType, DateType, EnumType, FloatType, IntegerType, Model, StringType } from "./model.js";
 
 export abstract class Repository {
-    public get tableName(): string {
-        return this.model.tableName;
-    }
     public get frontData(): Record<string, any> {
         return this.model.frontData;
     }
     protected abstract readonly model: Model;
     protected readonly pool: Pool;
+
+    protected readonly schema: string = "Pyac";
+    public abstract readonly tableName: string;
 
     constructor(pool: Pool) {
         this.pool = pool;
@@ -19,7 +20,7 @@ export abstract class Repository {
         this.model.assertFullObject(row);
         const placeholders = this.model.allColumns.map((_, i) => `$${i + 1}`).join(', ');
         const query = `
-            INSERT INTO ${this.model.schema}.${this.model.tableName} (${this.model.allColumns.join(', ')})
+            INSERT INTO ${this.schema}.${this.tableName} (${this.model.allColumns.join(', ')})
             VALUES (${placeholders})
         `;
         const values = this.model.allColumns.map(key => row[key]);
@@ -28,7 +29,7 @@ export abstract class Repository {
 
     public async read(filters: Record<string, any>): Promise<Record<string, any>[]> {
         this.model.assertFilter(filters);
-        let query = `SELECT * FROM ${this.model.schema}.${this.model.tableName}`;
+        let query = `SELECT * FROM ${this.schema}.${this.tableName}`;
         const filterKeys = Object.keys(filters);
 
         // Condiciones de filtro específicas
@@ -54,7 +55,7 @@ export abstract class Repository {
         this.model.assertPrimaryKey(originalPKs);
         this.model.assertFullObject(row);
         const query = `
-            UPDATE ${this.model.schema}.${this.model.tableName}
+            UPDATE ${this.schema}.${this.tableName}
             SET ${this.model.allColumns.map((col, i) => `${String(col)} = $${i + this.model.primaryKeys.length + 1}`).join(', ')}
             WHERE ${this.model.primaryKeys.map((key, i) => `${String(key)} = $${i + 1}`).join(' AND ')}
         `;
@@ -105,6 +106,8 @@ export abstract class Repository {
         } else { // Si no tiene activo, entonces hacemos borrado físico
             query = `
             DELETE FROM ${this.model.schema}.${this.model.tableName}
+        const query = `
+            DELETE FROM ${this.schema}.${this.tableName}
             WHERE ${primaryKeys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')}
             `;
         }
@@ -113,9 +116,10 @@ export abstract class Repository {
 }
 
 export class StudentRepository extends Repository {
+    public readonly tableName: string = "alumno";
     protected readonly model: Model = new Model(
         {
-            dni: new IntegerType(false, true, "DNI del alumno"),
+            dni: new IntegerType(false, true, "DNI"),
             nombre: new StringType(false, false, "Nombre"),
             apellido: new StringType(false, false, "Apellido"),
             cursoactual: new StringType(false, false, "Curso"),
@@ -125,10 +129,15 @@ export class StudentRepository extends Repository {
         },
         "pyac",
         "alumno"
+            curso: new StringType(false, false, "Curso"),
+            modalidad: new EnumType(false, false, ["Eventual", "Mensual", "Fijo"], "Modalidad"),
+            cuit_responsable_de_pagos: new EnumType(false, false, ["Jardin", "Primaria"], "Nivel"),
+        }
     );
 }
 
-export class AttendanceRepository extends Repository {
+export class CourseRepository extends Repository {
+    public readonly tableName: string = "curso";
     protected readonly model: Model = new Model(
         {
             dni: new IntegerType(false, true),
@@ -136,10 +145,14 @@ export class AttendanceRepository extends Repository {
         },
         "pyac",
         "asistencia"
+            curso: new StringType(false, true),
+            nivel: new StringType(false, false)
+        }
     );
 }
 
 export class LevelRepository extends Repository {
+    public readonly tableName: string = "nivel";
     protected readonly model: Model = new Model(
         {
             nivel:  new EnumType(false, true, ["Jardin", "Primaria"], "Nivel"),
@@ -148,6 +161,9 @@ export class LevelRepository extends Repository {
         },
         "pyac",
         "nivel"
+            nivel:  new EnumType(false, true, ["Jardin", "Primaria"]),
+            precio_diario: new FloatType(false, false)
+        }
     );
 
     public async getPrice(nivel: "Jardin" | "Primaria"): Promise<number> {
@@ -156,55 +172,60 @@ export class LevelRepository extends Repository {
     }
 }
 
-export class InvoiceRepository extends Repository {
+export class ModeRepository extends Repository {
+    public readonly tableName: string = "modalidad";
     protected readonly model: Model = new Model(
         {
-            dni: new IntegerType(false, true, "DNI del alumno"),
-            fechaemision: new DateType(false, true, "Fecha de Emisión de Factura"),
-            esmensual: new BooleanType(false, true, "Es Mensual"),
-            monto: new FloatType(false, false, "Monto"),
-            pagado: new BooleanType(true, false, "Esta Paga"),
-            fechapago: new DateType(true, false, "Fecha de Pago")
-        },
-        "pyac",
-        "factura"
+            modalidad: new EnumType(true, false, ["Eventual", "Mensual", "Fijo"]),
+            descuento: new FloatType(false, false)
+        }
     );
 }
 
-export class ModalityRepository extends Repository {
+export class FixedStudentRepository extends Repository {
+    public readonly tableName: string = "alumno_fijo";
     protected readonly model: Model = new Model(
         {
-            modalidad: new EnumType(false, true, ["Eventual", "Fijo", "Mensual"], "Modalidad"),
-            descuento: new FloatType(false, false, "Descuento"),
-            activo: new BooleanType(false, false, "activo")
-        },
-        "pyac",
-        "modalidad"
+            dni: new IntegerType(false, true),
+            dia_de_la_semana: new EnumType(false, true, ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"])
+        }
+    );
+}
+
+export class AttendanceRepository extends Repository {
+    public readonly tableName: string = "asistencia";
+    protected readonly model: Model = new Model(
+        {
+            dni: new IntegerType(false, true),
+            fecha: new DateType(false, true)
+        }
+    );
+}
+
+export class InvoiceRepository extends Repository {
+    public readonly tableName: string = "factura";
+    protected readonly model: Model = new Model(
+        {
+            dni: new IntegerType(false, true),
+            fecha_de_emision: new DateType(false, true),
+            es_mensual: new BooleanType(false, true),
+            monto: new FloatType(false, false),
+            pagado: new BooleanType(false, false),
+            fecha_de_pago: new DateType(true, false)
+        }
     );
 }
 
 export class UserRepository extends Repository {
+    public readonly tableName: string = "usuario";
     protected readonly model: Model = new Model(
         {
-            idusuario: new IntegerType(false, true, "idUsuario"),
-            nombre: new StringType(true, false, "Nombre"),
-            usuario: new StringType(false, false, "Username"),
-            email: new StringType(true, false, "Email"),
-            passhash: new StringType(false, false, "Hashed Password")
-        },
-        "pyac",
-        "usuario"
+            id_usuario: new IntegerType(false, true),
+            nombre: new StringType(false, false),
+            usuario: new StringType(false, false),
+            email: new StringType(false, false),
+            password_hash: new StringType(false, false)
+        }
     );
-}
 
-export class CourseRepository extends Repository {
-    protected readonly model: Model = new Model(
-        {
-            curso: new StringType(false, true, "Curso"),
-            nivel: new StringType(false, false, "Nivel"),
-            activo: new BooleanType(false, false, "activo")
-        },
-        "pyac",
-        "curso"
-    );
 }
