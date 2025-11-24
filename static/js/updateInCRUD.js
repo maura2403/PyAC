@@ -1,4 +1,3 @@
-
 function startEditing(editButtonElement) {
     const row = editButtonElement.closest("tr");
 
@@ -7,32 +6,20 @@ function startEditing(editButtonElement) {
         const value = td.textContent;
         td.innerHTML = `<input type="text" value="${value}">`;
         td.setAttribute("data-og", value);
+        td.setAttribute("data-id", td.dataset.id);
     });
-
-    const route = JSON.parse(editButtonElement.dataset.route);
-    const primaryKeys = JSON.parse(editButtonElement.dataset.pks);
 
     // Agarramos el td de los botones y ponemos los de confirmar y cancelar
     const buttonsTd = row.querySelector("td:last-child");
     buttonsTd.innerHTML = `
-        <button class="confirm" data-route=${route} data-pks=${primaryKeys} onclick="confirmEdit(this)"></button>
+        <button class="confirm" onclick="confirmEdit(this)"></button>
         <button class="delete" onclick="cancelEdit(this)"></button>
     `;
 }
 
 async function confirmEdit(confirmButton) {
     const row = confirmButton.closest("tr");
-    const id = row.dataset.id;
-
-    const route = JSON.parse(confirmButton.dataset.route);
-    const primaryKeys = JSON.parse(confirmButton.dataset.pks);
-
-    // Parseamos los datos de los valores de las PK (campos que identifican univocamente al registro a actualizar)
-    const pkParams = primaryKeys.map(key => {
-    const value = row.dataset[key]; // asumimos que cada td o el tr tiene dataset con la PK
-        return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
-    }).join('&');
-
+    const pkParams = [];
 
     // Llenamos un form data con los datos nuevos
     const updatedData = {};
@@ -40,7 +27,11 @@ async function confirmEdit(confirmButton) {
         const key = td.dataset.key;
         if (!key) { return; }
         const input = td.querySelector("input");
-        updatedData[key] = input.value === "" ? null : input.value;
+        const value = input.value === "" ? null : input.value;
+        if (td.dataset.id === "true") {
+            pkParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(td.dataset.og)}`);
+        }
+        updatedData[key] = value;
     });
 
     const response = await fetch(`/api/${route}?${pkParams}`, {
@@ -68,7 +59,7 @@ function cancelEdit(cancelButtonElement) {
     // Volvemos a poner los botones de editar y borrar
     const buttonsTd = row.querySelector("td:last-child");
     buttonsTd.innerHTML = `
-        <button class="edit" onclick="startEditingStudent(this)"></button>
-        <button class="delete" onclick="deleteStudent(this)"></button>
+        <button class="edit" onclick="startEditing(this)">E</button>
+        <button class="delete" onclick="deleteRow(this)">D</button>
     `;
 }

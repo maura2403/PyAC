@@ -1,11 +1,12 @@
 import express, { Router }  from "express";
-import { autenticarUsuario, crearUsuario } from '../login/auth.js';
 import { poolDb } from "../database/client.js";
+import { UserRepository } from "../database/repository.js";
 
+const userRepo = new UserRepository(poolDb);
 const router = Router();
 
 // API de login
-router.post('/api/v0/auth/login', express.json(), async (req, res) => {
+router.post('/api/auth/login', express.json(), async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
@@ -13,7 +14,7 @@ router.post('/api/v0/auth/login', express.json(), async (req, res) => {
     }
 
     try {
-        const usuario = await autenticarUsuario(poolDb, username, password);
+        const usuario = await userRepo.authenticateUser(username, password);
 
         if (usuario) {
             req.session.user = usuario;
@@ -41,35 +42,6 @@ router.post('/api/v0/auth/logout', (req, res) => {
         }
         return res.json({ success: true });
     });
-});
-
-
-// Endpoint para crear usuario (solo para desarrollo/setup inicial)
-router.post('/api/v0/auth/register', express.json(), async (req, res) => {
-    const { username, password, nombre, email } = req.body;
-
-    if (!username || !password) {
-        return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
-    }
-
-    try {
-        const usuario = await crearUsuario(poolDb, username, password, nombre, email);
-
-        if (usuario) {
-            return res.status(201).json({
-                success: true,
-                usuario: {
-                    username: usuario.username,
-                    nombre: usuario.nombre
-                }
-            });
-        } else {
-            return res.status(400).json({ error: 'No se pudo crear el usuario' });
-        }
-    } catch (error) {
-        console.error('Error al crear usuario:', error);
-        return res.status(500).json({ error: 'Error en el servidor' });
-    }
 });
 
 export default router;

@@ -1,21 +1,18 @@
-async function deleteRow(deleteButtonElement) { // Recibe la ruta para hacer el DELETE y las primary keys de la entidad.
-    console.log("LLEGUE");
+async function deleteRow(deleteButtonElement) {
     const row = deleteButtonElement.closest("tr");
-    console.log("ROW", row);
-    const route = JSON.parse(deleteButtonElement.dataset.route);
-    const primaryKeys = JSON.parse(deleteButtonElement.dataset.pks);
+    const pkParams = [];
 
-const pkParams = primaryKeys.map(key => {
-    // Buscar el td que tenga data-key = key dentro de la fila
-    const td = row.querySelector(`td[data-key="${key}"]`);
-    const value = td ? td.textContent.trim() : undefined;
-    console.log(`${key} =`, value);
-    return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
-}).join('&');
-
+    row.querySelectorAll("td").forEach(td => {
+        const key = td.dataset.key;
+        if (!key) { return; }
+        const value = td.innerHTML === "" ? null : td.innerHTML;
+        if (td.dataset.id === "true") {
+            pkParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+        }
+    });
 
     if (confirm(`¿Eliminar elemento?`)) {
-        const response = await fetch(`/api${route}?${pkParams}`, { method: 'DELETE' });
+        const response = await fetch(`/api/${route}?${pkParams}`, { method: 'DELETE' });
         if (response.ok) {
             location.reload();
         }

@@ -7,6 +7,10 @@ export class Model {
         return Object.keys(this.columns);
     }
 
+    public get nonDefaultValueColumns(): string[] {
+        return this.allColumns.filter(key => !this.columns[key]!.hasDefaultValue);
+    }
+
     public get primaryKeys(): string[] {
         return this.allColumns.filter(key => this.columns[key]!.primaryKey);
     }
@@ -32,13 +36,13 @@ export class Model {
 
     public assertFullObject(row: Record<string, any>) {
         const keys = Object.keys(row);
-        if (!arraySameElements(keys, this.allColumns)) {
+        if (!arraySameElements(keys, this.nonDefaultValueColumns)) {
             throw new Error(`The object ${JSON.stringify(row)} isn't a valid Object for ${this.constructor.name}.`);
         }
         this.assertValidation(keys, row);
     }
 
-    public assertFilter(filter: Record<string, any>) {
+    public assertPartialObject(filter: Record<string, any>) {
         const keys = Object.keys(filter);
         if (keys.some(key => !this.allColumns.includes(key))) {
             throw new Error(`The object ${JSON.stringify(filter)} isn't a valid Filter for ${this.constructor.name}.`);
@@ -70,11 +74,13 @@ abstract class DatabaseType {
     public readonly primaryKey: boolean;
     protected readonly frontLabel: string;
     protected abstract readonly inputType: string;
+    public readonly hasDefaultValue: boolean;
 
-    constructor(allowNull: boolean, primaryKey: boolean, label: string = '') {
+    constructor(allowNull: boolean, primaryKey: boolean, label: string = '', hasDefaultValue: boolean = false) {
         this.allowNull = allowNull;
         this.primaryKey = primaryKey;
         this.frontLabel = label;
+        this.hasDefaultValue = hasDefaultValue;
     }
 
     validate(value: any): boolean {
@@ -87,7 +93,8 @@ abstract class DatabaseType {
     public get frontData(): Record<string, any> {
         return {
             "label" : this.frontLabel,
-            "type" : this.inputType
+            "type" : this.inputType,
+            "pk" : this.primaryKey
         };
     }
 

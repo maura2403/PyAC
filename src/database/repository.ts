@@ -1,6 +1,6 @@
 import { Pool } from "pg";
 import { BooleanType, DateType, EnumType, FloatType, IntegerType, Model, StringType } from "./model.js";
-import { BooleanType, DateType, EnumType, FloatType, IntegerType, Model, StringType } from "./model.js";
+import { hashPassword, verifyPassword } from "../login/auth.js";
 
 export abstract class Repository {
     public get frontData(): Record<string, any> {
@@ -18,17 +18,17 @@ export abstract class Repository {
 
     public async create(row: Record<string, any>): Promise<void> {
         this.model.assertFullObject(row);
-        const placeholders = this.model.allColumns.map((_, i) => `$${i + 1}`).join(', ');
+        const placeholders = this.model.nonDefaultValueColumns.map((_, i) => `$${i + 1}`).join(', ');
         const query = `
-            INSERT INTO ${this.schema}.${this.tableName} (${this.model.allColumns.join(', ')})
+            INSERT INTO ${this.schema}.${this.tableName} (${this.model.nonDefaultValueColumns.join(', ')})
             VALUES (${placeholders})
         `;
-        const values = this.model.allColumns.map(key => row[key]);
+        const values = this.model.nonDefaultValueColumns.map(key => row[key]);
         await this.pool.query(query, values);
     }
 
     public async read(filters: Record<string, any>): Promise<Record<string, any>[]> {
-        this.model.assertFilter(filters);
+        this.model.assertPartialObject(filters);
         let query = `SELECT * FROM ${this.schema}.${this.tableName}`;
         const filterKeys = Object.keys(filters);
 
@@ -39,10 +39,11 @@ export abstract class Repository {
         }
 
         if(this.model.allColumns.includes('activo')){
-            if(filterKeys.length > 0){ // Ya hay un WHERE
-            query+= ` AND activo = TRUE`;
-            } else {
-            query+= ` WHERE activo = TRUE`; // No había where, esta es la única condición de filtro.    
+            if (filterKeys.length > 0){
+                query+= ` AND activo = TRUE`;
+            }
+            else {
+                query+= ` WHERE activo = TRUE`;
             }
         }
 
@@ -53,39 +54,16 @@ export abstract class Repository {
 
     public async update(originalPKs: Record<string, any>, row: Record<string, any>): Promise<void> {
         this.model.assertPrimaryKey(originalPKs);
-        this.model.assertFullObject(row);
+        this.model.assertPartialObject(row);
+        const columnsToUpdate = Object.keys(row).filter(col => this.model.allColumns.includes(col));
         const query = `
             UPDATE ${this.schema}.${this.tableName}
-            SET ${this.model.allColumns.map((col, i) => `${String(col)} = $${i + this.model.primaryKeys.length + 1}`).join(', ')}
+            SET ${columnsToUpdate.map((col, i) => `${String(col)} = $${i + this.model.primaryKeys.length + 1}`).join(', ')}
             WHERE ${this.model.primaryKeys.map((key, i) => `${String(key)} = $${i + 1}`).join(' AND ')}
         `;
         const keyValues = this.model.primaryKeys.map(key => originalPKs[key]);
-        const allValues = this.model.allColumns.map(col => row[col]);
-        await this.pool.query(query, [...keyValues, ...allValues]);
-    }
-
-    public async patch(originalPKs: Record<string, any>, row: Record<string, any>): Promise<void> {
-        this.model.assertPrimaryKey(originalPKs);
-        const primaryKeys = Object.keys(originalPKs);
-        const columnsToPatch = Object.keys(row).filter(col => this.model.allColumns.includes(col));
-
-        if(columnsToPatch.length === 0) throw new Error("PATCH debe incluir al menos una columna a actualizar");
-
-        const setClauses = columnsToPatch.map((col, idx) => `${col} = $${idx + 1}`);
-
-        const setValues = columnsToPatch.map(col => row[col]);
-
-
-        const whereClauses = this.model.primaryKeys.map((key, i) => `${key} = $${columnsToPatch.length + i + 1}`);
-        const pkValues = this.model.primaryKeys.map(key => originalPKs[key]);
-
-    const query = `
-        UPDATE ${this.model.schema}.${this.model.tableName}
-        SET ${setClauses.join(", ")}
-        WHERE ${whereClauses.join(" AND ")}
-    `;
-
-    await this.pool.query(query, [...setValues, ...pkValues]);
+        const updateValues = columnsToUpdate.map(col => row[col]);
+        await this.pool.query(query, [...keyValues, ...updateValues]);
     }
 
     public async delete(originalPKs: Record<string, any>): Promise<void> {
@@ -96,17 +74,15 @@ export abstract class Repository {
         const logicalDelete = this.model.allColumns.includes('activo'); // Si tiene activo, entonces hacemos borrado lógico
         let query: string;
         const values = primaryKeys.map(key => originalPKs[key]);
-        
+
         if(logicalDelete) {
             query = `
-            UPDATE ${this.model.schema}.${this.model.tableName}
+            UPDATE ${this.schema}.${this.tableName}
             SET activo = FALSE
             WHERE ${primaryKeys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')}
             `;
         } else { // Si no tiene activo, entonces hacemos borrado físico
             query = `
-            DELETE FROM ${this.model.schema}.${this.model.tableName}
-        const query = `
             DELETE FROM ${this.schema}.${this.tableName}
             WHERE ${primaryKeys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')}
             `;
@@ -122,17 +98,11 @@ export class StudentRepository extends Repository {
             dni: new IntegerType(false, true, "DNI"),
             nombre: new StringType(false, false, "Nombre"),
             apellido: new StringType(false, false, "Apellido"),
-            cursoactual: new StringType(false, false, "Curso"),
-            modalidadactual: new EnumType(false, false, ["Eventual", "Mensual", "Fijo"], "Modalidad"),
-            cuitresppagos: new StringType(false, false, "CUIT de Responsable de pagos"),
-            activo: new BooleanType(false, false, "activo")
-        },
-        "pyac",
-        "alumno"
             curso: new StringType(false, false, "Curso"),
             modalidad: new EnumType(false, false, ["Eventual", "Mensual", "Fijo"], "Modalidad"),
-            cuit_responsable_de_pagos: new EnumType(false, false, ["Jardin", "Primaria"], "Nivel"),
-        }
+            cuit_responsable_de_pagos: new StringType(false, false, "CUIT de Responsable de pagos"),
+            activo: new BooleanType(false, false, '', true)
+        },
     );
 }
 
@@ -140,13 +110,9 @@ export class CourseRepository extends Repository {
     public readonly tableName: string = "curso";
     protected readonly model: Model = new Model(
         {
-            dni: new IntegerType(false, true),
-            fecha: new DateType(false, true)
-        },
-        "pyac",
-        "asistencia"
             curso: new StringType(false, true),
-            nivel: new StringType(false, false)
+            nivel: new StringType(false, false),
+            activo: new BooleanType(false, false, '', true)
         }
     );
 }
@@ -156,19 +122,14 @@ export class LevelRepository extends Repository {
     protected readonly model: Model = new Model(
         {
             nivel:  new EnumType(false, true, ["Jardin", "Primaria"], "Nivel"),
-            preciodiario: new FloatType(false, false, "Precio Diario Base"),
-            activo: new BooleanType(false, false, "activo")
-        },
-        "pyac",
-        "nivel"
-            nivel:  new EnumType(false, true, ["Jardin", "Primaria"]),
-            precio_diario: new FloatType(false, false)
+            precio_diario: new FloatType(false, false, "Precio Diario Base"),
+            activo: new BooleanType(false, false, '', true)
         }
     );
 
     public async getPrice(nivel: "Jardin" | "Primaria"): Promise<number> {
         const rows = await this.read({ nivel : nivel });
-        return rows[0]!.preciodiario;
+        return rows[0]!.precio_diario;
     }
 }
 
@@ -177,7 +138,8 @@ export class ModeRepository extends Repository {
     protected readonly model: Model = new Model(
         {
             modalidad: new EnumType(true, false, ["Eventual", "Mensual", "Fijo"]),
-            descuento: new FloatType(false, false)
+            descuento: new FloatType(false, false),
+            activo: new BooleanType(false, false, '', true)
         }
     );
 }
@@ -228,4 +190,35 @@ export class UserRepository extends Repository {
         }
     );
 
+    public async createUser(username: string, password: string, nombre: string, email: string): Promise<void> {
+        const row = {
+            nombre : nombre,
+            usuario : username,
+            email : email,
+            password_hash : await hashPassword(password)
+        };
+        await this.create(row);
+    }
+
+    public async changePassword(userId: number, newPassword: string): Promise<void> {
+        const pks = {
+            id_usuario : userId
+        };
+        const row = {
+            id_usuario : userId,
+            password_hash : await hashPassword(newPassword)
+        };
+        await this.update(pks, row);
+    }
+
+    public async authenticateUser(username: string, password: string): Promise<Record<string, any> | null> {
+        const rows = await this.read({usuario : username });
+        const usuario = rows[0];
+        if (!usuario) { return null; }
+
+        const passwordValida = await verifyPassword(password, usuario['password_hash'] as string);
+        if (!passwordValida) { return null; }
+
+        return usuario;
+    }
 }

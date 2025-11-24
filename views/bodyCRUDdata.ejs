@@ -4,7 +4,7 @@
  data -> Algún iterable, como students
  postRoute -> Una ruta para hacer post al añadir un elemento (sin /api). Por ejemplo /alumno
 -->
- 
+
 <a href="/" class="btn">Regresar al Menú Principal</a>
     <table>
         <tr>
@@ -23,39 +23,36 @@
             </th>
         </tr>
         <tr id="add-row">
-            <% for (const [key, meta] of Object.entries(metadata)) { 
-                if (key === 'activo') continue;    
+            <% for (const [key, meta] of Object.entries(metadata)) {
+                if (key === 'activo') continue;
             %>
-            <td data-key="<%=key%>"><input type="text"></td>
+            <td data-key="<%=key%>" data-id="<%=meta.pk%>"><input type="text"></td>
             <% } %>
             <% if (c === true) { %>
             <td>
-                <button class="confirm" onclick="addNew('<%=route%>')">CF</button>
+                <button class="confirm" onclick="addNew()">CF</button>
                 <button class="delete" onclick="cancelAdding()">CC</button>
             </td>
             <% } %>
         </tr>
         <% for (const element of iterableData) { %>
-        <tr data-id="<%=element[idCampo]%>">
-            <% for (const [key, meta] of Object.entries(metadata)) { 
-                if(key === 'activo') continue;    
+        <tr>
+            <% for (const [key, meta] of Object.entries(metadata)) {
+                if(key === 'activo') continue;
             %>
-                <td data-key="<%=key%>"><%=element[key]%></td>
+                <td data-key="<%=key%>" data-id="<%=meta.pk%>"><%=element[key]%></td>
             <% } %>
-            
+
             <% if (u === true || d === true) { %>
             <td>
-                
+
                 <% if (u === true) { %>
-                <button class="edit" data-route='<%- JSON.stringify(route) %>' data-pks='<%- JSON.stringify(primaryKeys) %>'
+                <button class="edit"
                     onclick="startEditing(this)">E</button>
                 <% } %>
-                
+
                 <% if (d === true) { %>
-                <button class="delete"
-                        data-route='<%- JSON.stringify(route) %>'
-                        data-pks='<%- JSON.stringify(primaryKeys) %>'
-                        onclick="deleteRow(this)">D</button>
+                <button class="delete"onclick="deleteRow(this)">D</button>
                 <% } %>
             </td>
             <% } %>
@@ -67,3 +64,6 @@
 <script src="/js/addInCRUD.js"></script>
 <script src="/js/updateInCRUD.js"></script>
 <script src="/js/deleteInCRUD.js"></script>
+<script>
+    const route = "<%= route %>";
+</script>

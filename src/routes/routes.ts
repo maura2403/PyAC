@@ -4,28 +4,24 @@ import { requireAuth } from "../middleware/auth.js"
 import authApiRoutes from "./authApi.js";
 import authPagesRoutes from "./authPages.js";
 import { poolDb } from "../database/client.js";
-import { AttendanceRepository, InvoiceRepository, LevelRepository, StudentRepository, ModalityRepository, CourseRepository, UserRepository} from "../database/repository.js";
+import { AttendanceRepository, InvoiceRepository, LevelRepository, StudentRepository, ModeRepository, CourseRepository, UserRepository} from "../database/repository.js";
 
 const router = Router();
 
-interface ColumnMeta {
-    label: string;
-    type: string;
-    modificable: boolean;
-}
-
 const studentRepo = new StudentRepository(poolDb);
-createAPICrud(router, studentRepo, true, true, true, true); // Creamos el CRUD con funcionalidad completa para estudiantes
+createAPICrud(router, studentRepo, true, true, true, true);
 
 const attendanceRepo = new AttendanceRepository(poolDb);
 
 const levelRepo = new LevelRepository(poolDb);
-createAPICrud(router, levelRepo, true, true, true, true); // Creamos el CRUD con funcionalidad completa para Niveles
+createAPICrud(router, levelRepo, true, true, true, true);
 
+// De las facturas vamos a querer verlas y editarlas.
+// La edición es limitada a los campos a rellenar al pagarlas.
 const invoiceRepo = new InvoiceRepository(poolDb);
-createAPICrud(router, invoiceRepo, false, true, true, false); // De las facturas vamos a querer verlas y editarlas. La edición es limitada a los campos a rellenar al pagarlas. 
+createAPICrud(router, invoiceRepo, false, true, true, false);
 
-const modalityRepo = new ModalityRepository(poolDb);
+const modalityRepo = new ModeRepository(poolDb);
 createAPICrud(router, modalityRepo, true, true, true, true);
 
 const userRepo = new UserRepository(poolDb);
@@ -35,8 +31,8 @@ const courseRepo = new CourseRepository(poolDb);
 createAPICrud(router, courseRepo, true, true, true, true);
 
 // Normaliza las fechas a formato YY-MM-DDDD si tiene fechas.
-function normaliceDates(data: Record<string,  any>[]): Record<string, any>[] {
-    return data.map(row => {
+function normalizeDates(data: Record<string,  any>[]): Record<string, any>[] {
+    return data?.map(row => {
         const newRow: Record<string, any> = {};
 
         for (const key in row) {
@@ -55,7 +51,7 @@ function normaliceDates(data: Record<string,  any>[]): Record<string, any>[] {
     });
 }
 
-function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName: string, iterableDataName: string, campoPK: string){
+function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName: string, iterableDataName: string){
     router.get(`/app/${specificRoute}`, requireAuth, async (req, res) => {
         const queryParams = req.query;
         let queryString = Object.keys(queryParams).map(key => `${key}=${queryParams[key]}`).join('&');
@@ -64,7 +60,6 @@ function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName
             queryString = `?${queryString}`;
         }
 
-
         // Fetch data
         const response = await fetch(`${url}${queryString}`, {
             method : "GET",
@@ -72,7 +67,6 @@ function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName
                 cookie: req.headers.cookie ?? '',
             }
         });
-        
         const data = await response.json();
 
         // Fetch metadata
@@ -83,29 +77,22 @@ function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName
             }
         });
         const metadata = await metadataResponse.json();
-        const normalizedData = normaliceDates(data); // Pasa los dates (si hubiese) de los campos a formato YY-MM-DDDD
-        res.render(templateFrontEndName, { [iterableDataName] : normalizedData, "metadata" : metadata, idCampo: campoPK});
+        const normalizedData = normalizeDates(data); // Pasa los dates (si hubiese) de los campos a formato YY-MM-DDDD
+        res.render(templateFrontEndName, { [iterableDataName] : normalizedData, "metadata" : metadata});
     });
-
 }
 
-createMainRouteForBasicCRUD("alumno", "manageStudents", "students", "dni");
-createMainRouteForBasicCRUD("factura", "manageInvoices", "invoices", "dni");
-createMainRouteForBasicCRUD("curso", "manageCourses", "courses", "curso");
-createMainRouteForBasicCRUD("nivel", "manageLevels", "levels", "nivel");
-createMainRouteForBasicCRUD("modalidad", "manageModalities", "modalities", "modalidad");
-createMainRouteForBasicCRUD("usuario", "manageUsers", "users", "idusuario");
-
-
+createMainRouteForBasicCRUD("alumno", "manageStudents", "students");
+createMainRouteForBasicCRUD("factura", "manageInvoices", "invoices");
+createMainRouteForBasicCRUD("curso", "manageCourses", "courses");
+createMainRouteForBasicCRUD("nivel", "manageLevels", "levels");
 
 // Ruta GET principal
 router.get("/", (_, res) => {
     res.render("mainMenu");
 });
 
-
 router.use(authApiRoutes);
 router.use(authPagesRoutes);
-
 
 export default router;

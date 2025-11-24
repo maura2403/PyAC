@@ -6,10 +6,10 @@ import type { Repository } from "./database/repository.js";
 // req.query: Parametros para filtrar (en el filtros en el READ o PKs en UPDATE y DELETE)
 export async function createAPICrud(router: Router, repository: Repository, c: boolean, r: boolean, u:boolean, d:boolean) {
     const route: string = `/api/${repository.tableName}`;
-    
+
     // Creamos las rutas dependiendo de que funcionalidades se piden (bits C,R,U,D)
     // Create
-    if(c) {
+    if (c) {
             router.post(route, requireAuthAPI, async (req, res) => {
             try {
                 await repository.create(req.body);
@@ -22,7 +22,7 @@ export async function createAPICrud(router: Router, repository: Repository, c: b
         });
     }
     // Read
-    if(r){
+    if (r){
         router.get(route, requireAuthAPI, async (req, res) => {
         try {
             const rows = await repository.read(req.query);
@@ -35,11 +35,11 @@ export async function createAPICrud(router: Router, repository: Repository, c: b
         });
     }
 
-    // PATCH
-    if(u){
+    // Update
+    if (u) {
         router.patch(route, requireAuthAPI, async (req, res) => {
             try {
-                await repository.patch(req.query, req.body);
+                await repository.update(req.query, req.body);
                 res.status(200).json({ ok: true });
             }
             catch (err) {
@@ -50,7 +50,7 @@ export async function createAPICrud(router: Router, repository: Repository, c: b
     }
 
     // Delete
-    if(d){
+    if (d){
         router.delete(route, requireAuthAPI, async (req, res) => {
             try {
                 await repository.delete(req.query);

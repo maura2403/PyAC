@@ -1,10 +1,9 @@
-
 function startAdding() {
     const row = document.getElementById("add-row");
     row.style.display = "table-row";
 }
 
-async function addNew(route) { //Recibe una ruta para post, sin /api. Por ejemplo /alumno
+async function addNew() {
     const row = document.getElementById("add-row");
 
     // Llenamos un form data con los datos del insert nuevo
