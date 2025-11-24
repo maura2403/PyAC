@@ -1,6 +1,6 @@
 import express, { Router }  from "express";
 import { autenticarUsuario, crearUsuario } from '../login/auth.js';
-import { getDbClient } from "../database/client.js"
+import { poolDb } from "../database/client.js";
 
 const router = Router();
 
@@ -12,10 +12,8 @@ router.post('/api/v0/auth/login', express.json(), async (req, res) => {
         return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
     }
 
-    const clientDb = await getDbClient();
-
     try {
-        const usuario = await autenticarUsuario(clientDb, username, password);
+        const usuario = await autenticarUsuario(poolDb, username, password);
 
         if (usuario) {
             req.session.user = usuario;
@@ -32,8 +30,6 @@ router.post('/api/v0/auth/login', express.json(), async (req, res) => {
     } catch (error) {
         console.error('Error en login:', error);
         return res.status(500).json({ error: 'Error en el servidor' });
-    } finally {
-        await clientDb.end();
     }
 });
 
@@ -56,10 +52,8 @@ router.post('/api/v0/auth/register', express.json(), async (req, res) => {
         return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
     }
 
-    const clientDb = await getDbClient();
-
     try {
-        const usuario = await crearUsuario(clientDb, username, password, nombre, email);
+        const usuario = await crearUsuario(poolDb, username, password, nombre, email);
 
         if (usuario) {
             return res.status(201).json({
@@ -75,8 +69,6 @@ router.post('/api/v0/auth/register', express.json(), async (req, res) => {
     } catch (error) {
         console.error('Error al crear usuario:', error);
         return res.status(500).json({ error: 'Error en el servidor' });
-    } finally {
-        await clientDb.end();
     }
 });
 

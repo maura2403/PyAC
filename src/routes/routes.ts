@@ -1,13 +1,12 @@
 import { Router } from "express";
-import { Pool } from "pg";
 import { createAPICrud } from "../basicCrud.js"
-import { StudentRepository, AttendanceRepository, LevelRepository, InvoiceRepository, type Invoice } from "../database/repository.js";
 import { requireAuth } from "../middleware/auth.js"
 import authApiRoutes from "./authApi.js";
 import authPagesRoutes from "./authPages.js";
+import { poolDb } from "../database/client.js";
+import { AttendanceRepository, InvoiceRepository, LevelRepository, StudentRepository } from "../database/repository.js";
 
 const router = Router();
-const pool = new Pool();
 
 interface ColumnMeta {
     label: string;
@@ -15,61 +14,17 @@ interface ColumnMeta {
     modificable: boolean;
 }
 
-const studentColumnMeta: Record<string, ColumnMeta> = {
-    dni: {
-        label: "DNI del alumno",
-        type: "number",
-        modificable: false
-    },
-    nombre: {
-        label: "Nombre",
-        type: "text",
-        modificable: true
-    },
-    apellido: {
-        label: "Apellido",
-        type: "text",
-        modificable: true
-    },
-    curso: {
-        label: "Curso",
-        type: "text",
-        modificable: true
-    },
-    modalidad: {
-        label: "Modalidad",
-        type: "text",
-        modificable: true
-    },
-    nivel: {
-        label: "Nivel",
-        type: "text",
-        modificable: true
-    },
-    responsable_de_pagos: {
-        label: "Responsable de pagos",
-        type: "text",
-        modificable: true
-    },
-    responsable1: {
-        label: "Responsable1",
-        type: "text",
-        modificable: true
-    },
-};
-
-// Tecnicamente createAPICrud podria ir adentro de Repository.
-// Hay que decidir si todos los Repositories van a tener un CRUD.
-// Por ahora quedan separados.
-const studentRepo = new StudentRepository(pool);
+const studentRepo = new StudentRepository(poolDb);
 createAPICrud(router, studentRepo);
 
+const attendanceRepo = new AttendanceRepository(poolDb);
 const attendanceRepo = new AttendanceRepository(pool);
 // No debería tener el CRUD completo. Temporal.
 createAPICrud(router, attendanceRepo);
 
-const levelRepo = new LevelRepository(pool);
-createAPICrud(router, levelRepo);
+const levelRepo = new LevelRepository(poolDb);
+
+const invoiceRepo = new InvoiceRepository(poolDb);
 
 const invoiceRepo = new InvoiceRepository(pool);
 createAPICrud(router, invoiceRepo);
@@ -101,22 +56,32 @@ router.post("/api/presentes", async (req, res) => {
 
 // Esto tambien lo podriamos generalizar para todos los Repositories.
 router.get("/app/alumnos", requireAuth, async (req, res) => {
-    const queryParams = req.query as Record<string, string>;
-    const queryString = Object.keys(queryParams).map(key => `${key}=${queryParams[key]}`).join('&');
-    let url = 'http://localhost:3000/api/alumnos';
+    const queryParams = req.query;
+    let queryString = Object.keys(queryParams).map(key => `${key}=${queryParams[key]}`).join('&');
+    const url = 'http://localhost:3000/api/alumnos';
     if (queryString !== '') {
-        url += `?${queryString}`;
+        queryString = `?${queryString}`;
     }
 
-    const response = await fetch(url, {
+    // Fetch students
+    const studentsResponse = await fetch(`${url}${queryString}`, {
         method : "GET",
         headers: {
             cookie: req.headers.cookie ?? '',
         }
     });
-    const students = await response.json();
+    const students = await studentsResponse.json();
 
-    res.render("manageStudents", { "students" : students, "studentColumnMeta" : studentColumnMeta });
+    // Fetch metadata
+    const metadataResponse = await fetch(`${url}/metadata`, {
+        method : "GET",
+        headers: {
+            cookie: req.headers.cookie ?? '',
+        }
+    });
+    const metadata = await metadataResponse.json();
+
+    res.render("manageStudents", { "students" : students, "metadata" : metadata });
 });
 
 router.get("/app/presentes", requireAuth, (req, res) => {
@@ -126,14 +91,29 @@ router.get("/app/presentes", requireAuth, (req, res) => {
 
 router.get("/app/presentes/:fecha", requireAuth, async (req, res) => {
     const fecha = req.params.fecha;
+    const url = 'http://localhost:3000/api/alumnos';
     // TODO: Revisar que efectivamente sea una fecha válida.
     if (!fecha) {
         res.status(400).json({ error: 'Requiere parametro fecha.' });
         return;
     }
 
+    // Fetch metadata
+    const metadataResponse = await fetch(`${url}/metadata`, {
+        method : "GET",
+        headers: {
+            cookie: req.headers.cookie ?? '',
+        }
+    });
+    const metadata = await metadataResponse.json();
+
     const students = await studentRepo.getwithAttendance(fecha);
-    res.render("attendanceForm", { fecha, students, studentColumnMeta });
+    res.render("attendanceForm", { "fecha" : fecha, "students" : students, "metadata" : metadata });
+});
+
+router.get("/app/presentes", requireAuth, (req, res) => {
+    const today = new Date().toISOString().split("T")[0];  // YYYY-MM-DD
+    res.redirect(`/app/presentes/${today}`);
 });
 
 // Ruta GET principal
