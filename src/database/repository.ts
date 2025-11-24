@@ -84,13 +84,13 @@ export class StudentRepository extends Repository {
     
     // Se podría intertar abstraer para poder utilizar la implementación de los filtros hechos en el read.
     // Tiene los nombres dni, fecha, apellido, nombre hardcodeados.
-    public async getwithAttendance(fecha: string): Promise<(Student & { presente: boolean })[]>{
+    public async getwithAttendance(fecha: string): Promise<(Record<string, any>)[]>{
         const query = `
             SELECT 
                 a.*,
                 p.fecha
-            FROM ${this.schema}.alumnos AS a
-            LEFT JOIN ${this.schema}.presentes AS p
+            FROM ${this.model.schema}.alumnos AS a
+            LEFT JOIN ${this.model.schema}.presentes AS p
                 ON a.dni = p.dni AND p.fecha = $1
             ORDER BY a.apellido, a.nombre;
         `;
