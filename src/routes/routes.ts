@@ -5,6 +5,7 @@ import authApiRoutes from "./authApi.js";
 import authPagesRoutes from "./authPages.js";
 import { poolDb } from "../database/client.js";
 import { AttendanceRepository, InvoiceRepository, LevelRepository, StudentRepository } from "../database/repository.js";
+import { assertValidDateYYYYMMDD } from "../extra/utils.js";
 import type { Request } from "express";
 
 const router = Router();
@@ -71,12 +72,13 @@ router.get("/app/presentes", requireAuth, (req, res) => {
 
 router.get("/app/presentes/:fecha", requireAuth, async (req, res) => {
     const fecha = req.params.fecha;
-    
-    // TODO: Revisar que efectivamente sea una fecha válida.
+
     if (!fecha) {
         res.status(400).json({ error: 'Requiere parametro fecha.' });
         return;
     }
+
+    assertValidDateYYYYMMDD(fecha);
 
     const metadata = await fetchStudentMetadata(req);
 

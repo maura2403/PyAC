@@ -1,5 +1,6 @@
 import { Pool } from "pg";
 import { DateType, EnumType, FloatType, IntegerType, Model, StringType } from "./model.js";
+import { assertValidDateYYYYMMDD } from "../extra/utils.js";
 
 export abstract class Repository {
     public get tableName(): string {
@@ -85,6 +86,8 @@ export class StudentRepository extends Repository {
     // Se podría intertar abstraer para poder utilizar la implementación de los filtros hechos en el read.
     // Tiene los nombres dni, fecha, apellido, nombre hardcodeados.
     public async getwithAttendance(fecha: string): Promise<(Record<string, any>)[]>{
+        assertValidDateYYYYMMDD(fecha);
+        
         const query = `
             SELECT 
                 a.*,

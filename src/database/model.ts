@@ -1,4 +1,4 @@
-import { arraySameElements } from "../extra/utils.js";
+import { arraySameElements, isValidDateYYYYMMDD } from "../extra/utils.js";
 
 export class Model {
     public readonly schema: string;
@@ -131,7 +131,7 @@ export class BooleanType extends DatabaseType {
 export class DateType extends DatabaseType {
     protected readonly inputType: string = "date";
     protected validateType(value: any) {
-        return value instanceof Date;
+        return isValidDateYYYYMMDD(value);
     }
 }
 
