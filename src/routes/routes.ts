@@ -14,8 +14,7 @@ const studentRepo = new StudentRepository(poolDb);
 createAPICrud(router, studentRepo, true, true, true, true);
 
 const attendanceRepo = new AttendanceRepository(poolDb);
-// No debería tener el CRUD completo. Temporal.
-createAPICrud(router, attendanceRepo, true, true, true, true);
+createAPICrud(router, attendanceRepo, true, false, false, true);
 
 const levelRepo = new LevelRepository(poolDb);
 createAPICrud(router, levelRepo, true, true, true, true);
@@ -125,7 +124,7 @@ router.get("/app/asistencia/:fecha", requireAuth, async (req, res) => {
     const metadata = await fetchStudentMetadata(req);
 
     const students = await studentRepo.getwithAttendance(fecha);
-    res.render("attendanceForm", { "fecha" : fecha, "students" : students, "metadata" : metadata });
+    res.render("manageAttendance", { "fecha" : fecha, "students" : students, "metadata" : metadata });
 });
 
 router.get("/app/asistencia", requireAuth, (req, res) => {
