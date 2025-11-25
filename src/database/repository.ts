@@ -182,7 +182,7 @@ export class UserRepository extends Repository {
     public readonly tableName: string = "usuario";
     protected readonly model: Model = new Model(
         {
-            id_usuario: new IntegerType(false, true),
+            id_usuario: new IntegerType(false, true, undefined, true),
             nombre: new StringType(false, false),
             usuario: new StringType(false, false),
             email: new StringType(false, false),
