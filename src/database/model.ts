@@ -60,10 +60,21 @@ export class Model {
 
     private assertValidation(keys: string[], row: Record<string, any>) {
         keys.forEach(key => {
-            const value = row[key];
+            const values = row[key];
             const columnType = this.columns[key]!;
-            if (!columnType.validate(value)) {
-                throw new Error(`The value ${value} isn't a valid value for the column ${key}.`);
+            for (const value in values){
+                if (!columnType.validate(value)) {
+                    throw new Error(`The value ${value} isn't a valid value for the column ${key}.`);
+                }
+            }
+        });
+    }
+
+    private assertSortValidation(keys: string[], row: Record<string, any>) {
+        keys.forEach(key => {
+            const value = row[key];
+            if (value !== 'asc' || value !== 'desc') {
+                throw new Error(`The value ${value} isn't a valid value for sorting ${key}.`);
             }
         });
     }
@@ -74,11 +85,15 @@ abstract class DatabaseType {
     public readonly primaryKey: boolean;
     protected readonly frontLabel: string;
     protected abstract readonly inputType: string;
+    protected readonly filterable: boolean;
+    protected readonly sortable: boolean;
 
-    constructor(allowNull: boolean, primaryKey: boolean, label: string = '') {
+    constructor(allowNull: boolean, primaryKey: boolean, label: string = '', filterable: boolean = true, sortable: boolean = true) {
         this.allowNull = allowNull;
         this.primaryKey = primaryKey;
         this.frontLabel = label;
+        this.filterable = filterable;
+        this.sortable = sortable;
     }
 
     validate(value: any): boolean {
@@ -91,7 +106,9 @@ abstract class DatabaseType {
     public get frontData(): Record<string, any> {
         return {
             "label" : this.frontLabel,
-            "type" : this.inputType
+            "type" : this.inputType,
+            "filterable" : this.filterable,
+            "sortable" : this.sortable
         };
     }
 

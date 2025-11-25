@@ -1,3 +1,20 @@
+h2 {
+    width: 80%;
+    color: var(--text-dark-color);
+    margin: 1rem auto;
+}
+
+.th-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+table svg {
+    height: 100%;
+    width: auto;
+}
+
 table input {
     width: 100%;
     box-sizing: border-box;
@@ -5,7 +22,12 @@ table input {
     font-family: inherit;
     font-size: inherit;
     border: none;
+    text-align: center;
     border-bottom: 1px solid #dddddd;
+}
+
+table input:focus{
+    outline: none;
 }
 
 table button {
@@ -19,39 +41,63 @@ table button {
 }
 
 button.edit {
-    background-color: var(--primary-color);
+    color: var(--primary-color);
 }
 
 button.edit:hover {
-    background-color: var(--primary-color-hover);
+    color: var(--primary-color-dark);
 }
 
 button.confirm {
-    background-color: var(--accept-color);
+    color: var(--accept-color);
 }
 
 button.confirm:hover {
-    background-color: var(--accept-color-hover);
+    color: var(--accept-color-hover);
 }
 
 button.delete {
-    background-color:var(--cancel-color);
+    color: var(--cancel-color);
 }
 
 button.delete:hover {
-    background-color:var(--cancel-color-hover);
+    color: var(--cancel-color-hover);
 }
 
-button.add {
+button.add, button.field-menu {
+    color: var(--text-light-color);
     background-color: var(--primary-color);
-    color: white;
-    font-size: 1rem;
 }
 
-button.add:hover {
-    background-color: var(--primary-color-hover);
+button.add:hover, button.field-menu:hover {
+    color: var(--text-mid-color);
 }
 
 #add-student-row {
     display: none;
+}
+
+
+.field-menu-popup {
+    visibility: hidden;
+    background-color: var(--secondary-color);
+    color: var(--text-dark-color);
+    text-align: center;
+
+    position: absolute;
+    top: 100%;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.2rem;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    z-index: 999;
+}
+
+.field-menu svg {
+    height: 80%;
+    width: auto;
+}
+
+.field-menu-popup.show {
+  visibility: visible;
 }

@@ -26,18 +26,44 @@ export abstract class Repository {
         await this.pool.query(query, values);
     }
 
-    public async read(filters: Record<string, any>): Promise<Record<string, any>[]> {
-        this.model.assertFilter(filters);
+    public async read(filter: Record<string, any>, sortby: Record<string, any>={}): Promise<Record<string, any>[]> {
+        Object.keys(filter).forEach(key => {
+            const value = Array.isArray(filter[key]) ? filter[key] : [filter[key]];
+            filter[key] = value;
+        });
+        //this.model.assertPartialObject(filter);
+        //this.model.assertSortBy(sortby);
         let query = `SELECT * FROM ${this.model.schema}.${this.model.tableName}`;
-        const filterKeys = Object.keys(filters);
+        const filterKeys = Object.keys(filter);
+        const sorterKeys = Object.keys(sortby);
+        const queryValues:any[] = [];
 
         if (filterKeys.length > 0) {
-            const placeholders = filterKeys.map((key, i) => `${key} = $${i + 1}`).join(' AND ');
-            query += ` WHERE ${placeholders}`;
+            let filterIndex = 1;
+            let conditions = [];
+            for (let key of filterKeys) {
+                const values = filter[key];
+                const orValues = values.map((v:any) => {
+                    queryValues.push(v);
+                    if(v.toString().includes('%')){
+                        return `${key} ilike $${filterIndex++}`;
+                    }
+                    else{
+                        return `${key} = $${filterIndex++}`;
+                    }
+                }).join(' OR ');
+
+                conditions.push(`(${orValues})`);
+            }
+            query += ` WHERE ${conditions.join(' AND ')}`;
         }
 
-        const values = filterKeys.map(key => filters[key]);
-        const items = await this.pool.query(query, values);
+        if (sorterKeys.length > 0) {
+            const sortValues = sorterKeys.map((key) => `${key} ${sortby[key]}`).join(' , ');
+            query += ` ORDER BY ${sortValues}`;
+        }
+
+        const items = await this.pool.query(query, queryValues);
         return items.rows;
     }
 
@@ -69,7 +95,7 @@ export abstract class Repository {
 export class StudentRepository extends Repository {
     protected readonly model: Model = new Model(
         {
-            dni: new IntegerType(false, true, "DNI del alumno"),
+            dni: new IntegerType(false, true, "DNI"),
             nombre: new StringType(false, false, "Nombre"),
             apellido: new StringType(false, false, "Apellido"),
             curso: new StringType(false, false, "Curso"),

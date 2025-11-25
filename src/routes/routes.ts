@@ -49,7 +49,9 @@ router.get("/app/alumnos", requireAuth, async (req, res) => {
     });
     const metadata = await metadataResponse.json();
 
-    res.render("manageStudents", { "students" : students, "metadata" : metadata });
+    const filterParam = queryParams.filter ? JSON.parse(queryParams.filter as string) : {};
+    const sortParam = queryParams.sortby ? JSON.parse(queryParams.sortby as string) : {};
+    res.render("manageStudents", { "students" : students, "metadata" : metadata, "filterParams": filterParam, "sortbyParams": sortParam});
 });
 
 // Ruta GET principal

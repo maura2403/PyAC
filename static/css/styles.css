@@ -71,6 +71,11 @@ nav {
   color: white;
 }
 
+nav .logo svg {
+  height: 100%;
+  width: auto;
+}
+
 .nav-links {
   list-style: none;
   display: flex;
@@ -160,14 +165,16 @@ table {
   overflow: hidden;
   min-width: 40rem;
   text-align: center;
+  table-layout: fixed;
 }
 
 th {
     background: var(--primary-color);
     color: var(--text-light-color);
-    padding: 0.5rem 0;
+    padding: 0.5rem 0.2rem;
     word-wrap: break-word;
     white-space: normal;
+    position: relative;
 }
 
 td {
