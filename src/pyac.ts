@@ -1,5 +1,5 @@
 import { Client } from 'pg'
-import { parseCsvFromPath, parseCsvFromContent } from './csv.js'
+import { parseCsvFromPath, parseCsvFromContent } from './extra/csv.js'
 
 
 export async function insertStudent(clientDb: Client, studentData: string[], columns: string[]){

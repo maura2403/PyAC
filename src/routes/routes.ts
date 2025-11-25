@@ -5,7 +5,8 @@ import authApiRoutes from "./authApi.js";
 import authPagesRoutes from "./authPages.js";
 import { poolDb } from "../database/client.js";
 import { AttendanceRepository, InvoiceRepository, LevelRepository, StudentRepository, ModeRepository, CourseRepository, UserRepository} from "../database/repository.js";
-import { assertValidDateYYYYMMDD } from "../extra/utils.js";
+import { assertValidDateYYYYMMDD, zip } from "../extra/utils.js";
+import { parseCsvFromContent } from "../extra/csv.js"
 import type { Request } from "express";
 
 const router = Router();
@@ -130,6 +131,27 @@ router.get("/app/asistencia/:fecha", requireAuth, async (req, res) => {
 router.get("/app/asistencia", requireAuth, (req, res) => {
     const today = new Date().toISOString().split("T")[0];  // YYYY-MM-DD
     res.redirect(`/app/asistencia/${today}`);
+});
+
+router.get("/app/alumnocsv", requireAuth, (req, res) => {
+    res.render("csvStudentUpload")
+});
+
+
+router.post("/api/alumnoscsv", requireAuth, async (req, res) => {
+    try {
+        var {dataLines: studentsDataList, columns: columns} = await parseCsvFromContent(req.body)
+        const resultado = zip(columns, studentsDataList)
+
+        for(const row of resultado){
+            await studentRepo.create(row);  // Consultar si usamos un POST o directamente utilizar el repositorio.
+        }
+        res.status(201).send({ ok: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ error: 'Error insertando alumnos' });
+    }
+
 });
 
 // Ruta GET principal

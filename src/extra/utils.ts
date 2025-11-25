@@ -45,3 +45,11 @@ export function assertValidDateYYYYMMDD(dateStr: string){
             `);
         }
 }
+
+export function zip(fields: string[], rows: string[][]) {
+    return rows.map((row) => 
+        Object.fromEntries(fields.map((f, i) => [f, row[i]]))
+    )
+}
+
+
