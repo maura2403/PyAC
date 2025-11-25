@@ -1,12 +1,14 @@
 import { arraySameElements, isValidDateYYYYMMDD } from "../extra/utils.js";
 
 export class Model {
-    public readonly schema: string;
-    public readonly tableName: string;
     private columns: Record<string, DatabaseType>;
 
     public get allColumns(): string[] {
         return Object.keys(this.columns);
+    }
+
+    public get nonDefaultValueColumns(): string[] {
+        return this.allColumns.filter(key => !this.columns[key]!.hasDefaultValue);
     }
 
     public get primaryKeys(): string[] {
@@ -28,21 +30,19 @@ export class Model {
         return res;
     }
 
-    constructor(columns: Record<string, DatabaseType>, modelSchema: string, modelTable: string) {
-        this.schema = modelSchema;
-        this.tableName = modelTable;
+    constructor(columns: Record<string, DatabaseType>) {
         this.columns = columns;
     }
 
     public assertFullObject(row: Record<string, any>) {
         const keys = Object.keys(row);
-        if (!arraySameElements(keys, this.allColumns)) {
+        if (!arraySameElements(keys, this.nonDefaultValueColumns)) {
             throw new Error(`The object ${JSON.stringify(row)} isn't a valid Object for ${this.constructor.name}.`);
         }
         this.assertValidation(keys, row);
     }
 
-    public assertFilter(filter: Record<string, any>) {
+    public assertPartialObject(filter: Record<string, any>) {
         const keys = Object.keys(filter);
         if (keys.some(key => !this.allColumns.includes(key))) {
             throw new Error(`The object ${JSON.stringify(filter)} isn't a valid Filter for ${this.constructor.name}.`);
@@ -74,11 +74,13 @@ abstract class DatabaseType {
     public readonly primaryKey: boolean;
     protected readonly frontLabel: string;
     protected abstract readonly inputType: string;
+    public readonly hasDefaultValue: boolean;
 
-    constructor(allowNull: boolean, primaryKey: boolean, label: string = '') {
+    constructor(allowNull: boolean, primaryKey: boolean, label: string = '', hasDefaultValue: boolean = false) {
         this.allowNull = allowNull;
         this.primaryKey = primaryKey;
         this.frontLabel = label;
+        this.hasDefaultValue = hasDefaultValue;
     }
 
     validate(value: any): boolean {
@@ -91,7 +93,8 @@ abstract class DatabaseType {
     public get frontData(): Record<string, any> {
         return {
             "label" : this.frontLabel,
-            "type" : this.inputType
+            "type" : this.inputType,
+            "pk" : this.primaryKey
         };
     }
 
@@ -124,14 +127,37 @@ export class FloatType extends DatabaseType {
 export class BooleanType extends DatabaseType {
     protected readonly inputType: string = "checkbox";
     protected validateType(value: any) {
-        return typeof value == "boolean";
+        if(typeof value == "boolean") return true;
+
+        if(typeof value == "string" && (value == "true" || value == "false")) return true;
+
+        return false;
     }
 }
 
 export class DateType extends DatabaseType {
     protected readonly inputType: string = "date";
+
     protected validateType(value: any) {
-        return isValidDateYYYYMMDD(value);
+
+        // Si ya es Date, validar que sea válida
+        if (value instanceof Date) {
+            return !isNaN(value.getTime());
+        }
+
+        // Si es string, intentar parsearlo
+        if (typeof value === "string") {
+            const parsed = new Date(value);
+            if (!isNaN(parsed.getTime())) {
+                // Guardamos la fecha parseada en el objeto
+                // para que el Repository reciba un Date real
+                return true;
+            }
+            return false;
+        }
+
+        return false;
+        //return isValidDateYYYYMMDD(value);
     }
 }
 

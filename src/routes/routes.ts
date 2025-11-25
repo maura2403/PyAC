@@ -4,24 +4,65 @@ import { requireAuth } from "../middleware/auth.js"
 import authApiRoutes from "./authApi.js";
 import authPagesRoutes from "./authPages.js";
 import { poolDb } from "../database/client.js";
-import { AttendanceRepository, InvoiceRepository, LevelRepository, StudentRepository } from "../database/repository.js";
+import { AttendanceRepository, InvoiceRepository, LevelRepository, StudentRepository, ModeRepository, CourseRepository, UserRepository} from "../database/repository.js";
 import { assertValidDateYYYYMMDD } from "../extra/utils.js";
 import type { Request } from "express";
 
 const router = Router();
 
 const studentRepo = new StudentRepository(poolDb);
-createAPICrud(router, studentRepo);
+createAPICrud(router, studentRepo, true, true, true, true);
 
 const attendanceRepo = new AttendanceRepository(poolDb);
 // No debería tener el CRUD completo. Temporal.
 createAPICrud(router, attendanceRepo);
 
 const levelRepo = new LevelRepository(poolDb);
+createAPICrud(router, levelRepo, true, true, true, true);
 
+// De las facturas vamos a querer verlas y editarlas.
+// La edición es limitada a los campos a rellenar al pagarlas.
 const invoiceRepo = new InvoiceRepository(poolDb);
+createAPICrud(router, invoiceRepo, false, true, true, false);
 
-createAPICrud(router, invoiceRepo);
+const modalityRepo = new ModeRepository(poolDb);
+createAPICrud(router, modalityRepo, true, true, true, true);
+
+const userRepo = new UserRepository(poolDb);
+createAPICrud(router, userRepo, true, true, true, true);
+
+const courseRepo = new CourseRepository(poolDb);
+createAPICrud(router, courseRepo, true, true, true, true);
+
+// Normaliza las fechas a formato YY-MM-DDDD si tiene fechas.
+function normalizeDates(data: Record<string,  any>[]): Record<string, any>[] {
+    return data?.map(row => {
+        const newRow: Record<string, any> = {};
+
+        for (const key in row) {
+            const value = row[key];
+
+            // Si es string con formato YYYY-MM-DDT...
+            if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
+                newRow[key] = value.slice(0, 10);  // "2025-10-01"
+            }
+            else {
+                newRow[key] = value; // copiar tal cual
+            }
+        }
+
+        return newRow;
+    });
+}
+
+function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName: string, iterableDataName: string){
+    router.get(`/app/${specificRoute}`, requireAuth, async (req, res) => {
+        const queryParams = req.query;
+        let queryString = Object.keys(queryParams).map(key => `${key}=${queryParams[key]}`).join('&');
+        const url = `http://localhost:3000/api/${specificRoute}`;
+        if (queryString !== '') {
+            queryString = `?${queryString}`;
+        }
 
 async function fetchStudentMetadata(req: Request): Promise<Response>{
     const url = 'http://localhost:3000/api/alumnos';
@@ -44,15 +85,32 @@ router.get("/app/alumnos", requireAuth, async (req, res) => {
         queryString = `?${queryString}`;
     }
 
-    // Fetch students
-    const studentsResponse = await fetch(`${url}${queryString}`, {
-        method : "GET",
-        headers: {
-            cookie: req.headers.cookie ?? '',
-        }
-    });
-    const students = await studentsResponse.json();
+        // Fetch data
+        const response = await fetch(`${url}${queryString}`, {
+            method : "GET",
+            headers: {
+                cookie: req.headers.cookie ?? '',
+            }
+        });
+        const data = await response.json();
 
+        // Fetch metadata
+        const metadataResponse = await fetch(`${url}/metadata`, {
+            method : "GET",
+            headers: {
+                cookie: req.headers.cookie ?? '',
+            }
+        });
+        const metadata = await metadataResponse.json();
+        const normalizedData = normalizeDates(data); // Pasa los dates (si hubiese) de los campos a formato YY-MM-DDDD
+        res.render(templateFrontEndName, { [iterableDataName] : normalizedData, "metadata" : metadata});
+    });
+}
+
+createMainRouteForBasicCRUD("alumno", "manageStudents", "students");
+createMainRouteForBasicCRUD("factura", "manageInvoices", "invoices");
+createMainRouteForBasicCRUD("curso", "manageCourses", "courses");
+createMainRouteForBasicCRUD("nivel", "manageLevels", "levels");
     // Fetch metadata
     const metadataResponse = await fetch(`${url}/metadata`, {
         method : "GET",
@@ -96,9 +154,7 @@ router.get("/", (_, res) => {
     res.render("mainMenu");
 });
 
-
 router.use(authApiRoutes);
 router.use(authPagesRoutes);
-
 
 export default router;

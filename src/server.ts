@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import routes from "./routes/routes.js"; // Importamos el router con las rutas para nuestro servidor
 import session from 'express-session';
+import { poolDb } from "./database/client.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

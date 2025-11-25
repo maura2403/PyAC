@@ -1,0 +1,92 @@
+<!-- Recibe metadata, invoices como datos. Recibe del back TODAS las facturas -->
+<!DOCTYPE html>
+<% const title = "Gestión de Facturas - Tabla de Facturas"; %>
+<% const cssRoute = "/css/pages/manageInvoices.css"; %>
+<html lang="es">
+<head>
+    <%- include("headCRUDdata", {title: title, cssRoute: cssRoute}) %>
+</head>
+<body>
+
+<a href="/" class="btn">Regresar al Menú Principal</a>
+
+<!-- CONTROLES -->
+<div id="controls" class="controls">
+    
+    <label>
+        <input type="checkbox" id="filtroSinPagar">
+        Mostrar solo impagas
+    </label>
+
+    <label>
+        Ordenar por:
+        <select id="ordenarPor">
+            <option value="">(Sin orden)</option>
+            <option value="dni">DNI</option>
+            <option value="fechaemision">Fecha de emisión</option>
+        </select>
+    </label>
+
+    <label>
+        Buscar por DNI:
+        <input type="text" id="busquedaDni" placeholder="Ingrese DNI...">
+    </label>
+
+    <!-- FILTROS DE FECHA: fecha exacta (prioridad), mes, año -->
+    <div class="date-filters">
+        <label>
+            Fecha exacta:
+            <input type="date" id="filterDateExact">
+        </label>
+
+        <label>
+            Mes y año:
+            <input type="month" id="filterMonth">
+        </label>
+
+        <label>
+            Año:
+            <input type="number" id="filterYear" min="1900" max="2100" placeholder="2025" style="width:100px">
+        </label>
+    </div>
+
+    <button id="resetOrden">Restablecer</button>
+</div>
+
+<table class="manage-invoices-table">
+    <thead>
+    <tr>
+        <% for (const [key, meta] of Object.entries(metadata)) { %>
+            <th><%= meta.label %></th>
+        <% } %>
+        <th style="width: 150px;">PAGAR FACTURA</th>
+    </tr>
+    </thead>
+
+    <tbody id="invoices-tbody">
+    <% for (const element of invoices) { %>
+    <tr 
+        data-dni="<%= element['dni'] %>" 
+        data-fechaemision="<%= element['fechaemision'] %>"
+        data-esmensual="<%= element['esmensual'] %>"
+        data-pagado="<%= element['pagado'] %>"
+    >
+        <% for (const [key, meta] of Object.entries(metadata)) { %>
+            <td data-key="<%=key%>"><%= element[key] %></td>
+        <% } %>
+
+        <td>
+            <% if (!element['pagado']) { %>
+                <button class="pay" onclick="payInvoice(this)">PAGAR</button>
+            <% } else { %>
+                NA
+            <% } %>
+        </td>
+    </tr>
+    <% } %>
+    </tbody>
+</table>
+
+<script src="/js/manageInvoicesScripts.js"></script>
+</body>
+</html>

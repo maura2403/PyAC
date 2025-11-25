@@ -1,11 +1,10 @@
 import { Router }  from "express";
-import type { User } from '../login/auth.js';
 
 const router = Router();
 
 declare module 'express-session' {
     interface SessionData {
-        user?: User;
+        user?: Record<string, any>;
     }
 }
 

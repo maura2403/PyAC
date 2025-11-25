@@ -1,0 +1,141 @@
+/* manageInvoices.css - estilos específicos para la vista de facturas */
+
+:root {
+  --primary-bg: #f7f7f9;
+  --control-gap: 12px;
+}
+
+/* page layout */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 20px;
+    background: var(--primary-bg);
+}
+
+/* back button (reuse .btn if you already have a global) */
+a.btn {
+    display: inline-block;
+    margin-bottom: 16px;
+    padding: 8px 14px;
+    background: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+/* CONTROLES */
+.controls {
+    width: 80%;
+    margin: 0  auto 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    justify-content: center;
+}
+
+.controls label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    color: #222;
+}
+
+/* agrupador de filtros de fecha */
+.date-filters {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* inputs y select */
+.controls input[type="text"],
+.controls input[type="date"],
+.controls input[type="month"],
+.controls input[type="number"],
+.controls select {
+    padding: 6px 10px;
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: #fff;
+}
+
+/* tabla */
+.manage-invoices-table {
+    width: 80%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    font-family: 'Segoe UI', sans-serif;
+    box-shadow: 0 6px 18px rgba(18, 18, 18, 0.04);
+    border-radius: 8px;
+    overflow: hidden;
+    table-layout: fixed;
+    background: white;
+}
+
+.manage-invoices-table thead th {
+    background: var(--primary-color, #2d6cdf);
+    color: var(--text-light-color, #fff);
+    padding: 12px 10px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.manage-invoices-table th,
+.manage-invoices-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+    border-right: 1px solid #f5f5f5;
+    color: #222;
+    font-size: 0.95rem;
+    text-align: left;
+}
+
+.manage-invoices-table tbody tr:nth-child(even) td {
+    background-color: #fbfbfb;
+}
+
+/* última columna centrada */
+.manage-invoices-table th:last-child,
+.manage-invoices-table td:last-child {
+    width: 150px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* botón pagar */
+button.pay {
+    background-color: #ffcc00;
+    color: #222;
+    border: 1px solid #c9a600;
+    padding: 6px 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+}
+button.pay:hover { background-color: #ffd633; transform: translateY(-1px); }
+button.pay:active { transform: translateY(0); }
+
+/* reset */
+#resetOrden {
+    padding: 6px 10px;
+    background: #efefef;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* responsive */
+@media (max-width: 1000px) {
+  .manage-invoices-table, .controls { width: 95%; }
+  .date-filters { flex-wrap: wrap; gap: 6px; }
+}
