@@ -43,8 +43,8 @@ CREATE TABLE pyac.alumno (
     modalidad VARCHAR(120) NOT NULL,
     cuit_responsable_de_pagos VARCHAR(120) NOT NULL, -- Cuit del responsable de pagos del alumno
     activo BOOLEAN NOT NULL DEFAULT TRUE,
-    FOREIGN KEY (modalidad) REFERENCES pyac.modalidad(modalidad),
-    FOREIGN KEY (curso) REFERENCES pyac.curso(curso)
+    FOREIGN KEY (modalidad) REFERENCES pyac.modalidad(modalidad) ON UPDATE CASCADE,
+    FOREIGN KEY (curso) REFERENCES pyac.curso(curso) ON UPDATE CASCADE
 );
 GRANT SELECT, INSERT, UPDATE, DELETE ON pyac.alumno TO pyac_admin;
 
@@ -53,7 +53,7 @@ CREATE TABLE pyac.alumno_fijo(
     dni INT,
     dia_de_la_semana VARCHAR(120),
     PRIMARY KEY (dni, dia_de_la_semana),
-    FOREIGN KEY (dni) REFERENCES pyac.alumno(dni)
+    FOREIGN KEY (dni) REFERENCES pyac.alumno(dni) ON UPDATE CASCADE
 );
 GRANT SELECT, INSERT, UPDATE, DELETE ON pyac.alumno_fijo TO pyac_admin;
 
@@ -62,7 +62,7 @@ CREATE TABLE pyac.asistencia (
     dni INT,
     fecha DATE,
     PRIMARY KEY (dni, fecha),
-    FOREIGN KEY (dni) REFERENCES pyac.alumno(dni)
+    FOREIGN KEY (dni) REFERENCES pyac.alumno(dni) ON UPDATE CASCADE
 );
 GRANT SELECT, INSERT, UPDATE, DELETE ON pyac.asistencia TO pyac_admin;
 
@@ -75,7 +75,7 @@ CREATE TABLE pyac.factura (
     pagado BOOLEAN NOT NULL DEFAULT FALSE,
     fecha_de_pago DATE,
     PRIMARY KEY (dni, fecha_de_emision, es_mensual),
-    FOREIGN KEY (dni, fecha_de_emision) REFERENCES pyac.asistencia(dni, fecha)
+    FOREIGN KEY (dni, fecha_de_emision) REFERENCES pyac.asistencia(dni, fecha) ON UPDATE CASCADE
 );
 GRANT SELECT, INSERT, UPDATE, DELETE ON pyac.factura TO pyac_admin;
 

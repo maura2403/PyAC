@@ -162,8 +162,8 @@ export class CourseRepository extends Repository {
     public readonly tableName: string = "curso";
     protected readonly model: Model = new Model(
         {
-            curso: new StringType(false, true),
-            nivel: new StringType(false, false),
+            curso: new StringType(false, true, 'Curso'),
+            nivel: new StringType(false, false, 'Nivel'),
             activo: new BooleanType(false, false, '', true)
         }
     );
@@ -220,12 +220,12 @@ export class InvoiceRepository extends Repository {
     public readonly tableName: string = "factura";
     protected readonly model: Model = new Model(
         {
-            dni: new IntegerType(false, true),
-            fecha_de_emision: new DateType(false, true),
-            es_mensual: new BooleanType(false, true),
-            monto: new FloatType(false, false),
-            pagado: new BooleanType(false, false),
-            fecha_de_pago: new DateType(true, false)
+            dni: new IntegerType(false, true, 'DNI'),
+            fecha_de_emision: new DateType(false, true, 'Fecha de emision'),
+            es_mensual: new BooleanType(false, true, 'Tipo'),
+            monto: new FloatType(false, false, 'Monto'),
+            pagado: new BooleanType(false, false, 'Pagado'),
+            fecha_de_pago: new DateType(true, false, 'Fecha de pago')
         }
     );
 }
