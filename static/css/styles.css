@@ -1,8 +1,11 @@
 /* Para el styling de elementos que querramos que todas las páginas compartan */
 :root {
-    --primary-color: #4a90e2;
-    --primary-color-hover: #357abd;
+    --primary-color: #07613b;
+    --primary-color-hover: #064f34;
 
+    --primary-color-dark: #064f34;
+    --primary-color-light: #7bbe9f;
+    
     --secondary-color: #cbe2fd;
     --secondary-color-hover: #97c8ff;
 
@@ -12,6 +15,29 @@
     --cancel-color: #c70000;
     --cancel-color-hover: #b30000;
 
-    --text-dark-color:  #080d18;
-    --text-light-color: #f8fafc;
+    --text-dark-color:  #15161a;
+    --text-mid-color: #6f7579;
+    --text-light-color: white;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body{
+    height: 100%;
+    font-family: Verdana, sans-serif;
+    background: var(--secondary-color);
+}
+
+body{
+    display: flex;
+    flex-direction: column;
+}
+
+main{
+    flex: 1;
+    padding: 2rem 0;
 }
