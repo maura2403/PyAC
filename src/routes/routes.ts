@@ -107,6 +107,27 @@ createMainRouteForBasicCRUD("curso", "manageCourses", "courses");
 createMainRouteForBasicCRUD("nivel", "manageLevels", "levels");
 
 
+router.get("/app/alumno/csv", requireAuth, (req, res) => {
+    res.render("csvStudentUpload")
+});
+
+
+router.post("/api/alumno/csv", requireAuth, async (req, res) => {
+    try {
+        var {dataLines: studentsDataList, columns: columns} = await parseCsvFromContent(req.body)
+        const rows = zip(columns, studentsDataList)
+
+        for(const row of rows){
+            await studentRepo.create(row);  // Consultar si usamos un POST o directamente utilizar el repositorio.
+        }
+        res.status(201).send({ ok: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ error: 'Error insertando alumnos' });
+    }
+});
+
+
 router.get("/app/asistencia", requireAuth, (req, res) => {
     const today = new Date().toISOString().split("T")[0];  // YYYY-MM-DD
     res.redirect(`/app/asistencia/${today}`);
@@ -133,26 +154,6 @@ router.get("/app/asistencia", requireAuth, (req, res) => {
     res.redirect(`/app/asistencia/${today}`);
 });
 
-router.get("/app/alumnocsv", requireAuth, (req, res) => {
-    res.render("csvStudentUpload")
-});
-
-
-router.post("/api/alumnoscsv", requireAuth, async (req, res) => {
-    try {
-        var {dataLines: studentsDataList, columns: columns} = await parseCsvFromContent(req.body)
-        const resultado = zip(columns, studentsDataList)
-
-        for(const row of resultado){
-            await studentRepo.create(row);  // Consultar si usamos un POST o directamente utilizar el repositorio.
-        }
-        res.status(201).send({ ok: true });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send({ error: 'Error insertando alumnos' });
-    }
-
-});
 
 // Ruta GET principal
 router.get("/", (_, res) => {
