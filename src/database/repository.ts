@@ -71,9 +71,9 @@ export abstract class Repository {
 
     private async logicalCreate(row: Record<string, any>): Promise<void> {
         const filter = this.getPrimaryKeys(row);
-        const rows = await this.read(filter);
+        const rows = await this.defaultRead(filter);
         if (rows.length > 0) {
-            await this.update(filter, { ...row, activo : true } );
+            await this.defaultUpdate(filter, { ...row, activo : true } );
         }
         else {
             await this.defaultCreate(row);
@@ -131,11 +131,11 @@ export abstract class Repository {
     }
 
     private async logicalDelete(originalPKs: Record<string, any>): Promise<void> {
-        await this.update(originalPKs, { 'activo' : false });
+        await this.defaultUpdate(originalPKs, { 'activo' : false });
     }
 
     private getPrimaryKeys(row: Record<string, any>): Record<string, any> {
-        const pkObject = Object.keys(this.model.primaryKeys).reduce((acc, key) => {
+        const pkObject = this.model.primaryKeys.reduce((acc, key) => {
             acc[key] = row[key];
             return acc;
         }, {} as Record<string, any>);
