@@ -12,26 +12,16 @@
 </head>
 
 <body>
-    <header >
+    <%- include('partials/nav') %>
+
+    <header>
         <h1>Presente y A Comer!</h1>
-        <!-- <img src="/img/logoInstituto.png" alt="logoInstituto"> -->
-        <!-- <a href="/about" class="btn btn-primary w-25" style="margin-bottom:1%">Acerca del Sistema</a> -->
     </header>
 
     <main>
-        <div class="button-container">
-            <a href="/app/alumno" class="btn">Ver listado de Alumnos (CRUD)</a>
-            <a href="/app/factura" class="btn">Pagar Facturas</a>
-            <a href="/app/v0/archivo" class="btn">Cargar desde CSV</a>
-            <a href="/app/asistencia" class="btn">Tomar Presente</a>
-            <a href="/app/curso" class="btn">CRUD curso</a>
-            <a href="/app/nivel" class="btn">CRUD nivel</a>
-            <a href="/about" class="btn">Sobre el Sistema</a>
-        </div>
-        <div>
-            
-        </div>
+        <div class="about-us">Presente y a Comer! es un sistema web para la gestión del comedor escolar que permite administrar niveles educativos, modalidades de asistencia y alumnos. A partir de esa información, la plataforma facilita el registro diario de asistencia al mismo, marcando fácilmente quién estuvo presente y generando automáticamente la facturación correspondiente, simplificando el control administrativo y reduciendo tiempo de gestión.</div>
     </main>
     <%- include('partials/footer') %>
+    <script src="/js/nav.js"></script>
 </body>
 </html>

@@ -41,3 +41,112 @@ main{
     flex: 1;
     padding: 2rem 0;
 }
+
+footer{
+    background-color: var(--primary-color);
+    text-align: center;
+    color: var(--text-light-color);
+    padding: 1em;
+    font-size: 0.75rem;
+}
+
+
+/* Nav Bar*/
+nav {
+  width: 100%;
+  background: var(--primary-color);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  height: 4rem;
+  position: relative;
+  z-index:10;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.4rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-decoration: none;
+  color: white;
+}
+
+nav .logo svg {
+  height: 100%;
+  width: auto;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  height: 100%;
+}
+
+.nav-links li {
+  height: 100%;
+}
+
+.nav-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.4rem;
+  height: 100%;
+  text-decoration: none;
+  color: white;
+}
+
+.nav-links a:hover {
+  background: var(--primary-color-dark);
+}
+
+/* Hamburger Menu */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  padding: 0 1.4rem;
+}
+
+.hamburger span {
+  width: 1.8rem;
+  height: 0.2rem;
+  background: white;
+  transition: 0.3s;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    /* Nav Bar */
+    .nav-links, .login-btn {
+        display: none;
+    }
+    .hamburger {
+        display: flex;
+    }
+
+    nav.open .nav-links {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        width: 100%;
+        top: 100%;
+    }
+
+    nav.open .nav-links a {
+        width: 100%;
+        text-align: center;
+        padding: 1rem 0;
+        border-top: 0.1rem solid rgba(255, 255, 255, 0.2);
+        background-color: var(--primary-color);
+    }
+
+    nav.open .nav-links a:hover {
+        background-color: var(--primary-color-dark);
+    }
+}
