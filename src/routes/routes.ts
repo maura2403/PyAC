@@ -108,7 +108,7 @@ createMainRouteForBasicCRUD("nivel", "manageLevels", "levels");
 
 
 router.get("/app/alumno/csv", requireAuth, (req, res) => {
-    res.render("csvStudentUpload")
+    res.render("uploadStudentCSV")
 });
 
 
