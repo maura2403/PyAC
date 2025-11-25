@@ -8,7 +8,7 @@ function updateAttendanceActionButton(dni, changeToDelete){
 }
 
 async function addAttendance(dni) {
-    const response = await fetch('/api/presentes', {
+    const response = await fetch('/api/asistencia', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ dni: dni, fecha: `${fecha}` })
@@ -23,7 +23,7 @@ async function addAttendance(dni) {
 
 async function removeAttendance(dni) {            
     if (confirm(`¿Desea eliminar el presente del alumno con DNI: ${dni} en la fecha ${fecha}?`)) {
-        const response = await fetch(`/api/presentes/?dni=${dni}&fecha=${fecha}`, {
+        const response = await fetch(`/api/asistencia/?dni=${dni}&fecha=${fecha}`, {
             method: 'DELETE'
         });
 

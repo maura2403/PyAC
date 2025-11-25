@@ -115,8 +115,8 @@ export class StudentRepository extends Repository {
             SELECT 
                 a.*,
                 p.fecha
-            FROM ${this.model.schema}.alumnos AS a
-            LEFT JOIN ${this.model.schema}.presentes AS p
+            FROM ${this.schema}.alumno AS a
+            LEFT JOIN ${this.schema}.asistencia AS p
                 ON a.dni = p.dni AND p.fecha = $1
             ORDER BY a.apellido, a.nombre;
         `;

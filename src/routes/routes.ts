@@ -15,7 +15,7 @@ createAPICrud(router, studentRepo, true, true, true, true);
 
 const attendanceRepo = new AttendanceRepository(poolDb);
 // No debería tener el CRUD completo. Temporal.
-createAPICrud(router, attendanceRepo);
+createAPICrud(router, attendanceRepo, true, true, true, true);
 
 const levelRepo = new LevelRepository(poolDb);
 createAPICrud(router, levelRepo, true, true, true, true);
@@ -55,6 +55,7 @@ function normalizeDates(data: Record<string,  any>[]): Record<string, any>[] {
     });
 }
 
+
 function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName: string, iterableDataName: string){
     router.get(`/app/${specificRoute}`, requireAuth, async (req, res) => {
         const queryParams = req.query;
@@ -63,27 +64,6 @@ function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName
         if (queryString !== '') {
             queryString = `?${queryString}`;
         }
-
-async function fetchStudentMetadata(req: Request): Promise<Response>{
-    const url = 'http://localhost:3000/api/alumnos';
-    const metadataResponse = await fetch(`${url}/metadata`, {
-        method : "GET",
-        headers: {
-            cookie: req.headers.cookie ?? '',
-        }
-    });
-    const metadata = await metadataResponse.json();
-    return metadata
-}
-
-// Esto tambien lo podriamos generalizar para todos los Repositories.
-router.get("/app/alumnos", requireAuth, async (req, res) => {
-    const queryParams = req.query;
-    let queryString = Object.keys(queryParams).map(key => `${key}=${queryParams[key]}`).join('&');
-    const url = 'http://localhost:3000/api/alumnos';
-    if (queryString !== '') {
-        queryString = `?${queryString}`;
-    }
 
         // Fetch data
         const response = await fetch(`${url}${queryString}`, {
@@ -107,11 +87,9 @@ router.get("/app/alumnos", requireAuth, async (req, res) => {
     });
 }
 
-createMainRouteForBasicCRUD("alumno", "manageStudents", "students");
-createMainRouteForBasicCRUD("factura", "manageInvoices", "invoices");
-createMainRouteForBasicCRUD("curso", "manageCourses", "courses");
-createMainRouteForBasicCRUD("nivel", "manageLevels", "levels");
-    // Fetch metadata
+
+async function fetchStudentMetadata(req: Request): Promise<Response>{
+    const url = 'http://localhost:3000/api/alumno';
     const metadataResponse = await fetch(`${url}/metadata`, {
         method : "GET",
         headers: {
@@ -119,16 +97,22 @@ createMainRouteForBasicCRUD("nivel", "manageLevels", "levels");
         }
     });
     const metadata = await metadataResponse.json();
+    return metadata
+}
 
-    res.render("manageStudents", { "students" : students, "metadata" : metadata });
-});
 
-router.get("/app/presentes", requireAuth, (req, res) => {
+createMainRouteForBasicCRUD("alumno", "manageStudents", "students");
+createMainRouteForBasicCRUD("factura", "manageInvoices", "invoices");
+createMainRouteForBasicCRUD("curso", "manageCourses", "courses");
+createMainRouteForBasicCRUD("nivel", "manageLevels", "levels");
+
+
+router.get("/app/asistencia", requireAuth, (req, res) => {
     const today = new Date().toISOString().split("T")[0];  // YYYY-MM-DD
-    res.redirect(`/app/presentes/${today}`);
+    res.redirect(`/app/asistencia/${today}`);
 });
 
-router.get("/app/presentes/:fecha", requireAuth, async (req, res) => {
+router.get("/app/asistencia/:fecha", requireAuth, async (req, res) => {
     const fecha = req.params.fecha;
 
     if (!fecha) {
@@ -144,9 +128,9 @@ router.get("/app/presentes/:fecha", requireAuth, async (req, res) => {
     res.render("attendanceForm", { "fecha" : fecha, "students" : students, "metadata" : metadata });
 });
 
-router.get("/app/presentes", requireAuth, (req, res) => {
+router.get("/app/asistencia", requireAuth, (req, res) => {
     const today = new Date().toISOString().split("T")[0];  // YYYY-MM-DD
-    res.redirect(`/app/presentes/${today}`);
+    res.redirect(`/app/asistencia/${today}`);
 });
 
 // Ruta GET principal
