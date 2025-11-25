@@ -42,6 +42,11 @@ main{
     padding: 2rem 0;
 }
 
+h2 {
+    width: 80%;
+    color: var(--text-dark-color);
+    margin: 1rem auto;
+}
 footer{
     background-color: var(--primary-color);
     text-align: center;

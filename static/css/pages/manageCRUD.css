@@ -1,39 +1,53 @@
-table {
-    width: 80%;
-    margin: 1em auto;
-    border-collapse: collapse;
-    font-family: 'Segoe UI', sans-serif;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    overflow: hidden;
-    table-layout: fixed;
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto; /* scroll horizontal*/
+  display: flex;
 }
 
-th, td {
-  text-align: left;
+table {
+  width: 80%;
+  border-collapse: collapse;
+  margin: 0.5rem auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-width: 40rem;
+  text-align: center;
+  table-layout: fixed;
 }
+
+table svg {
+    height: 100%;
+    width: auto;
+}
+
 
 th {
     background: var(--primary-color);
     color: var(--text-light-color);
-    padding: 12px 15px;
-    font-size: 1rem;
+    padding: 0.5rem 0.2rem;
+    word-wrap: break-word;
+    white-space: normal;
+    position: relative;
+}
+
+.th-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 td {
     color: var(--text-dark-color);
-    padding: 10px 15px;
+    padding: 0.5rem 0.5rem;
     font-size: 0.95rem;
-    border-bottom: 1px solid #dddddd;
-    border-right: 1px solid #dddddd;
+    border-top: 1px solid var(--text-mid-color);
+    word-wrap: break-word;
+    white-space: normal;
 }
 
-th:last-child,
-td:last-child {
-  width: 80px;
-  text-align: right;
-  white-space: nowrap;
-}
+
 
 table tr:nth-child(even) td {
     background-color: #f0f0f0;
@@ -46,7 +60,12 @@ table input {
     font-family: inherit;
     font-size: inherit;
     border: none;
+    text-align: center;
     border-bottom: 1px solid #dddddd;
+}
+
+table input:focus{
+    outline: none;
 }
 
 table button {
@@ -54,69 +73,80 @@ table button {
     height: 35px;
     margin: 0 3px;
     border-radius: 4px;
-    cursor: pointer;
     border: none;
     transition: all 0.2s ease-in-out;
 }
 
+
 button.edit {
-    background-color: var(--primary-color);
+    color: var(--primary-color);
 }
 
 button.edit:hover {
-    background-color: var(--primary-color-hover);
+    color: var(--primary-color-dark);
 }
 
 button.confirm {
-    background-color: var(--accept-color);
+    color: var(--accept-color);
 }
 
 button.confirm:hover {
-    background-color: var(--accept-color-hover);
+    color: var(--accept-color-hover);
 }
 
 button.delete {
-    background-color:var(--cancel-color);
+    color: var(--cancel-color);
 }
 
 button.delete:hover {
-    background-color:var(--cancel-color-hover);
+    color: var(--cancel-color-hover);
 }
 
-button.add {
+button.add, button.field-menu {
+    color: var(--text-light-color);
     background-color: var(--primary-color);
-    color: white;
-    font-size: 1rem;
 }
 
-button.add:hover {
-    background-color: var(--primary-color-hover);
+button.add:hover, button.field-menu:hover {
+    color: var(--text-mid-color);
 }
 
 #add-row {
     display: none;
 }
 
-/* Botón de Regreso al menu principal */
-a.btn {
-    display: inline-block;
-    padding: 8px 16px;
-    margin: 1em auto; 
-    background-color: #4CAF50;
-    color: white;
-    text-decoration: none;
-    font-size: 1rem;
-    font-weight: 500;
-    border-radius: 6px;
-    text-align: center;
-    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
-}
+@media (max-width: 768px) {
+  table, thead, tbody, tr, td, th {
+    display: block;
+    width: 100%;
+    overflow-x: hidden;
+    min-width: unset;
+  }
 
-a.btn:hover {
-    background-color: #45a049;
-    transform: translateY(-1px);
-}
 
-a.btn:active {
-    transform: translateY(1px);
+  thead {
+    display: none;
+  }
+
+  tr {
+    background: #fff;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+  }
+
+  td {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 0.5rem;
+    border: none;
+  }
+
+  td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    text-align: left;
+    flex: 0 0 45%;
+  }
 }
