@@ -1,16 +1,4 @@
-/* manageInvoices.css - estilos específicos para la vista de facturas */
 
-:root {
-  --primary-bg: #f7f7f9;
-  --control-gap: 12px;
-}
-
-/* page layout */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 20px;
-    background: var(--primary-bg);
-}
 
 /* back button (reuse .btn if you already have a global) */
 a.btn {
