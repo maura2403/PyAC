@@ -19,6 +19,10 @@ export class Model {
         return this.allColumns.filter(key => !this.columns[key]!.primaryKey);
     }
 
+    public get logicalDelete(): boolean {
+        return this.allColumns.includes('activo');
+    }
+
     public get frontData(): Record<string, any> {
         const entries = Object.entries(this.columns);
         const res: Record<string, any> = {};
