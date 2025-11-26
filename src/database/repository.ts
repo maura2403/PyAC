@@ -28,14 +28,15 @@ export abstract class Repository {
         }
     }
 
-    public async read(filters: Record<string, any>): Promise<Record<string, any>[]> {
+    public async read(filters: Record<string, any>, sortby: Record<string, any> = {}): Promise<Record<string, any>[]> {
         this.model.assertPartialObject(filters);
+        this.model.assertSortBy(sortby);
         let rows;
         if (this.model.logicalDelete) {
-            rows = await this.logicalRead(filters);
+            rows = await this.logicalRead(filters, sortby);
         }
         else {
-            rows = await this.defaultRead(filters);
+            rows = await this.defaultRead(filters, sortby);
         }
         return this.normalizeDates(rows);
     }
@@ -82,20 +83,48 @@ export abstract class Repository {
         }
     }
 
-    private async defaultRead(filters: Record<string, any>): Promise<Record<string, any>[]> {
+    private async defaultRead(filters: Record<string, any>, sortby: Record<string, any> = {}): Promise<Record<string, any>[]> {
+        const listFilters: Record<string, any> = {};
+        Object.keys(filters).forEach(key => {
+            const value = Array.isArray(filters[key]) ? filters[key] : [filters[key]];
+            listFilters[key] = value;
+        });
         let query = `SELECT * FROM ${this.schema}.${this.tableName}`;
-        const filterKeys = Object.keys(filters);
+        const filterKeys = Object.keys(listFilters);
+        const sorterKeys = Object.keys(sortby);
+        const queryValues:any[] = [];
+
         if (filterKeys.length > 0) {
-            const placeholders = filterKeys.map((key, i) => `${key} = $${i + 1}`).join(' AND ');
-            query += ` WHERE ${placeholders}`;
+            let filterIndex = 1;
+            let conditions = [];
+            for (let key of filterKeys) {
+                const values = listFilters[key];
+                const orValues = values.map((v:any) => {
+                    queryValues.push(v);
+                    if(v.toString().includes('%')){
+                        return `${key} ilike $${filterIndex++}`;
+                    }
+                    else{
+                        return `${key} = $${filterIndex++}`;
+                    }
+                }).join(' OR ');
+
+                conditions.push(`(${orValues})`);
+            }
+            query += ` WHERE ${conditions.join(' AND ')}`;
         }
-        const values = filterKeys.map(key => filters[key]);
-        const items = await this.pool.query(query, values);
+
+        if (sorterKeys.length > 0) {
+            const sortValues = sorterKeys.map((key) => `${key} ${sortby[key]}`).join(' , ');
+            query += ` ORDER BY ${sortValues}`;
+        }
+
+        const items = await this.pool.query(query, queryValues);
         return items.rows;
     }
 
-    private async logicalRead(filters: Record<string, any>): Promise<Record<string, any>[]> {
-        return await this.defaultRead({ ...filters, activo : true });
+    private async logicalRead(filters: Record<string, any>, sortby: Record<string, any> = {}): Promise<Record<string, any>[]> {
+        return await this.defaultRead({ ...filters, activo : [ true ] }, sortby);
     }
 
     private async defaultUpdate(originalPKs: Record<string, any>, row: Record<string, any>) {

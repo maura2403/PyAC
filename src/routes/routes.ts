@@ -42,7 +42,9 @@ function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName
             }
         });
         const metadata = await metadataResponse.json();
-        res.render(templateFrontEndName, { [iterableDataName] : data, "metadata" : metadata});
+        const filterParam = queryParams.filter ? JSON.parse(queryParams.filter as string) : {};
+        const sortParam = queryParams.sortby ? JSON.parse(queryParams.sortby as string) : {};
+        res.render(templateFrontEndName, { [iterableDataName] : data, "metadata" : metadata, "filterParams": filterParam, "sortbyParams": sortParam});
     });
 }
 

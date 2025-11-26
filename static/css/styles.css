@@ -1,13 +1,13 @@
 /* Para el styling de elementos que querramos que todas las páginas compartan */
 :root {
     --primary-color: #07613b;
-    --primary-color-hover: #064f34;
-
     --primary-color-dark: #064f34;
     --primary-color-light: #7bbe9f;
-    
-    --secondary-color: #cbe2fd;
-    --secondary-color-hover: #97c8ff;
+
+    --background-color: #c0ebd7;
+
+    --secondary-color: #e1ece7;
+    --secondary-color-accent: #d6deda;
 
     --accept-color: #00c700;
     --accept-color-hover: #00b300;
@@ -29,7 +29,7 @@
 html, body{
     height: 100%;
     font-family: Verdana, sans-serif;
-    background: var(--secondary-color);
+    background: var(--background-color);
 }
 
 body{

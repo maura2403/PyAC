@@ -62,15 +62,36 @@ export class Model {
         this.assertValidation(keys, pk);
     }
 
-    private assertValidation(keys: string[], row: Record<string, any>) {
+    public assertSortBy(sortby: Record<string, any>) {
+        const keys = Object.keys(sortby);
+        if (keys.some(key => !this.allColumns.includes(key))) {
+            throw new Error(`The object ${JSON.stringify(sortby)} isn't a valid Sort for ${this.constructor.name}.`);
+        }
         keys.forEach(key => {
-            const value = row[key];
-            const columnType = this.columns[key]!;
-            if (!columnType.validate(value)) {
-                throw new Error(`The value ${value} isn't a valid value for the column ${key}.`);
+            const value = sortby[key];
+            if ( value !== "asc" && value !== "desc" ) {
+                throw new Error(`The value ${value} isn't a valid value for sorting the column ${key}.`);
             }
         });
     }
+
+    private assertValidation(keys: string[], row: Record<string, any>) {
+        const assertRow: Record<string, any> = {};
+        Object.keys(row).forEach(key => {
+            const value = Array.isArray(row[key]) ? row[key] : [row[key]];
+            assertRow[key] = value;
+        });
+        keys.forEach(key => {
+            const values = assertRow[key];
+            const columnType = this.columns[key]!;
+            for (const value of values){
+                if (!columnType.validate(value)) {
+                    throw new Error(`The value ${value} isn't a valid value for the column ${key}.`);
+                }
+            }
+        });
+    }
+
 }
 
 abstract class DatabaseType {
@@ -79,12 +100,16 @@ abstract class DatabaseType {
     protected readonly frontLabel: string;
     protected abstract readonly inputType: string;
     public readonly hasDefaultValue: boolean;
+    protected readonly filterable: boolean;
+    protected readonly sortable: boolean;
 
-    constructor(allowNull: boolean, primaryKey: boolean, label: string = '', hasDefaultValue: boolean = false) {
+    constructor(allowNull: boolean, primaryKey: boolean, label: string = '', hasDefaultValue: boolean = false, filterable: boolean = true, sortable: boolean = true) {
         this.allowNull = allowNull;
         this.primaryKey = primaryKey;
         this.frontLabel = label;
         this.hasDefaultValue = hasDefaultValue;
+        this.filterable = filterable;
+        this.sortable = sortable;
     }
 
     validate(value: any): boolean {
@@ -98,7 +123,9 @@ abstract class DatabaseType {
         return {
             "label" : this.frontLabel,
             "type" : this.inputType,
-            "pk" : this.primaryKey
+            "pk" : this.primaryKey,
+            "filterable" : this.filterable,
+            "sortable" : this.sortable
         };
     }
 

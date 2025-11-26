@@ -43,6 +43,7 @@ td {
     padding: 0.5rem 0.5rem;
     font-size: 0.95rem;
     border-top: 1px solid var(--text-mid-color);
+    background-color: var(--secondary-color);
     word-wrap: break-word;
     white-space: normal;
 }
@@ -50,7 +51,7 @@ td {
 
 
 table tr:nth-child(even) td {
-    background-color: #f0f0f0;
+    background-color: var(--secondary-color-accent);
 }
 
 table input {
@@ -61,7 +62,7 @@ table input {
     font-size: inherit;
     border: none;
     text-align: center;
-    border-bottom: 1px solid #dddddd;
+    border-bottom: 1px solid var(--text-mid-color);
 }
 
 table input:focus{
@@ -75,8 +76,8 @@ table button {
     border-radius: 4px;
     border: none;
     transition: all 0.2s ease-in-out;
+    background-color: inherit;
 }
-
 
 button.edit {
     color: var(--primary-color);
@@ -104,7 +105,6 @@ button.delete:hover {
 
 button.add, button.field-menu {
     color: var(--text-light-color);
-    background-color: var(--primary-color);
 }
 
 button.add:hover, button.field-menu:hover {
@@ -129,7 +129,7 @@ button.add:hover, button.field-menu:hover {
   }
 
   tr {
-    background: #fff;
+    background: var(--secondary-color);
     margin-bottom: 1rem;
     border: 1px solid #ddd;
     border-radius: 0.5rem;
@@ -149,4 +149,74 @@ button.add:hover, button.field-menu:hover {
     text-align: left;
     flex: 0 0 45%;
   }
+}
+
+.field-menu-popup {
+    visibility: hidden;
+    background-color: var(--secondary-color);
+    color: var(--text-dark-color);
+    font-size: 0.8rem;
+    position: fixed;
+    border: 1px solid var(--text-mid-color);
+    border-radius: 6px;
+    padding: 0.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 999; /* para que aparezca sobre todo el resto */
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.field-menu svg {
+    height: 80%;
+    width: auto;
+}
+
+.field-menu-popup.show {
+    visibility: visible;
+}
+
+.sortby-button{
+    color: var(--primary-color);
+}
+
+.field-menu-popup input {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 0.075rem solid var(--text-mid-color);
+    background: var(--text-light-color);
+    outline: none;
+    font-size: 1em;
+}
+
+.filter-checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 0.4rem 0;
+    line-height: 1.2rem;
+    white-space: normal;
+}
+
+.filter-checkbox-row label {
+    cursor: pointer;
+    flex: 1;
+    font-size: 0.95rem;
+}
+
+.field-menu-popup input[type="checkbox"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--primary-color);
+}
+
+.filter-button {
+    background-color: var(--primary-color);
+    margin-top: 0.5rem;
+    width: 100%;
+    cursor: pointer;
+    color: var(--text-light-color);
 }

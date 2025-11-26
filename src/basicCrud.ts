@@ -25,7 +25,9 @@ export async function createAPICrud(router: Router, repository: Repository, c: b
     if (r){
         router.get(route, requireAuthAPI, async (req, res) => {
         try {
-            const rows = await repository.read(req.query);
+            const filters = req.query.filter ? JSON.parse(req.query.filter as string) : {};
+            const sortby = req.query.filter ? JSON.parse(req.query.sortby as string) : {};
+            const rows = await repository.read(filters, sortby);
             res.status(200).json(rows);
         }
         catch (err) {
