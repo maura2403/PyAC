@@ -5,8 +5,18 @@ export function arraySameElements(arr1: any[], arr2: any[]): boolean {
     return res;
 }
 
-export function toISOFormat(year: number, month: number, day: number): string {
+export function stringToDate(date: string) {
+    const data = date.split("-").map(value => parseInt(value));
+    const dateObj = new Date(data[0]!, data[1]! - 1, data[2]);
+    return dateObj;
+}
+
+export function numberToISOFormat(year: number, month: number, day: number): string {
     const date = new Date(Date.UTC(year, month - 1, day));
+    return dateToISOFormat(date);
+}
+
+export function dateToISOFormat(date: Date): string {
     return date.toISOString().split('T')[0]!;
 }
 

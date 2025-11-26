@@ -3,8 +3,8 @@ import { createAPICrud } from "../basicCrud.js"
 import { requireAuth } from "../middleware/auth.js"
 import authApiRoutes from "./authApi.js";
 import authPagesRoutes from "./authPages.js";
-import { courseRepo, invoiceRepo, levelRepo, studentRepo, userRepo, modeRepo, fixedStudentRepo} from "../database/repository.js";
-import { assertValidDateYYYYMMDD, toISOFormat, zip } from "../extra/utils.js";
+import { courseRepo, invoiceRepo, levelRepo, studentRepo, userRepo, modeRepo, fixedStudentRepo, attendanceRepo} from "../database/repository.js";
+import { assertValidDateYYYYMMDD, dateToISOFormat, dayToNumber, numberToISOFormat, stringToDate, zip } from "../extra/utils.js";
 import { parseCsvFromContent } from "../extra/csv.js";
 
 const router = Router();
@@ -61,6 +61,35 @@ router.get("/app/alumno/fijo", requireAuth, async (req, res) => {
     res.render('manageFixedStudents', { 'data' : data });
 });
 
+router.post("/api/asistencia", requireAuth, async (req, res) => {
+    try {
+        const dni = parseInt(req.body.dni as string);
+        const fecha = stringToDate(req.body.sunday);
+        const weekDay = dayToNumber(req.body.weekDay as string);
+        fecha.setDate(fecha.getDate() + weekDay);
+        await attendanceRepo.tomarPresente(dni, fecha.getFullYear(), fecha.getMonth() + 1, fecha.getDate());
+        res.status(200).json({ ok: true });
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ ok: false, error: (err as Error).message });
+    }
+});
+
+router.delete("/api/asistencia", requireAuth, async (req, res) => {
+    try {
+        const dni = parseInt(req.query.dni as string);
+        const fecha = stringToDate(req.query.sunday as string);
+        const weekDay = dayToNumber(req.query.weekDay as string);
+        fecha.setDate(fecha.getDate() + weekDay);
+        await attendanceRepo.eliminarPresente(dni, fecha.getFullYear(), fecha.getMonth() + 1, fecha.getDate());
+        res.status(200).json({ ok: true });
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ ok: false, error: (err as Error).message });
+    }
+});
 
 router.get("/app/alumno/csv", requireAuth, (req, res) => {
     res.render("uploadStudentCSV");
@@ -88,16 +117,14 @@ router.get("/app/asistencia", requireAuth, async (req, res) => {
         const today = new Date();
         return res.redirect(`/app/asistencia?day=${today.getDate()}&month=${today.getMonth() + 1}&year=${today.getFullYear()}`);
     }
-
     const year = parseInt(req.query.year as string);
-    const month = parseInt(req.query.month as string) - 1;
+    const month = parseInt(req.query.month as string);
     const day = parseInt(req.query.day as string);
-    const fecha = toISOFormat(year, month, day);
 
-    const students = await studentRepo.getStudentsAttendance(year, month, day);
-    const metadata = studentRepo.frontData;
-
-    res.render("manageAttendance", { "fecha" : fecha, "students" : students, "metadata" : metadata });
+    const lastSunday = new Date(year, month - 1, day);
+    lastSunday.setDate(lastSunday.getDate() - lastSunday.getDay());
+    const data = await studentRepo.getStudentsAttendanceWeek(lastSunday.getFullYear(), lastSunday.getMonth() + 1, lastSunday.getDate());
+    res.render("manageAttendance", { "sunday" : dateToISOFormat(lastSunday), "data" : data });
 });
 
 

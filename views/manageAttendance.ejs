@@ -1,59 +1,67 @@
 <!DOCTYPE html>
+<% const title = "Gestión de Alumnos - Tabla de Fijos"; %>
+<% const cssRoute = "/css/pages/manageCRUD.css"; %>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Gestión de toma de presentes de alumnos</title>
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="/css/pages/manageCRUD.css">
+    <%- include("headCRUDdata", {title: title, cssRoute: cssRoute}) %>
 </head>
-
 <body>
-    <h2>Registro de presentes - <%= fecha %></h2>
-
-    <form id="asistenciaForm">
-        <table>
-            <thead>
-                <tr>
-                    <% for (const [key, meta] of Object.entries(metadata)) {
-                        if(key === 'activo') continue;    
-                    %>
-                        
-                    <th><%= meta.label %></th>
-                    <% } %>
-                    <th>Presente</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% for (const student of students) { %>
-                <tr data-id="<%=student.dni%>">
-                    <% for (const [key, meta] of Object.entries(metadata)) {
-                        if(key === 'activo') continue; 
-                    %>
-                        <td><%=student[key]%></td>
-                    <% } %>
-                    <td attendanceActionButton>
-                        <%# Código repetido: Los botones también estan en attendanceForm.ejs.%>
-                        <% if (student.fecha) { %>
-                            <button type="button" onclick="removeAttendance('<%=student.dni%>')">
-                                Eliminar presente
-                            </button>
-                        <% } else { %>
-                            <button type="button" onclick="addAttendance('<%=student.dni%>')">
-                                Agregar presente
-                            </button>
-                        <% } %>
-                    </td>
-                </tr>
-                <% } %>
-            </tbody>
-        </table>
-    </form>
-
+    <%- include('partials/nav') %>
+    <main>
+    <h2><%=title%></h2>
+    <div class="week-selector">
+        <button>&lt;</button>
+        <button>&gt;</button>
+    </div>
+    <div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>DNI</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Lunes</th>
+                <th>Martes</th>
+                <th>Miercoles</th>
+                <th>Jueves</th>
+                <th>Viernes</th>
+            </tr>
+        </thead>
+        <tbody>
+        <% for (const student of data) { %>
+        <tr>
+            <td data-key="true"><%= student.dni %></td>
+            <td><%= student.nombre %></td>
+            <td><%= student.apellido %></td>
+            <td>
+                <input type="checkbox" onclick="handleCheckbox(this)" data-day="Lunes"
+                <%= student.lun ? "checked" : "" %>>
+            </td>
+            <td>
+                <input type="checkbox" onclick="handleCheckbox(this)" data-day="Martes"
+                <%= student.mar ? "checked" : "" %>>
+            </td>
+            <td>
+                <input type="checkbox" onclick="handleCheckbox(this)" data-day="Miercoles"
+                <%= student.mie ? "checked" : "" %>>
+            </td>
+            <td>
+                <input type="checkbox" onclick="handleCheckbox(this)" data-day="Jueves"
+                <%= student.jue ? "checked" : "" %>>
+            </td>
+            <td>
+                <input type="checkbox" onclick="handleCheckbox(this)" data-day="Viernes"
+                <%= student.vie ? "checked" : "" %>>
+            </td>
+        </tr>
+        <% } %>
+        </tbody>
+    </table>
+    </div>
+</main>
+<%- include('partials/footer') %>
 </body>
-
-<script> const fecha = '<%= fecha %>';</script>
+<script>
+    const sunday = '<%= sunday %>';
+</script>
 <script src="/js/manageAttendance.js"></script>

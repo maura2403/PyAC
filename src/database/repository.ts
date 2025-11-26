@@ -2,7 +2,7 @@ import { Pool } from "pg";
 import { BooleanType, DateType, EnumType, FloatType, IntegerType, Model, StringType } from "./model.js";
 import { hashPassword, verifyPassword } from "../login/auth.js";
 import { poolDb } from "./client.js";
-import { dayToNumber, getDaysInMonth, getWorkingDays, toISOFormat } from "../extra/utils.js";
+import { dayToNumber, getDaysInMonth, getWorkingDays, numberToISOFormat } from "../extra/utils.js";
 
 export abstract class Repository {
     public get frontData(): Record<string, any> {
@@ -179,7 +179,7 @@ export abstract class Repository {
             for (const key in row) {
                 const value = row[key];
                 if (value instanceof Date) {
-                    newRow[key] = toISOFormat(value.getFullYear(), value.getMonth(), value.getDate());
+                    newRow[key] = numberToISOFormat(value.getFullYear(), value.getMonth(), value.getDate());
                 }
                 else {
                     newRow[key] = value;
@@ -216,20 +216,25 @@ export class StudentRepository extends Repository {
                 COALESCE(BOOL_OR(af.dia_de_la_semana = 'Viernes'), false) AS vie
             FROM ${this.schema}.${this.tableName} AS a
                 LEFT JOIN ${fixedStudentRepo.schema}.${fixedStudentRepo.tableName} AS af ON a.dni = af.dni
-            WHERE a.modalidad = 'Fijo'
+            WHERE a.modalidad = 'Fijo' AND a.activo = true
             GROUP BY a.dni, a.nombre, a.apellido, a.curso, a.modalidad;
         `;
         const items = await this.pool.query(query);
         return items.rows;
     }
 
-    public async getStudentsAttendance(year: number, month: number, day: number): Promise<(Record<string, any>)[]>{
-        const fecha = toISOFormat(year, month, day);
+    public async getStudentsAttendanceWeek(year: number, month: number, day: number): Promise<(Record<string, any>)[]>{
+        const fecha = numberToISOFormat(year, month, day);
         const query = `
-            SELECT a.dni, a.nombre, a.apellido, a.curso, p.fecha
+            SELECT a.dni, a.nombre, a.apellido,
+                COALESCE(BOOL_OR(p.fecha = (TO_DATE($1, 'YYYY-MM-DD') + INTERVAL '1' day)), false) AS lun,
+                COALESCE(BOOL_OR(p.fecha = (TO_DATE($1, 'YYYY-MM-DD') + INTERVAL '2' day)), false) AS mar,
+                COALESCE(BOOL_OR(p.fecha = (TO_DATE($1, 'YYYY-MM-DD') + INTERVAL '3' day)), false) AS mie,
+                COALESCE(BOOL_OR(p.fecha = (TO_DATE($1, 'YYYY-MM-DD') + INTERVAL '4' day)), false) AS jue,
+                COALESCE(BOOL_OR(p.fecha = (TO_DATE($1, 'YYYY-MM-DD') + INTERVAL '5' day)), false) AS vie
                 FROM ${this.schema}.${this.tableName} AS a
-            LEFT JOIN ${attendanceRepo.schema}.${attendanceRepo.tableName} AS p
-                ON a.dni = p.dni AND p.fecha = $1;
+            LEFT JOIN ${attendanceRepo.schema}.${attendanceRepo.tableName} AS p ON a.dni = p.dni
+            GROUP BY a.dni, a.nombre, a.apellido;
         `;
         const items = await this.pool.query(query, [fecha]);
         return items.rows;
@@ -294,7 +299,7 @@ export class AttendanceRepository extends Repository {
     );
 
     public async tomarPresente(dni: number, year: number, month: number, day: number): Promise<void> {
-        const fecha = toISOFormat(year, month, day);
+        const fecha = numberToISOFormat(year, month, day);
 
         await this.pool.query('BEGIN');
         try {
@@ -349,13 +354,12 @@ export class AttendanceRepository extends Repository {
         }
     }
 
-    public async eliminarPresente(dni: number, day: number, month: number, year: number): Promise<void> {
-        const fecha = toISOFormat(year, month, day);
+    public async eliminarPresente(dni: number, year: number, month: number, day: number): Promise<void> {
+        const fecha = numberToISOFormat(year, month, day);
 
         await this.pool.query('BEGIN');
         try {
             const studentData = await this.getDataForInvoice(dni, fecha);
-
             if (studentData.modalidad === 'Eventual') {
                 await invoiceRepo.delete({
                     dni : dni,
@@ -409,7 +413,7 @@ export class AttendanceRepository extends Repository {
             SELECT * FROM ${this.schema}.${this.tableName}
             WHERE dni = $1 AND TO_CHAR(fecha, 'YYYY-MM') = $2
         `;
-        const fecha = toISOFormat(year, month, 1).slice(0, 7);
+        const fecha = numberToISOFormat(year, month, 1).slice(0, 7);
         const items = await this.pool.query(query, [dni, `${fecha}`]);
         return items.rows.length;
     }
@@ -433,7 +437,7 @@ export class InvoiceRepository extends Repository {
             DELETE FROM ${this.schema}.${this.tableName}
             WHERE dni = $1 AND es_mensual = true AND TO_CHAR(fecha_de_emision, 'YYYY-MM') = $2
         `;
-        const fecha = toISOFormat(year, month, 1).slice(0, 7);
+        const fecha = numberToISOFormat(year, month, 1).slice(0, 7);
         await this.pool.query(query, [dni, `${fecha}`]);
     }
 }
