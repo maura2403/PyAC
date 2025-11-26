@@ -55,6 +55,12 @@ footer{
     font-size: 0.75rem;
 }
 
+input[type="checkbox"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--primary-color);
+}
+
 
 /* Nav Bar*/
 nav {

@@ -192,8 +192,8 @@ export class DateType extends DatabaseType {
 export class EnumType extends DatabaseType {
     protected readonly inputType: string = "enum";
     protected readonly values: string[];
-    constructor(allowNull: boolean, primaryKey: boolean, values: string[], label: string = '') {
-        super(allowNull, primaryKey, label);
+    constructor(allowNull: boolean, primaryKey: boolean, values: string[], label: string = '',  hasDefaultValue: boolean = false, filterable: boolean = true, sortable: boolean = true) {
+        super(allowNull, primaryKey, label, hasDefaultValue, filterable, sortable);
         this.values = values;
     }
 

@@ -207,12 +207,6 @@ button.add:hover, button.field-menu:hover {
     font-size: 0.95rem;
 }
 
-.field-menu-popup input[type="checkbox"] {
-    width: 1.1rem;
-    height: 1.1rem;
-    accent-color: var(--primary-color);
-}
-
 .filter-button {
     background-color: var(--primary-color);
     margin-top: 0.5rem;

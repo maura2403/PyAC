@@ -3,7 +3,7 @@ import { createAPICrud } from "../basicCrud.js"
 import { requireAuth } from "../middleware/auth.js"
 import authApiRoutes from "./authApi.js";
 import authPagesRoutes from "./authPages.js";
-import { courseRepo, invoiceRepo, levelRepo, studentRepo, userRepo, modeRepo} from "../database/repository.js";
+import { courseRepo, invoiceRepo, levelRepo, studentRepo, userRepo, modeRepo, fixedStudentRepo} from "../database/repository.js";
 
 const router = Router();
 
@@ -15,8 +15,9 @@ createAPICrud(router, invoiceRepo, false, true, true, false);
 createAPICrud(router, modeRepo, true, true, true, true);
 createAPICrud(router, userRepo, true, true, true, true);
 createAPICrud(router, courseRepo, true, true, true, true);
+createAPICrud(router, fixedStudentRepo, true, true, false, true);
 
-function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName: string, iterableDataName: string){
+function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName: string) {
     router.get(`/app/${specificRoute}`, requireAuth, async (req, res) => {
         const queryParams = req.query;
         let queryString = Object.keys(queryParams).map(key => `${key}=${queryParams[key]}`).join('&');
@@ -44,14 +45,19 @@ function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName
         const metadata = await metadataResponse.json();
         const filterParam = queryParams.filter ? JSON.parse(queryParams.filter as string) : {};
         const sortParam = queryParams.sortby ? JSON.parse(queryParams.sortby as string) : {};
-        res.render(templateFrontEndName, { [iterableDataName] : data, "metadata" : metadata, "filterParams": filterParam, "sortbyParams": sortParam});
+        res.render(templateFrontEndName, { 'iterableData' : data, "metadata" : metadata, "filterParams": filterParam, "sortbyParams": sortParam});
     });
 }
 
-createMainRouteForBasicCRUD("alumno", "manageStudents", "students");
-createMainRouteForBasicCRUD("factura", "manageInvoices", "invoices");
-createMainRouteForBasicCRUD("curso", "manageCourses", "courses");
-createMainRouteForBasicCRUD("nivel", "manageLevels", "levels");
+createMainRouteForBasicCRUD("alumno", "manageStudents");
+createMainRouteForBasicCRUD("factura", "manageInvoices");
+createMainRouteForBasicCRUD("curso", "manageCourses");
+createMainRouteForBasicCRUD("nivel", "manageLevels");
+
+router.get("/app/alumno/fijo", requireAuth, async (req, res) => {
+    const data = await studentRepo.getFixedStudentsWithDays();
+    res.render('manageFixedStudents', { 'data' : data });
+});
 
 // Ruta GET principal
 router.get("/", requireAuth, (_, res) => {

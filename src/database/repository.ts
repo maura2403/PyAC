@@ -198,11 +198,30 @@ export class StudentRepository extends Repository {
             nombre: new StringType(false, false, "Nombre"),
             apellido: new StringType(false, false, "Apellido"),
             curso: new StringType(false, false, "Curso"),
-            modalidad: new EnumType(false, false, ["Eventual", "Mensual", "Fijo"], "Modalidad"),
+            modalidad: new EnumType(false, false, ["Eventual", "Mensual", "Fijo"], "Modalidad", false, true, false),
             cuit_responsable_de_pagos: new StringType(false, false, "Responsable (CUIT)"),
             activo: new BooleanType(false, false, '', true)
         },
     );
+
+    public async getFixedStudentsWithDays(): Promise<Record<string, any>[]> {
+        // BOOL_OR es una aggregate function que checkea si alguno de las filas cumple cierta condicion
+        // Como devuelve null si todas son null, usamos coalesce para garantizar false
+        const query = `
+            SELECT a.dni, a.nombre, a.apellido, a.curso, a.modalidad,
+                COALESCE(BOOL_OR(af.dia_de_la_semana = 'Lunes'), false) AS lun,
+                COALESCE(BOOL_OR(af.dia_de_la_semana = 'Martes'), false) AS mar,
+                COALESCE(BOOL_OR(af.dia_de_la_semana = 'Miercoles'), false) AS mie,
+                COALESCE(BOOL_OR(af.dia_de_la_semana = 'Jueves'), false) AS jue,
+                COALESCE(BOOL_OR(af.dia_de_la_semana = 'Viernes'), false) AS vie
+            FROM ${this.schema}.${this.tableName} AS a
+                LEFT JOIN ${fixedStudentRepo.schema}.${fixedStudentRepo.tableName} AS af ON a.dni = af.dni
+            WHERE a.modalidad = 'Fijo'
+            GROUP BY a.dni, a.nombre, a.apellido, a.curso, a.modalidad;
+        `;
+        const items = await this.pool.query(query);
+        return items.rows;
+    }
 }
 
 export class CourseRepository extends Repository {
