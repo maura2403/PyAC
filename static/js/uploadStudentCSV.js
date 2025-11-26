@@ -1,24 +1,12 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>Subir CSV de Alumnos</title>
-</head>
-<body>
-<h2>Subir archivo CSV</h2>
-<input type="file" id="csvFile" accept=".csv" />
-<button onclick="handleUpload()">Procesar y Enviar</button>
-
-<script>
-async function handleUpload() {
-    const fileInput = document.getElementById('csvFile');
+async function handleUpload(fileInput, tableName) {
     const file = fileInput.files[0];
+ 
     if (!file) { alert('Seleccioná un CSV'); return; }
-
+ 
     const text = await file.text();
-
+ 
     try {
-        const response = await fetch('/api/v0/alumnos', {
+        const response = await fetch(`/api/${tableName}/csv`, {
             method: 'POST',
             headers: { 'Content-Type': 'text/csv' },
             body: text
@@ -33,6 +21,3 @@ async function handleUpload() {
         alert('Error de red o servidor');
     }
 }
-</script>
-</body>
-</html>

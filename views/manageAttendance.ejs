@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Gestión de toma de presentes de alumnos</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/pages/manageCRUD.css">
+</head>
+
+<body>
+    <h2>Registro de presentes - <%= fecha %></h2>
+
+    <form id="asistenciaForm">
+        <table>
+            <thead>
+                <tr>
+                    <% for (const [key, meta] of Object.entries(metadata)) {
+                        if(key === 'activo') continue;    
+                    %>
+                        
+                    <th><%= meta.label %></th>
+                    <% } %>
+                    <th>Presente</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (const student of students) { %>
+                <tr data-id="<%=student.dni%>">
+                    <% for (const [key, meta] of Object.entries(metadata)) {
+                        if(key === 'activo') continue; 
+                    %>
+                        <td><%=student[key]%></td>
+                    <% } %>
+                    <td attendanceActionButton>
+                        <%# Código repetido: Los botones también estan en attendanceForm.ejs.%>
+                        <% if (student.fecha) { %>
+                            <button type="button" onclick="removeAttendance('<%=student.dni%>')">
+                                Eliminar presente
+                            </button>
+                        <% } else { %>
+                            <button type="button" onclick="addAttendance('<%=student.dni%>')">
+                                Agregar presente
+                            </button>
+                        <% } %>
+                    </td>
+                </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </form>
+
+</body>
+
+<script> const fecha = '<%= fecha %>';</script>
+<script src="/js/manageAttendance.js"></script>

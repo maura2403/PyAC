@@ -1,4 +1,4 @@
-import { arraySameElements } from "../extra/utils.js";
+import { arraySameElements, isValidDateYYYYMMDD } from "../extra/utils.js";
 
 export class Model {
     private columns: Record<string, DatabaseType>;
@@ -186,6 +186,7 @@ export class DateType extends DatabaseType {
         }
 
         return false;
+        //return isValidDateYYYYMMDD(value);
     }
 }
 

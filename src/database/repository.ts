@@ -222,6 +222,18 @@ export class StudentRepository extends Repository {
         const items = await this.pool.query(query);
         return items.rows;
     }
+
+    public async getStudentsAttendance(year: number, month: number, day: number): Promise<(Record<string, any>)[]>{
+        const fecha = toISOFormat(year, month, day);
+        const query = `
+            SELECT a.dni, a.nombre, a.apellido, a.curso, p.fecha
+                FROM ${this.schema}.${this.tableName} AS a
+            LEFT JOIN ${attendanceRepo.schema}.${attendanceRepo.tableName} AS p
+                ON a.dni = p.dni AND p.fecha = $1;
+        `;
+        const items = await this.pool.query(query, [fecha]);
+        return items.rows;
+    }
 }
 
 export class CourseRepository extends Repository {
@@ -281,7 +293,7 @@ export class AttendanceRepository extends Repository {
         }
     );
 
-    public async tomarPresente(dni: number, day: number, month: number, year: number): Promise<void> {
+    public async tomarPresente(dni: number, year: number, month: number, day: number): Promise<void> {
         const fecha = toISOFormat(year, month, day);
 
         await this.pool.query('BEGIN');

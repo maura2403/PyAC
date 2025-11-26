@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Subir CSV de Alumnos</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/pages/uploadStudentCSV.css">
+</head>
+
+<body>
+    <a href="/" class="btn">Regresar al Menú Principal</a>
+    <div class="container">
+        <h2>Subir archivo CSV de alumnos</h2>
+        <input type="file" id="csvFile" accept=".csv" />
+        <button onclick="handleUpload(document.getElementById('csvFile'), 'alumno')">Procesar y enviar</button>
+    </div>
+</body>
+
+<script src="/js/uploadStudentCSV.js"></script>
+
+</html>

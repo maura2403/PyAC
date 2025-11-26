@@ -4,6 +4,8 @@ import { requireAuth } from "../middleware/auth.js"
 import authApiRoutes from "./authApi.js";
 import authPagesRoutes from "./authPages.js";
 import { courseRepo, invoiceRepo, levelRepo, studentRepo, userRepo, modeRepo, fixedStudentRepo} from "../database/repository.js";
+import { assertValidDateYYYYMMDD, toISOFormat, zip } from "../extra/utils.js";
+import { parseCsvFromContent } from "../extra/csv.js";
 
 const router = Router();
 
@@ -58,6 +60,46 @@ router.get("/app/alumno/fijo", requireAuth, async (req, res) => {
     const data = await studentRepo.getFixedStudentsWithDays();
     res.render('manageFixedStudents', { 'data' : data });
 });
+
+
+router.get("/app/alumno/csv", requireAuth, (req, res) => {
+    res.render("uploadStudentCSV");
+});
+
+
+router.post("/api/alumno/csv", requireAuth, async (req, res) => {
+    try {
+        var {dataLines: studentsDataList, columns: columns} = await parseCsvFromContent(req.body)
+        const rows = zip(columns, studentsDataList)
+
+        for(const row of rows){
+            await studentRepo.create(row);  // Consultar si usamos un POST o directamente utilizar el repositorio.
+        }
+        res.status(201).send({ ok: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ error: 'Error insertando alumnos' });
+    }
+});
+
+
+router.get("/app/asistencia", requireAuth, async (req, res) => {
+    if (!req.query.day || !req.query.month || !req.query.year) {
+        const today = new Date();
+        return res.redirect(`/app/asistencia?day=${today.getDate()}&month=${today.getMonth() + 1}&year=${today.getFullYear()}`);
+    }
+
+    const year = parseInt(req.query.year as string);
+    const month = parseInt(req.query.month as string) - 1;
+    const day = parseInt(req.query.day as string);
+    const fecha = toISOFormat(year, month, day);
+
+    const students = await studentRepo.getStudentsAttendance(year, month, day);
+    const metadata = studentRepo.frontData;
+
+    res.render("manageAttendance", { "fecha" : fecha, "students" : students, "metadata" : metadata });
+});
+
 
 // Ruta GET principal
 router.get("/", requireAuth, (_, res) => {
