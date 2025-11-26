@@ -3,31 +3,17 @@ import { createAPICrud } from "../basicCrud.js"
 import { requireAuth } from "../middleware/auth.js"
 import authApiRoutes from "./authApi.js";
 import authPagesRoutes from "./authPages.js";
-import { poolDb } from "../database/client.js";
-import { AttendanceRepository, InvoiceRepository, LevelRepository, StudentRepository, ModeRepository, CourseRepository, UserRepository} from "../database/repository.js";
+import { courseRepo, invoiceRepo, levelRepo, studentRepo, userRepo, modeRepo} from "../database/repository.js";
 
 const router = Router();
 
-const studentRepo = new StudentRepository(poolDb);
 createAPICrud(router, studentRepo, true, true, true, true);
-
-const attendanceRepo = new AttendanceRepository(poolDb);
-
-const levelRepo = new LevelRepository(poolDb);
 createAPICrud(router, levelRepo, true, true, true, true);
-
 // De las facturas vamos a querer verlas y editarlas.
 // La edición es limitada a los campos a rellenar al pagarlas.
-const invoiceRepo = new InvoiceRepository(poolDb);
 createAPICrud(router, invoiceRepo, false, true, true, false);
-
-const modalityRepo = new ModeRepository(poolDb);
-createAPICrud(router, modalityRepo, true, true, true, true);
-
-const userRepo = new UserRepository(poolDb);
+createAPICrud(router, modeRepo, true, true, true, true);
 createAPICrud(router, userRepo, true, true, true, true);
-
-const courseRepo = new CourseRepository(poolDb);
 createAPICrud(router, courseRepo, true, true, true, true);
 
 // Normaliza las fechas a formato YY-MM-DDDD si tiene fechas.

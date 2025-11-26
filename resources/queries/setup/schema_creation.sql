@@ -73,9 +73,9 @@ CREATE TABLE pyac.factura (
     es_mensual BOOLEAN,
     monto NUMERIC(18, 2) NOT NULL,
     pagado BOOLEAN NOT NULL DEFAULT FALSE,
-    fecha_de_pago DATE,
+    fecha_de_pago DATE DEFAULT NULL,
     PRIMARY KEY (dni, fecha_de_emision, es_mensual),
-    FOREIGN KEY (dni, fecha_de_emision) REFERENCES pyac.asistencia(dni, fecha) ON UPDATE CASCADE
+    FOREIGN KEY (dni) REFERENCES pyac.alumno(dni) ON UPDATE CASCADE
 );
 GRANT SELECT, INSERT, UPDATE, DELETE ON pyac.factura TO pyac_admin;
 

@@ -1,6 +1,8 @@
 import { Pool } from "pg";
 import { BooleanType, DateType, EnumType, FloatType, IntegerType, Model, StringType } from "./model.js";
 import { hashPassword, verifyPassword } from "../login/auth.js";
+import { poolDb } from "./client.js";
+import { dayToNumber, getDaysInMonth, getWorkingDays, toISOFormat } from "../extra/utils.js";
 
 export abstract class Repository {
     public get frontData(): Record<string, any> {
@@ -9,7 +11,7 @@ export abstract class Repository {
     protected abstract readonly model: Model;
     protected readonly pool: Pool;
 
-    protected readonly schema: string = "Pyac";
+    public readonly schema: string = "Pyac";
     public abstract readonly tableName: string;
 
     constructor(pool: Pool) {
@@ -152,7 +154,7 @@ export class StudentRepository extends Repository {
             apellido: new StringType(false, false, "Apellido"),
             curso: new StringType(false, false, "Curso"),
             modalidad: new EnumType(false, false, ["Eventual", "Mensual", "Fijo"], "Modalidad"),
-            cuit_responsable_de_pagos: new StringType(false, false, "CUIT de Responsable de pagos"),
+            cuit_responsable_de_pagos: new StringType(false, false, "Responsable (CUIT)"),
             activo: new BooleanType(false, false, '', true)
         },
     );
@@ -214,6 +216,133 @@ export class AttendanceRepository extends Repository {
             fecha: new DateType(false, true)
         }
     );
+
+    public async tomarPresente(dni: number, day: number, month: number, year: number): Promise<void> {
+        const fecha = toISOFormat(year, month, day);
+
+        await this.pool.query('BEGIN');
+        try {
+            await this.create({ dni : dni, fecha : fecha });
+
+            const query = `
+                SELECT a.modalidad, n.precio_diario, m.descuento FROM ${this.schema}.${this.tableName} as p
+                    JOIN ${studentRepo.schema}.${studentRepo.tableName} AS a ON p.dni = a.dni
+                    JOIN ${modeRepo.schema}.${modeRepo.tableName} AS m ON a.modalidad = m.modalidad
+                    JOIN ${courseRepo.schema}.${courseRepo.tableName} AS c ON a.curso = c.curso
+                    JOIN ${levelRepo.schema}.${levelRepo.tableName} AS n ON c.nivel = n.nivel
+                WHERE p.dni = $1 AND p.fecha = $2;
+            `;
+            const values = [dni, fecha]
+            const items = await this.pool.query(query, values);
+            const data = items.rows[0];
+
+            if (data.modalidad === 'Eventual') {
+                await invoiceRepo.create({
+                    dni : dni,
+                    fecha_de_emision : fecha,
+                    es_mensual : false,
+                    monto : data.precio_diario * data.descuento
+                });
+            }
+            if (data.modalidad === 'Mensual') {
+                const count = await this.amountOfAttendances(dni, year, month);
+                if (count == 1) {
+                    await invoiceRepo.create({
+                        dni : dni,
+                        fecha_de_emision : fecha,
+                        es_mensual : true,
+                        monto : data.precio_diario * data.descuento * getWorkingDays(year, month)
+                    });
+                }
+            }
+            if (data.modalidad === 'Fijo') {
+                const rows = await fixedStudentRepo.read({ dni : dni });
+                const days = rows.map(row => row.dia_de_la_semana);
+                const count = await this.amountOfAttendances(dni, year, month);
+                if (count == 1) {
+                    await invoiceRepo.create({
+                        dni : dni,
+                        fecha_de_emision : fecha,
+                        es_mensual : true,
+                        monto : data.precio_diario * data.descuento * getDaysInMonth(year, month, days)
+                    });
+                }
+                if (!days.map(day => dayToNumber(day)).includes(new Date(year, month - 1, day).getDay())) {
+                    await invoiceRepo.create({
+                        dni : dni,
+                        fecha_de_emision : fecha,
+                        es_mensual : false,
+                        monto : data.precio_diario
+                    });
+                }
+            }
+            await this.pool.query('COMMIT');
+        }
+        catch(e) {
+            await this.pool.query('ROLLBACK');
+            throw e;
+        }
+    }
+
+    public async eliminarPresente(dni: number, day: number, month: number, year: number): Promise<void> {
+        const fecha = toISOFormat(year, month, day);
+
+        await this.pool.query('BEGIN');
+        try {
+            const query = `
+                SELECT a.modalidad, n.precio_diario, m.descuento FROM ${this.schema}.${this.tableName} as p
+                    JOIN ${studentRepo.schema}.${studentRepo.tableName} AS a ON p.dni = a.dni
+                    JOIN ${modeRepo.schema}.${modeRepo.tableName} AS m ON a.modalidad = m.modalidad
+                    JOIN ${courseRepo.schema}.${courseRepo.tableName} AS c ON a.curso = c.curso
+                    JOIN ${levelRepo.schema}.${levelRepo.tableName} AS n ON c.nivel = n.nivel
+                WHERE p.dni = $1 AND p.fecha = $2;
+            `;
+            const values = [dni, fecha]
+            const items = await this.pool.query(query, values);
+            const data = items.rows[0];
+
+            if (data.modalidad === 'Eventual') {
+                await invoiceRepo.delete({
+                    dni : dni,
+                    fecha_de_emision : fecha,
+                    es_mensual : false
+                });
+            }
+            if (data.modalidad === 'Mensual') {
+                const count = await this.amountOfAttendances(dni, year, month);
+                if (count == 1) {
+                    await invoiceRepo.deleteMonthlyInvoice(dni, year, month);
+                }
+            }
+            if (data.modalidad === 'Fijo') {
+                const count = await this.amountOfAttendances(dni, year, month);
+                await invoiceRepo.delete({
+                    dni : dni,
+                    fecha_de_emision : fecha,
+                    es_mensual : false
+                });
+                if (count == 1) {
+                    await invoiceRepo.deleteMonthlyInvoice(dni, year, month);
+                }
+            }
+            await this.delete({ dni : dni, fecha : fecha });
+            await this.pool.query('COMMIT');
+        }
+        catch(e) {
+            await this.pool.query('ROLLBACK');
+            throw e;
+        }
+    }
+
+    private async amountOfAttendances(dni: number, year: number, month: number): Promise<number> {
+        const query = `
+            SELECT * FROM ${this.schema}.${this.tableName}
+            WHERE dni = $1 AND TO_CHAR(fecha, 'YYYY-MM') = $2
+        `;
+        const fecha = toISOFormat(year, month, 1).slice(0, 7);
+        const items = await this.pool.query(query, [dni, `${fecha}`]);
+        return items.rows.length;
+    }
 }
 
 export class InvoiceRepository extends Repository {
@@ -222,12 +351,21 @@ export class InvoiceRepository extends Repository {
         {
             dni: new IntegerType(false, true, 'DNI'),
             fecha_de_emision: new DateType(false, true, 'Fecha de emision'),
-            es_mensual: new BooleanType(false, true, 'Tipo'),
+            es_mensual: new BooleanType(false, true, 'Es Mensual'),
             monto: new FloatType(false, false, 'Monto'),
-            pagado: new BooleanType(false, false, 'Pagado'),
-            fecha_de_pago: new DateType(true, false, 'Fecha de pago')
+            pagado: new BooleanType(false, false, 'Pagado', true),
+            fecha_de_pago: new DateType(true, false, 'Fecha de pago', true)
         }
     );
+
+    public async deleteMonthlyInvoice(dni: number, year: number, month: number): Promise<void> {
+        const query = `
+            DELETE FROM ${this.schema}.${this.tableName}
+            WHERE dni = $1 AND es_mensual = true AND TO_CHAR(fecha_de_emision, 'YYYY-MM') = $2
+        `;
+        const fecha = toISOFormat(year, month, 1).slice(0, 7);
+        await this.pool.query(query, [dni, `${fecha}`]);
+    }
 }
 
 export class UserRepository extends Repository {
@@ -274,3 +412,37 @@ export class UserRepository extends Repository {
         return usuario;
     }
 }
+
+export const studentRepo = new StudentRepository(poolDb);
+export const courseRepo = new CourseRepository(poolDb);
+export const levelRepo = new LevelRepository(poolDb);
+export const modeRepo = new ModeRepository(poolDb);
+export const fixedStudentRepo = new FixedStudentRepository(poolDb);
+export const attendanceRepo = new AttendanceRepository(poolDb);
+export const invoiceRepo = new InvoiceRepository(poolDb);
+export const userRepo = new UserRepository(poolDb);
+
+
+await attendanceRepo.tomarPresente(45326449, 25, 11, 2025);
+await attendanceRepo.tomarPresente(243, 25, 11, 2025);
+await attendanceRepo.tomarPresente(123, 25, 11, 2025);
+
+await attendanceRepo.tomarPresente(45326449, 26, 11, 2025);
+await attendanceRepo.tomarPresente(243, 26, 11, 2025);
+await attendanceRepo.tomarPresente(123, 26, 11, 2025);
+
+await attendanceRepo.tomarPresente(45326449, 1, 12, 2025);
+await attendanceRepo.tomarPresente(243, 1, 12, 2025);
+await attendanceRepo.tomarPresente(123, 1, 12, 2025);
+
+await attendanceRepo.eliminarPresente(45326449, 25, 11, 2025);
+await attendanceRepo.eliminarPresente(243, 25, 11, 2025);
+await attendanceRepo.eliminarPresente(123, 25, 11, 2025);
+
+await attendanceRepo.eliminarPresente(45326449, 26, 11, 2025);
+await attendanceRepo.eliminarPresente(243, 26, 11, 2025);
+await attendanceRepo.eliminarPresente(123, 26, 11, 2025);
+
+await attendanceRepo.eliminarPresente(45326449, 1, 12, 2025);
+await attendanceRepo.eliminarPresente(243, 1, 12, 2025);
+await attendanceRepo.eliminarPresente(123, 1, 12, 2025);
