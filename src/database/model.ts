@@ -132,9 +132,7 @@ export class BooleanType extends DatabaseType {
     protected readonly inputType: string = "checkbox";
     protected validateType(value: any) {
         if(typeof value == "boolean") return true;
-
         if(typeof value == "string" && (value == "true" || value == "false")) return true;
-
         return false;
     }
 }

@@ -37,7 +37,7 @@ export abstract class Repository {
         else {
             rows = await this.defaultRead(filters);
         }
-        return rows;
+        return this.normalizeDates(rows);
     }
 
     public async update(originalPKs: Record<string, any>, row: Record<string, any>): Promise<void> {
@@ -143,6 +143,22 @@ export abstract class Repository {
         }, {} as Record<string, any>);
         return pkObject;
     }
+
+    private normalizeDates(rows: Record<string, any>[]) {
+        return rows?.map(row => {
+            const newRow: Record<string, any> = {};
+            for (const key in row) {
+                const value = row[key];
+                if (value instanceof Date) {
+                    newRow[key] = toISOFormat(value.getFullYear(), value.getMonth(), value.getDate());
+                }
+                else {
+                    newRow[key] = value;
+                }
+            }
+            return newRow;
+        });
+    }
 }
 
 export class StudentRepository extends Repository {
@@ -223,39 +239,28 @@ export class AttendanceRepository extends Repository {
         await this.pool.query('BEGIN');
         try {
             await this.create({ dni : dni, fecha : fecha });
+            const studentData = await this.getDataForInvoice(dni, fecha);
 
-            const query = `
-                SELECT a.modalidad, n.precio_diario, m.descuento FROM ${this.schema}.${this.tableName} as p
-                    JOIN ${studentRepo.schema}.${studentRepo.tableName} AS a ON p.dni = a.dni
-                    JOIN ${modeRepo.schema}.${modeRepo.tableName} AS m ON a.modalidad = m.modalidad
-                    JOIN ${courseRepo.schema}.${courseRepo.tableName} AS c ON a.curso = c.curso
-                    JOIN ${levelRepo.schema}.${levelRepo.tableName} AS n ON c.nivel = n.nivel
-                WHERE p.dni = $1 AND p.fecha = $2;
-            `;
-            const values = [dni, fecha]
-            const items = await this.pool.query(query, values);
-            const data = items.rows[0];
-
-            if (data.modalidad === 'Eventual') {
+            if (studentData.modalidad === 'Eventual') {
                 await invoiceRepo.create({
                     dni : dni,
                     fecha_de_emision : fecha,
                     es_mensual : false,
-                    monto : data.precio_diario * data.descuento
+                    monto : studentData.precio_diario * studentData.descuento
                 });
             }
-            if (data.modalidad === 'Mensual') {
+            if (studentData.modalidad === 'Mensual') {
                 const count = await this.amountOfAttendances(dni, year, month);
                 if (count == 1) {
                     await invoiceRepo.create({
                         dni : dni,
                         fecha_de_emision : fecha,
                         es_mensual : true,
-                        monto : data.precio_diario * data.descuento * getWorkingDays(year, month)
+                        monto : studentData.precio_diario * studentData.descuento * getWorkingDays(year, month)
                     });
                 }
             }
-            if (data.modalidad === 'Fijo') {
+            if (studentData.modalidad === 'Fijo') {
                 const rows = await fixedStudentRepo.read({ dni : dni });
                 const days = rows.map(row => row.dia_de_la_semana);
                 const count = await this.amountOfAttendances(dni, year, month);
@@ -264,7 +269,7 @@ export class AttendanceRepository extends Repository {
                         dni : dni,
                         fecha_de_emision : fecha,
                         es_mensual : true,
-                        monto : data.precio_diario * data.descuento * getDaysInMonth(year, month, days)
+                        monto : studentData.precio_diario * studentData.descuento * getDaysInMonth(year, month, days)
                     });
                 }
                 if (!days.map(day => dayToNumber(day)).includes(new Date(year, month - 1, day).getDay())) {
@@ -272,7 +277,7 @@ export class AttendanceRepository extends Repository {
                         dni : dni,
                         fecha_de_emision : fecha,
                         es_mensual : false,
-                        monto : data.precio_diario
+                        monto : studentData.precio_diario
                     });
                 }
             }
@@ -289,32 +294,22 @@ export class AttendanceRepository extends Repository {
 
         await this.pool.query('BEGIN');
         try {
-            const query = `
-                SELECT a.modalidad, n.precio_diario, m.descuento FROM ${this.schema}.${this.tableName} as p
-                    JOIN ${studentRepo.schema}.${studentRepo.tableName} AS a ON p.dni = a.dni
-                    JOIN ${modeRepo.schema}.${modeRepo.tableName} AS m ON a.modalidad = m.modalidad
-                    JOIN ${courseRepo.schema}.${courseRepo.tableName} AS c ON a.curso = c.curso
-                    JOIN ${levelRepo.schema}.${levelRepo.tableName} AS n ON c.nivel = n.nivel
-                WHERE p.dni = $1 AND p.fecha = $2;
-            `;
-            const values = [dni, fecha]
-            const items = await this.pool.query(query, values);
-            const data = items.rows[0];
+            const studentData = await this.getDataForInvoice(dni, fecha);
 
-            if (data.modalidad === 'Eventual') {
+            if (studentData.modalidad === 'Eventual') {
                 await invoiceRepo.delete({
                     dni : dni,
                     fecha_de_emision : fecha,
                     es_mensual : false
                 });
             }
-            if (data.modalidad === 'Mensual') {
+            if (studentData.modalidad === 'Mensual') {
                 const count = await this.amountOfAttendances(dni, year, month);
                 if (count == 1) {
                     await invoiceRepo.deleteMonthlyInvoice(dni, year, month);
                 }
             }
-            if (data.modalidad === 'Fijo') {
+            if (studentData.modalidad === 'Fijo') {
                 const count = await this.amountOfAttendances(dni, year, month);
                 await invoiceRepo.delete({
                     dni : dni,
@@ -332,6 +327,21 @@ export class AttendanceRepository extends Repository {
             await this.pool.query('ROLLBACK');
             throw e;
         }
+    }
+
+    private async getDataForInvoice(dni: number, fecha: string) {
+        const query = `
+                SELECT a.modalidad, n.precio_diario, m.descuento FROM ${this.schema}.${this.tableName} as p
+                    JOIN ${studentRepo.schema}.${studentRepo.tableName} AS a ON p.dni = a.dni
+                    JOIN ${modeRepo.schema}.${modeRepo.tableName} AS m ON a.modalidad = m.modalidad
+                    JOIN ${courseRepo.schema}.${courseRepo.tableName} AS c ON a.curso = c.curso
+                    JOIN ${levelRepo.schema}.${levelRepo.tableName} AS n ON c.nivel = n.nivel
+                WHERE p.dni = $1 AND p.fecha = $2;
+            `;
+        const values = [dni, fecha];
+        const items = await this.pool.query(query, values);
+        const data = items.rows[0];
+        return data;
     }
 
     private async amountOfAttendances(dni: number, year: number, month: number): Promise<number> {
@@ -421,28 +431,3 @@ export const fixedStudentRepo = new FixedStudentRepository(poolDb);
 export const attendanceRepo = new AttendanceRepository(poolDb);
 export const invoiceRepo = new InvoiceRepository(poolDb);
 export const userRepo = new UserRepository(poolDb);
-
-
-await attendanceRepo.tomarPresente(45326449, 25, 11, 2025);
-await attendanceRepo.tomarPresente(243, 25, 11, 2025);
-await attendanceRepo.tomarPresente(123, 25, 11, 2025);
-
-await attendanceRepo.tomarPresente(45326449, 26, 11, 2025);
-await attendanceRepo.tomarPresente(243, 26, 11, 2025);
-await attendanceRepo.tomarPresente(123, 26, 11, 2025);
-
-await attendanceRepo.tomarPresente(45326449, 1, 12, 2025);
-await attendanceRepo.tomarPresente(243, 1, 12, 2025);
-await attendanceRepo.tomarPresente(123, 1, 12, 2025);
-
-await attendanceRepo.eliminarPresente(45326449, 25, 11, 2025);
-await attendanceRepo.eliminarPresente(243, 25, 11, 2025);
-await attendanceRepo.eliminarPresente(123, 25, 11, 2025);
-
-await attendanceRepo.eliminarPresente(45326449, 26, 11, 2025);
-await attendanceRepo.eliminarPresente(243, 26, 11, 2025);
-await attendanceRepo.eliminarPresente(123, 26, 11, 2025);
-
-await attendanceRepo.eliminarPresente(45326449, 1, 12, 2025);
-await attendanceRepo.eliminarPresente(243, 1, 12, 2025);
-await attendanceRepo.eliminarPresente(123, 1, 12, 2025);
