@@ -54,7 +54,7 @@ createMainRouteForBasicCRUD("curso", "manageCourses", "courses");
 createMainRouteForBasicCRUD("nivel", "manageLevels", "levels");
 
 // Ruta GET principal
-router.get("/", (_, res) => {
+router.get("/", requireAuth, (_, res) => {
     res.render("mainMenu");
 });
 
