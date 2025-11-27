@@ -1,15 +1,30 @@
-header{
-    background-color: var(--primary-color);
-    text-align: center;
-    margin: 0;
-    color: var(--text-light-color);
-    padding: 2em;
-    border-top: 0.1rem solid rgba(255, 255, 255, 0.2);
+main{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 2rem;
 }
 
-main{
-    font-size: 1.5rem;
-    width: 60%;
-    margin: 0 auto;
-    text-align: center;
+.about-us {
+    max-width: 800px;
+    background: white;
+    padding: 3rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-dark-color);
+    text-align: left;
+    position: relative;
+}
+
+.about-us p {
+    margin-bottom: 1.5rem;
+}
+
+.about-us p:first-child {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
 }

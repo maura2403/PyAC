@@ -8,92 +8,62 @@
     <%- include("headCRUDdata", {title: title, cssRoute: cssRoute}) %>
 </head>
 <body>
+    <%- include('partials/nav') %>
+    <% include('partials/sortFilterElement') %>
 
-<%- include('partials/nav') %>
-<% include('partials/sortFilterElement') %>
-<main>
+    <main>
     <h2><%=title%></h2>
-<!-- CONTROLES -->
-<div id="controls" class="controls">
-    
-    <label>
-        <input type="checkbox" id="filtroSinPagar">
-        Mostrar solo impagas
-    </label>
-
-    <label>
-        Ordenar por:
-        <select id="ordenarPor">
-            <option value="">(Sin orden)</option>
-            <option value="dni">DNI</option>
-            <option value="fechaemision">Fecha de emisión</option>
-        </select>
-    </label>
-
-    <label>
-        Buscar por DNI:
-        <input type="text" id="busquedaDni" placeholder="Ingrese DNI...">
-    </label>
-
-    <!-- FILTROS DE FECHA: fecha exacta (prioridad), mes, año -->
-    <div class="date-filters">
-        <label>
-            Fecha exacta:
-            <input type="date" id="filterDateExact">
-        </label>
-
-        <label>
-            Mes y año:
-            <input type="month" id="filterMonth">
-        </label>
-
-        <label>
-            Año:
-            <input type="number" id="filterYear" min="1900" max="2100" placeholder="2025" style="width:100px">
-        </label>
+    <div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <%- filterAndSortHeader("DNI", 'dni', 'number', true, true, sortbyParams, filterParams);%>
+                <%- filterAndSortHeader("Nombre", 'nombre', 'text', true, true, sortbyParams, filterParams);%>
+                <%- filterAndSortHeader("Apellido", 'apellido', 'text', true, true, sortbyParams, filterParams);%>
+                <%- filterAndSortHeader("CUIT", 'cuit_responsable_de_pagos', 'text', true, false, sortbyParams, filterParams);%>
+                <%- filterAndSortHeader("Fecha", 'fecha_de_emision', 'text', false, true, sortbyParams, filterParams);%>
+                <%- filterAndSortHeader("Monto", 'monto', 'number', false, true, sortbyParams, filterParams);%>
+                <%- filterAndSortHeader("Pagado", 'pagado', 'checkbox', true, true, sortbyParams, filterParams);%>
+                <th>Descargar</th>
+            </tr>
+        </thead>
+        <tbody>
+        <% for (const factura of iterableData) { %>
+        <tr data-dni="<%= factura.dni %>" 
+            data-fecha_emision="<%= factura.fecha_de_emision %>" 
+            data-es_mensual="<%= factura.es_mensual %>"
+            data-monto="<%= factura.monto %>"
+            data-nombre="<%= factura.nombre %>"
+            data-apellido="<%= factura.apellido %>"
+            data-cuit="<%= factura.cuit_responsable_de_pagos %>"
+            data-pagado="<%= factura.pagado %>"
+            data-fecha_pago="<%= factura.fecha_de_pago || '' %>">
+            <td data-key="true"><%= factura.dni %></td>
+            <td><%= factura.nombre %></td>
+            <td><%= factura.apellido %></td>
+            <td><%= factura.cuit_responsable_de_pagos %></td>
+            <td data-key="true"><%= factura.fecha_de_emision %></td>
+            <td>$<%= parseFloat(factura.monto).toFixed(2) %></td>
+            <td>
+                <input type="checkbox" onclick="payInvoice(this)" <%= factura.pagado ? "checked" : "" %>>
+            </td>
+            <td>
+                <button onclick="downloadInvoice(this)" class="download-btn">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 7L12 14M12 14L15 11M12 14L9 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M16 17H12H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                        <path d="M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12Z" stroke="currentColor" stroke-width="1.5"></path>
+                    </svg>
+                </button>
+            </td>
+        </tr>
+        <% } %>
+        </tbody>
+    </table>
     </div>
-
-    <button id="resetOrden">Restablecer</button>
-</div>
-
-<table class="manage-invoices-table">
-    <thead>
-    <tr>
-        <% for (const [key, meta] of Object.entries(metadata)) { %>
-            <%- filterAndSortHeader(meta.label,key,meta.type,meta.filterable, meta.sortable,sortbyParams, filterParams, meta.values);%>
-        <% } %>
-        <th style="width: 150px;">PAGAR FACTURA</th>
-    </tr>
-    </thead>
-
-    <tbody id="invoices-tbody">
-    <% for (const element of iterableData) { %>
-    <tr 
-        data-dni="<%= element['dni'] %>" 
-        data-fechaemision="<%= element['fechaemision'] %>"
-        data-esmensual="<%= element['esmensual'] %>"
-        data-pagado="<%= element['pagado'] %>"
-    >
-        <% for (const [key, meta] of Object.entries(metadata)) { %>
-            <td data-key="<%=key%>"><%= element[key] %></td>
-        <% } %>
-
-        <td>
-            <% if (!element['pagado']) { %>
-                <button class="pay" onclick="payInvoice(this)">PAGAR</button>
-            <% } else { %>
-                NA
-            <% } %>
-        </td>
-    </tr>
-    <% } %>
-    </tbody>
-</table>
 </main>
 <%- include('partials/footer') %>
-
-<script src="/js/nav.js"></script>
+<script src="/js/manageInvoice.js"></script>
 <script src="/js/sortFilterInCRUD.js"></script>
-<script src="/js/manageInvoicesScripts.js"></script>
 </body>
 </html>

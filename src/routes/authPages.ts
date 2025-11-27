@@ -8,7 +8,6 @@ declare module 'express-session' {
     }
 }
 
-// Página de login
 router.get('/app/login', (req, res) => {
     if (req.session.user) {
         return res.redirect('/');

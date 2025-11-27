@@ -41,5 +41,11 @@ function changeWeek(count) {
     const data = sunday.split("-").map(value => parseInt(value));
     const dateObj = new Date(data[0], data[1] - 1, data[2]);
     dateObj.setDate(dateObj.getDate() + count * 7);
-    window.location.href = `/app/asistencia?day=${dateObj.getDate()}&month=${dateObj.getMonth()+1}&year=${dateObj.getFullYear()}`;
+
+    const params = new URLSearchParams(location.search);
+    params.set("day", dateObj.getDate());
+    params.set("month", dateObj.getMonth() + 1);
+    params.set("year", dateObj.getFullYear());
+    const newUrl = `/app/asistencia?` + params.toString();
+    window.location.href = newUrl;
 }

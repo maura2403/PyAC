@@ -30,9 +30,11 @@ document.addEventListener("click", (e) => {
     });
 });
 
-function constructUrlWithParams(urlDict){
-    const url = location.origin + location.pathname;
-    return `${url}?filter=${JSON.stringify(urlDict.filter)}&sortby=${JSON.stringify(urlDict.sortby)}`;
+function constructUrlWithParams(urlDict) {
+    const params = new URLSearchParams(location.search);
+    params.set("filter", JSON.stringify(urlDict.filter));
+    params.set("sortby", JSON.stringify(urlDict.sortby));
+    return location.pathname + "?" + params.toString();
 }
 
 function parseUrlWithParams(currentLocation) {
@@ -126,7 +128,6 @@ function sortField(button) {
 
     const newUrl = constructUrlWithParams(urlDict);
     location.href = newUrl;
-
 }
 
 function filterField(event){

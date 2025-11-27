@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura - <%= factura.dni %></title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        .info {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+        .info-section {
+            flex: 1;
+        }
+        .info-section h2 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .info-row {
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        .total {
+            text-align: right;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>FACTURA</h1>
+    <p style="text-align: center;">Presente y A Comer!</p>
+
+    <div class="info">
+        <div class="info-section">
+            <h2>Alumno</h2>
+            <div class="info-row"><strong>DNI:</strong> <%= factura.dni %></div>
+            <div class="info-row"><strong>Nombre:</strong> <%= factura.nombre %> <%= factura.apellido %></div>
+            <div class="info-row"><strong>CUIT:</strong> <%= factura.cuit_responsable_de_pagos %></div>
+        </div>
+        <div class="info-section">
+            <h2>Factura</h2>
+            <div class="info-row"><strong>Fecha:</strong> <%= factura.fecha_de_emision %></div>
+            <div class="info-row"><strong>Tipo:</strong> <%= factura.es_mensual ? 'Mensual' : 'Diaria' %></div>
+            <% if (factura.fecha_de_pago) { %>
+            <div class="info-row"><strong>Fecha de Pago:</strong> <%= factura.fecha_de_pago %></div>
+            <% } %>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Descripción</th>
+                <th style="text-align: right;">Monto</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Servicio de Comedor - <%= factura.es_mensual ? 'Mensual' : 'Diaria' %></td>
+                <td style="text-align: right;">$<%= parseFloat(factura.monto).toFixed(2) %></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="total">Total: $<%= parseFloat(factura.monto).toFixed(2) %></div>
+</body>
+</html>
+

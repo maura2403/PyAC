@@ -1,85 +1,8 @@
-
-
-/* back button (reuse .btn if you already have a global) */
-a.btn {
-    display: inline-block;
-    margin-bottom: 16px;
-    padding: 8px 14px;
-    background: #3498db;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: 600;
+button {
+    color: var(--primary-color);
 }
 
-/* CONTROLES */
-.controls {
-    width: 80%;
-    margin: 0  auto 18px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-    background: white;
-    padding: 12px;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-    justify-content: center;
-}
-
-.controls label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.95rem;
-    color: #222;
-}
-
-/* agrupador de filtros de fecha */
-.date-filters {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-/* inputs y select */
-.controls input[type="text"],
-.controls input[type="date"],
-.controls input[type="month"],
-.controls input[type="number"],
-.controls select {
-    padding: 6px 10px;
-    border: 1px solid #d0d0d0;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    background: #fff;
-}
-
-/* botón pagar */
-button.pay {
-    background-color: #ffcc00;
-    color: #222;
-    border: 1px solid #c9a600;
-    padding: 6px 12px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    border-radius: 6px;
+button:hover {
+    color: var(--primary-color-light);
     cursor: pointer;
-}
-button.pay:hover { background-color: #ffd633; transform: translateY(-1px); }
-button.pay:active { transform: translateY(0); }
-
-/* reset */
-#resetOrden {
-    padding: 6px 10px;
-    background: #efefef;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-/* responsive */
-@media (max-width: 1000px) {
-  .manage-invoices-table, .controls { width: 95%; }
-  .date-filters { flex-wrap: wrap; gap: 6px; }
 }

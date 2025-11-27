@@ -1,60 +1,31 @@
 import { Router } from "express";
-import { createAPICrud } from "../basicCrud.js"
-import { requireAuth } from "../middleware/auth.js"
+import { createAPICrud, createMainRouteForBasicCRUD } from "../basicCrud.js"
+import { requireAuth, requireAuthAPI } from "../middleware/auth.js"
 import authApiRoutes from "./authApi.js";
 import authPagesRoutes from "./authPages.js";
-import { courseRepo, invoiceRepo, levelRepo, studentRepo, userRepo, modeRepo, fixedStudentRepo, attendanceRepo} from "../database/repository.js";
-import { assertValidDateYYYYMMDD, dateToISOFormat, dayToNumber, numberToISOFormat, stringToDate, zip } from "../extra/utils.js";
+import { dateToISOFormat, dayToNumber, stringToDate, zip } from "../extra/utils.js";
 import { parseCsvFromContent } from "../extra/csv.js";
+import { attendanceRepo } from "../database/repository/attendanceRepository.js";
+import { courseRepo } from "../database/repository/courseRepository.js";
+import { fixedStudentRepo } from "../database/repository/fixedStudentRepository.js";
+import { invoiceRepo } from "../database/repository/invoiceRepository.js";
+import { levelRepo } from "../database/repository/levelRepository.js";
+import { studentRepo } from "../database/repository/studentRepository.js";
+import { userRepo } from "../database/repository/userRepository.js";
 
 const router = Router();
 
 createAPICrud(router, studentRepo, true, true, true, true);
 createAPICrud(router, levelRepo, true, true, true, true);
-// De las facturas vamos a querer verlas y editarlas.
-// La edición es limitada a los campos a rellenar al pagarlas.
-createAPICrud(router, invoiceRepo, false, true, true, false);
-createAPICrud(router, modeRepo, true, true, true, true);
+createAPICrud(router, invoiceRepo, false, true, false, false);
 createAPICrud(router, userRepo, true, true, true, true);
 createAPICrud(router, courseRepo, true, true, true, true);
 createAPICrud(router, fixedStudentRepo, true, true, false, true);
 
-function createMainRouteForBasicCRUD(specificRoute: string, templateFrontEndName: string) {
-    router.get(`/app/${specificRoute}`, requireAuth, async (req, res) => {
-        const queryParams = req.query;
-        let queryString = Object.keys(queryParams).map(key => `${key}=${queryParams[key]}`).join('&');
-        const url = `http://localhost:3000/api/${specificRoute}`;
-        if (queryString !== '') {
-            queryString = `?${queryString}`;
-        }
-
-        // Fetch data
-        const response = await fetch(`${url}${queryString}`, {
-            method : "GET",
-            headers: {
-                cookie: req.headers.cookie ?? '',
-            }
-        });
-        const data = await response.json();
-
-        // Fetch metadata
-        const metadataResponse = await fetch(`${url}/metadata`, {
-            method : "GET",
-            headers: {
-                cookie: req.headers.cookie ?? '',
-            }
-        });
-        const metadata = await metadataResponse.json();
-        const filterParam = queryParams.filter ? JSON.parse(queryParams.filter as string) : {};
-        const sortParam = queryParams.sortby ? JSON.parse(queryParams.sortby as string) : {};
-        res.render(templateFrontEndName, { 'iterableData' : data, "metadata" : metadata, "filterParams": filterParam, "sortbyParams": sortParam});
-    });
-}
-
-createMainRouteForBasicCRUD("alumno", "manageStudents");
-createMainRouteForBasicCRUD("factura", "manageInvoices");
-createMainRouteForBasicCRUD("curso", "manageCourses");
-createMainRouteForBasicCRUD("nivel", "manageLevels");
+createMainRouteForBasicCRUD(router, studentRepo, "manageStudents");
+createMainRouteForBasicCRUD(router, invoiceRepo, "manageInvoices");
+createMainRouteForBasicCRUD(router, courseRepo, "manageCourses");
+createMainRouteForBasicCRUD(router, levelRepo, "manageLevels");
 
 router.get("/app/alumno/fijo", requireAuth, async (req, res) => {
     const queryParams = req.query;
@@ -62,6 +33,24 @@ router.get("/app/alumno/fijo", requireAuth, async (req, res) => {
     const sortParam = queryParams.sortby ? JSON.parse(queryParams.sortby as string) : {};
     const data = await studentRepo.getFixedStudentsWithDays(filterParam, sortParam);
     res.render('manageFixedStudents', { 'data' : data, 'filterParams': filterParam, 'sortbyParams': sortParam });
+});
+
+router.get("/app/asistencia", requireAuth, async (req, res) => {
+    if (!req.query.day || !req.query.month || !req.query.year) {
+        const today = new Date();
+        return res.redirect(`/app/asistencia?day=${today.getDate()}&month=${today.getMonth() + 1}&year=${today.getFullYear()}`);
+    }
+    const year = parseInt(req.query.year as string);
+    const month = parseInt(req.query.month as string);
+    const day = parseInt(req.query.day as string);
+
+    const lastSunday = new Date(year, month - 1, day);
+    lastSunday.setDate(lastSunday.getDate() - lastSunday.getDay());
+    const queryParams = req.query;
+    const filterParam = queryParams.filter ? JSON.parse(queryParams.filter as string) : {};
+    const sortParam = queryParams.sortby ? JSON.parse(queryParams.sortby as string) : {};
+    const data = await studentRepo.getStudentsAttendanceWeek(lastSunday.getFullYear(), lastSunday.getMonth() + 1, lastSunday.getDate(), filterParam, sortParam);
+    res.render("manageAttendance", { "sunday" : dateToISOFormat(lastSunday), "data" : data, 'filterParams': filterParam, 'sortbyParams': sortParam  });
 });
 
 router.post("/api/asistencia", requireAuth, async (req, res) => {
@@ -114,25 +103,28 @@ router.post("/api/alumno/csv", requireAuth, async (req, res) => {
     }
 });
 
+router.get("/api/factura/descargar", requireAuthAPI, async (req, res) => {
+    try {
+        const dni = parseInt(req.query.dni as string);
+        const fecha_de_emision = req.query.fecha_de_emision as string;
+        const es_mensual = req.query.es_mensual === 'true';
 
-router.get("/app/asistencia", requireAuth, async (req, res) => {
-    if (!req.query.day || !req.query.month || !req.query.year) {
-        const today = new Date();
-        return res.redirect(`/app/asistencia?day=${today.getDate()}&month=${today.getMonth() + 1}&year=${today.getFullYear()}`);
+        const facturas = await invoiceRepo.read({
+            dni: dni,
+            fecha_de_emision: fecha_de_emision,
+            es_mensual: es_mensual
+        });
+
+        if (facturas.length === 0) {
+            return res.status(404).send('Factura no encontrada');
+        }
+
+        res.render("invoice", { factura: facturas[0] });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error al generar la factura');
     }
-    const year = parseInt(req.query.year as string);
-    const month = parseInt(req.query.month as string);
-    const day = parseInt(req.query.day as string);
-
-    const lastSunday = new Date(year, month - 1, day);
-    lastSunday.setDate(lastSunday.getDate() - lastSunday.getDay());
-    const queryParams = req.query;
-    const filterParam = queryParams.filter ? JSON.parse(queryParams.filter as string) : {};
-    const sortParam = queryParams.sortby ? JSON.parse(queryParams.sortby as string) : {};
-    const data = await studentRepo.getStudentsAttendanceWeek(lastSunday.getFullYear(), lastSunday.getMonth() + 1, lastSunday.getDate(), filterParam, sortParam);
-    res.render("manageAttendance", { "sunday" : dateToISOFormat(lastSunday), "data" : data, 'filterParams': filterParam, 'sortbyParams': sortParam  });
 });
-
 
 // Ruta GET principal
 router.get("/", requireAuth, (_, res) => {

@@ -1,6 +1,5 @@
 import { readFile } from 'node:fs/promises';
 
-
 export async function parseCsvFromContent(content: string) {
     const header = content.split(/\r?\n/)[0];
     if (header == null) throw new Error("archivo .csv vacio");

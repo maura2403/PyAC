@@ -1,4 +1,4 @@
-import { arraySameElements, isValidDateYYYYMMDD } from "../extra/utils.js";
+import { arraySameElements } from "../extra/utils.js";
 
 export class Model {
     private columns: Record<string, DatabaseType>;
@@ -168,25 +168,18 @@ export class DateType extends DatabaseType {
     protected readonly inputType: string = "date";
 
     protected validateType(value: any) {
-
-        // Si ya es Date, validar que sea válida
         if (value instanceof Date) {
             return !isNaN(value.getTime());
         }
 
-        // Si es string, intentar parsearlo
         if (typeof value === "string") {
             const parsed = new Date(value);
             if (!isNaN(parsed.getTime())) {
-                // Guardamos la fecha parseada en el objeto
-                // para que el Repository reciba un Date real
                 return true;
             }
             return false;
         }
-
         return false;
-        //return isValidDateYYYYMMDD(value);
     }
 }
 
