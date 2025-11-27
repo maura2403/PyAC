@@ -18,7 +18,7 @@ El proyecto se encuentra disponible en: https://pyac.onrender.com/
 ### Pasos para configurar el proyecto en local
 
 ### 0. (Opcional) Cambiar contraseña
-Se recomienda en [resources/queries/setup/db_creation.sql](resources/queries/setup/db_creation.sql) cambiar la contraseña de pyac_admin.
+Se recomienda en [`resources/queries/setup/db_creation.sql`](resources/queries/setup/db_creation.sql) cambiar la contraseña de pyac_admin.
 
 ### 1. Creación de la bases de datos
 #### Crear la bases de datos:
@@ -30,7 +30,7 @@ sudo -u postgres psql -d pyac_db -f resources/queries/setup/schema_creation.sql
 ```
 
 #### (Opcional) Insertar datos de ejemplo:
-En [resources/queries/inserts_example.sql](resources/queries/inserts_example.sql) se incluyen datos de prueba.
+En [`resources/queries/inserts_example.sql`](resources/queries/inserts_example.sql) se incluyen datos de prueba.
 Se puede ejecutar desde cualquier cliente de PostgreSQL (por ejemplo pgAdmin 4) o directamente desde la terminal:
 
 ```bash
@@ -65,7 +65,7 @@ Para crear un usuario administrador manualmente se debe agregar la linea:
 ```
 userRepo.createUser('[USERNAME]', '[PASSWORD]', '[NAME]', '[EMAIL]);
 ```
-al final del archivo [src/routes/routes.ts](`src/routes/routes.ts`).
+al final del archivo [`src/routes/routes.ts`](`src/routes/routes.ts`).
 
 Luego inicial el servidor utilizando `npm run server`, se habrá creado un nuevo usuario de administrador con usuario [USERNAME] y contraseña [PASSWORD].
 

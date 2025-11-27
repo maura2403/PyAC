@@ -18,7 +18,7 @@ PGDATABASE=pyac_db
 PORT=3000
 ```
 
-Donde [PASSWORD] debe coincidir con la contraseña del usuario pyac_admin creando en [resources/queries/setup/db_creation.sql](resources/queries/setup/db_creation.sql).
+Donde [PASSWORD] debe coincidir con la contraseña del usuario pyac_admin creando en [`resources/queries/setup/db_creation.sql`](resources/queries/setup/db_creation.sql).
 
 Un ejemplo de `.env` donde se configura especificando la url de la base de datos:
 
