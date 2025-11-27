@@ -1,0 +1,67 @@
+<%
+    filterAndSortHeader = function(fieldName, key, type, filterable, sortable, sortbyParams = {}, filterParams = {}, values = null){
+        let thElement = `<th data-key="${key}">
+                    <div class='th-wrapper'>
+                        <span>${fieldName}</span>`;
+        if(filterable || sortable){
+            thElement += `<button class="field-menu" data-popup="popup-${key}" onclick="openFieldMenu(this)">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22 7L2 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path> <path d="M19 12L5 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    <path d="M16 17H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                </svg>
+                            </button>
+                            <div class="field-menu-popup" id="popup-${key}">`;
+            if(sortable){
+                thElement += `<button class="sortby-button" data-action="${sortbyParams[key] ? sortbyParams[key] : 'none' }" onclick="sortField(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12Z" stroke="currentColor" stroke-width="1.5"></path>
+                                        ${sortbyParams[key] === 'asc' ?
+                                            `<path d="M14.5 16L14.5 8M14.5 8L12 10.75M14.5 8L17 10.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>`
+                                        : sortbyParams[key] === 'desc' ?
+                                            `<path d="M9.5 8L9.5 16M9.5 16L7 13.25M9.5 16L12 13.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>`
+                                        :   `<path d="M9.5 8L9.5 16M9.5 16L7 13.25M9.5 16L12 13.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            <path d="M14.5 16L14.5 8M14.5 8L12 10.75M14.5 8L17 10.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>`
+                                        }
+                                    </svg>
+                                </button>`;
+            }
+            if(filterable){
+                if(type === "checkbox"){
+                    thElement += `<button class="boolean-button" data-action="${filterParams[key] ? filterParams[key] : 'none' }" onclick="filterBooleanField(this)">
+                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12Z" stroke="currentColor" stroke-width="1.5"></path>
+                                            ${filterParams[key] ?
+                                                filterParams[key] === "true" ?
+                                                    `<path d="M8.5 12.5L10.5 14.5L15.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>`
+                                                :
+                                                    `<path d="M14.5 9.5L9.50002 14.5M9.5 9.49998L14.5 14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>`
+                                            :   ``
+                                            }
+                                        </svg>
+                                    </button>`
+                }
+                else{
+                    thElement += `<form class="filter-form" onsubmit="return filterField(event)" data-key="${key}">`;
+                    if(values){
+                        for(let v of values){
+                            thElement += `<div class="filter-checkbox-row" >
+                                                <input type="checkbox" class="filter-checkbox" value="${v}" id="${key + '-' + v.replace(/\s+/g, '-')}" ${filterParams[key] && filterParams[key].includes(v) ? "checked" : "" }>
+                                                <label for="${key + '-' + v.replace(/\s+/g, '-')}">${v}</label><br>
+                                        </div>`
+                        }
+                    }
+                    else{
+                        thElement += `<input type="text" class="filter-input" placeholder="Buscar..."/>`
+                    }
+                    thElement += `<button type="submit" class="filter-button" >Filtrar</button>
+                                    </form>`;
+                }
+            }
+            thElement += `</div>`;
+        }
+
+        thElement += `</div></th>`;
+
+        return thElement
+    }
+%>

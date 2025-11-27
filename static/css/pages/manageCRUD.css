@@ -178,7 +178,7 @@ button.add:hover, button.field-menu:hover {
     visibility: visible;
 }
 
-.sortby-button{
+.sortby-button, .boolean-button{
     color: var(--primary-color);
 }
 

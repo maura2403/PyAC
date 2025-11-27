@@ -63,12 +63,42 @@ function parseUrlWithParams(currentLocation) {
     return urlDict;
 }
 
+function filterBooleanField(button){
+    const previous_order = button.dataset.action;
+    const field = button.closest("th").dataset.key;
+    let action;
+    switch(previous_order) {
+        case "true":
+            action="false";
+            break;
+        case "false":
+            action="none";
+            break;
+        case "none":
+            action="true";
+            break;
+        default:
+            action="none";
+            break;
+    }
+
+    const urlDict = parseUrlWithParams(location);
+
+    if(action === "true" || action === "false"){
+        urlDict.filter[field] = action;
+    }
+    else{
+        delete urlDict.filter[field];
+    }
+
+    const newUrl = constructUrlWithParams(urlDict);
+    location.href = newUrl;
+}
 
 function sortField(button) {
     const previous_order = button.dataset.action;
     const field = button.closest("th").dataset.key;
     let action;
-    let url=location.href;
 
     switch(previous_order) {
         case "none":

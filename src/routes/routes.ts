@@ -57,8 +57,11 @@ createMainRouteForBasicCRUD("curso", "manageCourses");
 createMainRouteForBasicCRUD("nivel", "manageLevels");
 
 router.get("/app/alumno/fijo", requireAuth, async (req, res) => {
-    const data = await studentRepo.getFixedStudentsWithDays();
-    res.render('manageFixedStudents', { 'data' : data });
+    const queryParams = req.query;
+    const filterParam = queryParams.filter ? JSON.parse(queryParams.filter as string) : {};
+    const sortParam = queryParams.sortby ? JSON.parse(queryParams.sortby as string) : {};
+    const data = await studentRepo.getFixedStudentsWithDays(filterParam, sortParam);
+    res.render('manageFixedStudents', { 'data' : data, 'filterParams': filterParam, 'sortbyParams': sortParam });
 });
 
 router.post("/api/asistencia", requireAuth, async (req, res) => {

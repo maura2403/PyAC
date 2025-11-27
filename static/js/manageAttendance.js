@@ -15,10 +15,7 @@ async function handleCheckbox(checkbox) {
         response = await handleFalse(data);
     }
 
-    if (response.ok) {
-        location.reload();
-    }
-    else {
+    if (!response.ok) {
         alert("Error al actualizar el alumno.");
     }
 }

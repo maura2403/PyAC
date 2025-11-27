@@ -9,12 +9,16 @@
 </head>
 
 <body>
-    <a href="/" class="btn">Regresar al Menú Principal</a>
-    <div class="container">
+    <%- include('partials/nav') %>
+    <main>
         <h2>Subir archivo CSV de alumnos</h2>
+        <div class="container">
         <input type="file" id="csvFile" accept=".csv" />
         <button onclick="handleUpload(document.getElementById('csvFile'), 'alumno')">Procesar y enviar</button>
-    </div>
+        </div>
+    </main>
+    <%- include('partials/footer') %>
+    <script src="/js/nav.js"></script>
 </body>
 
 <script src="/js/uploadStudentCSV.js"></script>

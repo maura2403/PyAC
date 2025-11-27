@@ -83,17 +83,16 @@ export abstract class Repository {
         }
     }
 
-    private async defaultRead(filters: Record<string, any>, sortby: Record<string, any> = {}): Promise<Record<string, any>[]> {
+    protected filterQuery(filters: Record<string, any>, tableName: string = ''){
         const listFilters: Record<string, any> = {};
         Object.keys(filters).forEach(key => {
             const value = Array.isArray(filters[key]) ? filters[key] : [filters[key]];
             listFilters[key] = value;
         });
-        let query = `SELECT * FROM ${this.schema}.${this.tableName}`;
         const filterKeys = Object.keys(listFilters);
-        const sorterKeys = Object.keys(sortby);
+        const table = tableName !== '' ? tableName + '.' : '';
         const queryValues:any[] = [];
-
+        let filterQuery = '';
         if (filterKeys.length > 0) {
             let filterIndex = 1;
             let conditions = [];
@@ -102,24 +101,44 @@ export abstract class Repository {
                 const orValues = values.map((v:any) => {
                     queryValues.push(v);
                     if(v.toString().includes('%')){
-                        return `${key} ilike $${filterIndex++}`;
+                        return `CAST(${table}${key} AS TEXT) ilike $${filterIndex++}`;
                     }
                     else{
-                        return `${key} = $${filterIndex++}`;
+                        return `${table}${key} = $${filterIndex++}`;
                     }
                 }).join(' OR ');
 
                 conditions.push(`(${orValues})`);
             }
-            query += ` WHERE ${conditions.join(' AND ')}`;
+            filterQuery += `${conditions.join(' AND ')}`;
         }
 
+        return { filter: filterQuery, values: queryValues};
+    }
+
+    protected sortQuery(sortby: Record<string, any>, tableName: string = ''){
+        const sorterKeys = Object.keys(sortby);
+        let sortbyQuery = '';
+        const table = tableName !== '' ? tableName + '.' : '';
         if (sorterKeys.length > 0) {
-            const sortValues = sorterKeys.map((key) => `${key} ${sortby[key]}`).join(' , ');
-            query += ` ORDER BY ${sortValues}`;
+            const sortValues = sorterKeys.map((key) => `${table}${key} ${sortby[key]}`).join(' , ');
+            sortbyQuery += `${sortValues}`;
         }
+        return sortbyQuery;
+    }
 
-        const items = await this.pool.query(query, queryValues);
+    private async defaultRead(filters: Record<string, any>, sortby: Record<string, any> = {}): Promise<Record<string, any>[]> {
+        let query = `SELECT * FROM ${this.schema}.${this.tableName}`;
+        const filterDict = this.filterQuery(filters);
+        const sortbyQuery = this.sortQuery(sortby);
+
+        const filterQuery = filterDict.filter === '' ? '' : ' WHERE ' + filterDict.filter;
+        const orderBy = sortbyQuery === '' ? '' : ' ORDER BY ' + sortbyQuery;
+
+        query += filterQuery;
+        query += orderBy;
+
+        const items = await this.pool.query(query, filterDict.values);
         return items.rows;
     }
 
@@ -204,7 +223,13 @@ export class StudentRepository extends Repository {
         },
     );
 
-    public async getFixedStudentsWithDays(): Promise<Record<string, any>[]> {
+    public async getFixedStudentsWithDays(filters: Record<string, any>, sortby: Record<string, any> = {}): Promise<Record<string, any>[]> {
+        
+        const filterDict = this.filterQuery(filters,'a');
+        const sortbyQuery = this.sortQuery(sortby);
+        const filterQuery = filterDict.filter === '' ? '' : ' AND ' + filterDict.filter;
+        const orderBy = sortbyQuery === '' ? '' : ' ORDER BY ' + sortbyQuery;
+
         // BOOL_OR es una aggregate function que checkea si alguno de las filas cumple cierta condicion
         // Como devuelve null si todas son null, usamos coalesce para garantizar false
         const query = `
@@ -216,10 +241,11 @@ export class StudentRepository extends Repository {
                 COALESCE(BOOL_OR(af.dia_de_la_semana = 'Viernes'), false) AS vie
             FROM ${this.schema}.${this.tableName} AS a
                 LEFT JOIN ${fixedStudentRepo.schema}.${fixedStudentRepo.tableName} AS af ON a.dni = af.dni
-            WHERE a.modalidad = 'Fijo' AND a.activo = true
-            GROUP BY a.dni, a.nombre, a.apellido, a.curso, a.modalidad;
+            WHERE a.modalidad = 'Fijo' ${filterQuery}
+            GROUP BY a.dni, a.nombre, a.apellido, a.curso, a.modalidad
+            ${orderBy};
         `;
-        const items = await this.pool.query(query);
+        const items = await this.pool.query(query, filterDict.values);
         return items.rows;
     }
 

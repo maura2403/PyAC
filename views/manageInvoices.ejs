@@ -1,14 +1,16 @@
 <!-- Recibe metadata, invoices como datos. Recibe del back TODAS las facturas -->
 <!DOCTYPE html>
 <% const title = "Gestión de Facturas - Tabla de Facturas"; %>
-<% const cssRoute = "/css/pages/manageInvoices.css"; %>
+<% const cssRoute = "/css/pages/manageCRUD.css"; %>
 <html lang="es">
 <head>
+    <link rel="stylesheet" href= "/css/pages/manageInvoices.css">
     <%- include("headCRUDdata", {title: title, cssRoute: cssRoute}) %>
 </head>
 <body>
 
 <%- include('partials/nav') %>
+<% include('partials/sortFilterElement') %>
 <main>
     <h2><%=title%></h2>
 <!-- CONTROLES -->
@@ -58,7 +60,7 @@
     <thead>
     <tr>
         <% for (const [key, meta] of Object.entries(metadata)) { %>
-            <th><%= meta.label %></th>
+            <%- filterAndSortHeader(meta.label,key,meta.type,meta.filterable, meta.sortable,sortbyParams, filterParams, meta.values);%>
         <% } %>
         <th style="width: 150px;">PAGAR FACTURA</th>
     </tr>
@@ -91,6 +93,7 @@
 <%- include('partials/footer') %>
 
 <script src="/js/nav.js"></script>
+<script src="/js/sortFilterInCRUD.js"></script>
 <script src="/js/manageInvoicesScripts.js"></script>
 </body>
 </html>

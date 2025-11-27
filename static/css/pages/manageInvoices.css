@@ -55,50 +55,6 @@ a.btn {
     background: #fff;
 }
 
-/* tabla */
-.manage-invoices-table {
-    width: 80%;
-    margin: 0 auto;
-    border-collapse: collapse;
-    font-family: 'Segoe UI', sans-serif;
-    box-shadow: 0 6px 18px rgba(18, 18, 18, 0.04);
-    border-radius: 8px;
-    overflow: hidden;
-    table-layout: fixed;
-    background: white;
-}
-
-.manage-invoices-table thead th {
-    background: var(--primary-color, #2d6cdf);
-    color: var(--text-light-color, #fff);
-    padding: 12px 10px;
-    text-align: left;
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-.manage-invoices-table th,
-.manage-invoices-table td {
-    padding: 10px 12px;
-    border-bottom: 1px solid #eee;
-    border-right: 1px solid #f5f5f5;
-    color: #222;
-    font-size: 0.95rem;
-    text-align: left;
-}
-
-.manage-invoices-table tbody tr:nth-child(even) td {
-    background-color: #fbfbfb;
-}
-
-/* última columna centrada */
-.manage-invoices-table th:last-child,
-.manage-invoices-table td:last-child {
-    width: 150px;
-    text-align: center;
-    white-space: nowrap;
-}
-
 /* botón pagar */
 button.pay {
     background-color: #ffcc00;
