@@ -41,8 +41,6 @@ export function createAPICrud(router: Router, repository: Repository, c: boolean
     if (u) {
         router.patch(route, requireAuthAPI, async (req, res) => {
             try {
-                console.log(req.query);
-                console.log(req.body);
                 await repository.update(req.query, req.body);
                 res.status(200).json({ ok: true });
             }

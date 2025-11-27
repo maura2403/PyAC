@@ -17,7 +17,7 @@ const router = Router();
 
 createAPICrud(router, studentRepo, true, true, true, true);
 createAPICrud(router, levelRepo, true, true, true, true);
-createAPICrud(router, invoiceRepo, false, true, false, false);
+createAPICrud(router, invoiceRepo, false, true, true, false);
 createAPICrud(router, userRepo, true, true, true, true);
 createAPICrud(router, courseRepo, true, true, true, true);
 createAPICrud(router, fixedStudentRepo, true, true, false, true);

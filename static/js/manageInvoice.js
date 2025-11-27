@@ -29,7 +29,7 @@ async function downloadInvoice(button) {
     const fecha_emision = row.dataset.fecha_emision ? row.dataset.fecha_emision.split("T")[0] : '';
     const es_mensual = row.dataset.es_mensual === "true";
 
-    const url = `/app/factura/descargar?dni=${encodeURIComponent(dni)}&fecha_de_emision=${encodeURIComponent(fecha_emision)}&es_mensual=${encodeURIComponent(es_mensual)}`;
+    const url = `/api/factura/descargar?dni=${encodeURIComponent(dni)}&fecha_de_emision=${encodeURIComponent(fecha_emision)}&es_mensual=${encodeURIComponent(es_mensual)}`;
 
     try {
         const response = await fetch(url, {
