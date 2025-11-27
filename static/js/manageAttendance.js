@@ -36,3 +36,10 @@ async function handleFalse(data) {
     });
     return response;
 }
+
+function changeWeek(count) {
+    const data = sunday.split("-").map(value => parseInt(value));
+    const dateObj = new Date(data[0], data[1] - 1, data[2]);
+    dateObj.setDate(dateObj.getDate() + count * 7);
+    window.location.href = `/app/asistencia?day=${dateObj.getDate()}&month=${dateObj.getMonth()+1}&year=${dateObj.getFullYear()}`;
+}

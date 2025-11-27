@@ -224,7 +224,6 @@ export class StudentRepository extends Repository {
     );
 
     public async getFixedStudentsWithDays(filters: Record<string, any>, sortby: Record<string, any> = {}): Promise<Record<string, any>[]> {
-        
         const filterDict = this.filterQuery(filters,'a');
         const sortbyQuery = this.sortQuery(sortby);
         const filterQuery = filterDict.filter === '' ? '' : ' AND ' + filterDict.filter;
@@ -249,20 +248,28 @@ export class StudentRepository extends Repository {
         return items.rows;
     }
 
-    public async getStudentsAttendanceWeek(year: number, month: number, day: number): Promise<(Record<string, any>)[]>{
+    public async getStudentsAttendanceWeek(year: number, month: number, day: number, filters: Record<string, any>, sortby: Record<string, any> = {}): Promise<(Record<string, any>)[]>{
+        const filterDict = this.filterQuery(filters,'a');
+        const sortbyQuery = this.sortQuery(sortby);
+        const filterQuery = filterDict.filter === '' ? '' : ' WHERE ' + filterDict.filter;
+        const orderBy = sortbyQuery === '' ? '' : ' ORDER BY ' + sortbyQuery;
+        const valueParam = filterDict.values.length + 1;
+
         const fecha = numberToISOFormat(year, month, day);
         const query = `
             SELECT a.dni, a.nombre, a.apellido,
-                COALESCE(BOOL_OR(p.fecha = (TO_DATE($1, 'YYYY-MM-DD') + INTERVAL '1' day)), false) AS lun,
-                COALESCE(BOOL_OR(p.fecha = (TO_DATE($1, 'YYYY-MM-DD') + INTERVAL '2' day)), false) AS mar,
-                COALESCE(BOOL_OR(p.fecha = (TO_DATE($1, 'YYYY-MM-DD') + INTERVAL '3' day)), false) AS mie,
-                COALESCE(BOOL_OR(p.fecha = (TO_DATE($1, 'YYYY-MM-DD') + INTERVAL '4' day)), false) AS jue,
-                COALESCE(BOOL_OR(p.fecha = (TO_DATE($1, 'YYYY-MM-DD') + INTERVAL '5' day)), false) AS vie
+                COALESCE(BOOL_OR(p.fecha = (TO_DATE($${valueParam}, 'YYYY-MM-DD') + INTERVAL '1' day)), false) AS lun,
+                COALESCE(BOOL_OR(p.fecha = (TO_DATE($${valueParam}, 'YYYY-MM-DD') + INTERVAL '2' day)), false) AS mar,
+                COALESCE(BOOL_OR(p.fecha = (TO_DATE($${valueParam}, 'YYYY-MM-DD') + INTERVAL '3' day)), false) AS mie,
+                COALESCE(BOOL_OR(p.fecha = (TO_DATE($${valueParam}, 'YYYY-MM-DD') + INTERVAL '4' day)), false) AS jue,
+                COALESCE(BOOL_OR(p.fecha = (TO_DATE($${valueParam}, 'YYYY-MM-DD') + INTERVAL '5' day)), false) AS vie
                 FROM ${this.schema}.${this.tableName} AS a
             LEFT JOIN ${attendanceRepo.schema}.${attendanceRepo.tableName} AS p ON a.dni = p.dni
-            GROUP BY a.dni, a.nombre, a.apellido;
+            ${filterQuery}
+            GROUP BY a.dni, a.nombre, a.apellido
+            ${orderBy};
         `;
-        const items = await this.pool.query(query, [fecha]);
+        const items = await this.pool.query(query, [...filterDict.values, fecha]);
         return items.rows;
     }
 }

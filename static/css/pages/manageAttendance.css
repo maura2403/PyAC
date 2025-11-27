@@ -1,0 +1,40 @@
+.title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    margin: 1rem 10%;
+}
+
+h2 {
+    color: var(--text-dark-color);
+    margin: 0 1rem;
+}
+
+.week-selector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 1rem;
+}
+
+.week-selector svg {
+    height: 100%;
+    width: auto;
+}
+
+.week-selector button {
+    width: 35px;
+    height: 35px;
+    margin: 0;
+    border-radius: 4px;
+    border: none;
+    transition: all 0.2s ease-in-out;
+    color: var(--primary-color);
+    background-color: inherit;
+}
+
+.week-selector button:hover {
+    color: var(--primary-color-light);
+    cursor: pointer;
+}

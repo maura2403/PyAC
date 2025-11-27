@@ -1,25 +1,41 @@
 <!DOCTYPE html>
-<% const title = "Gestión de Alumnos - Tabla de Fijos"; %>
+<% const title = "Gestión de Alumnos - Tabla de Asistencias"; %>
 <% const cssRoute = "/css/pages/manageCRUD.css"; %>
 <html lang="es">
 <head>
     <%- include("headCRUDdata", {title: title, cssRoute: cssRoute}) %>
+    <link rel="stylesheet" href="/css/pages/manageAttendance.css">
 </head>
 <body>
     <%- include('partials/nav') %>
+    <% include('partials/sortFilterElement') %>
     <main>
-    <h2><%=title%></h2>
-    <div class="week-selector">
-        <button>&lt;</button>
-        <button>&gt;</button>
+    <div class="title-row">
+        <h2><%= title %></h2>
+
+        <div class="week-selector">
+            <button onclick="changeWeek(-1)">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13.5 9L10.5 12L13.5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12Z" stroke="currentColor" stroke-width="1.5"></path>
+                </svg>
+            </button>
+            <h2><%= sunday %></h2>
+            <button onclick="changeWeek(1)">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.5 9L13.5 12L10.5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12Z" stroke="currentColor" stroke-width="1.5"></path>
+                </svg>
+            </button>
+        </div>
     </div>
     <div class="table-wrapper">
     <table>
         <thead>
             <tr>
-                <th>DNI</th>
-                <th>Nombre</th>
-                <th>Apellido</th>
+                <%- filterAndSortHeader("DNI",'dni','number',true, true,sortbyParams, filterParams);%>
+                <%- filterAndSortHeader("Nombre",'nombre','text',true, true,sortbyParams, filterParams);%>
+                <%- filterAndSortHeader("Apellido",'apellido','text',true, true,sortbyParams, filterParams);%>
                 <th>Lunes</th>
                 <th>Martes</th>
                 <th>Miercoles</th>
@@ -65,3 +81,4 @@
     const sunday = '<%= sunday %>';
 </script>
 <script src="/js/manageAttendance.js"></script>
+<script src="/js/sortFilterInCRUD.js"></script>

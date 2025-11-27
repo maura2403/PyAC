@@ -105,7 +105,7 @@ router.post("/api/alumno/csv", requireAuth, async (req, res) => {
         const rows = zip(columns, studentsDataList)
 
         for(const row of rows){
-            await studentRepo.create(row);  // Consultar si usamos un POST o directamente utilizar el repositorio.
+            await studentRepo.create(row);
         }
         res.status(201).send({ ok: true });
     } catch (err) {
@@ -126,8 +126,11 @@ router.get("/app/asistencia", requireAuth, async (req, res) => {
 
     const lastSunday = new Date(year, month - 1, day);
     lastSunday.setDate(lastSunday.getDate() - lastSunday.getDay());
-    const data = await studentRepo.getStudentsAttendanceWeek(lastSunday.getFullYear(), lastSunday.getMonth() + 1, lastSunday.getDate());
-    res.render("manageAttendance", { "sunday" : dateToISOFormat(lastSunday), "data" : data });
+    const queryParams = req.query;
+    const filterParam = queryParams.filter ? JSON.parse(queryParams.filter as string) : {};
+    const sortParam = queryParams.sortby ? JSON.parse(queryParams.sortby as string) : {};
+    const data = await studentRepo.getStudentsAttendanceWeek(lastSunday.getFullYear(), lastSunday.getMonth() + 1, lastSunday.getDate(), filterParam, sortParam);
+    res.render("manageAttendance", { "sunday" : dateToISOFormat(lastSunday), "data" : data, 'filterParams': filterParam, 'sortbyParams': sortParam  });
 });
 
 
