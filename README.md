@@ -84,3 +84,11 @@ npm run prepare
 ```bash
 npm run server
 ```
+
+## Extra
+
+### ¿Cómo cargar alumnos a través de archivos CSV?
+
+Desde la sección "CSV" se podrá subir el archivo con los datos de los alumnos.
+
+Las instrucciones sobre el formato requerido y un ejemplo de archivos válido se encuentran en [`doc/studentCSVUploadGuide.md`](doc/studentCSVUploadGuide.md).
