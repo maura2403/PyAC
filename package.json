@@ -22,6 +22,7 @@
   },
   "scripts": {
     "prepare": "tsc -p ./tsconfig.json",
-    "server": "npm run prepare && node dist/server"
+    "server": "npm run prepare && node dist/server",
+    "server:test": "NODE_ENV=testing npm run server"
   }
 }

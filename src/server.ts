@@ -3,9 +3,12 @@ import path from "path";
 import { fileURLToPath } from "url";
 import routes from "./routes/routes.js";
 import session from 'express-session';
+import { dotenvConfig } from "./extra/dotenvConfig.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+dotenvConfig()
 
 const app = express();
 const PORT = process.env.PORT || 3000;
