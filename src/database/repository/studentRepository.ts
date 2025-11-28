@@ -53,7 +53,7 @@ export class StudentRepository extends Repository {
 
         const fecha = numberToISOFormat(year, month, day);
         const query = `
-            SELECT a.dni, a.nombre, a.apellido,
+            SELECT a.dni, a.nombre, a.apellido, a.curso,
                 COALESCE(BOOL_OR(p.fecha = (TO_DATE($${valueParam}, 'YYYY-MM-DD') + INTERVAL '1' day)), false) AS lun,
                 COALESCE(BOOL_OR(p.fecha = (TO_DATE($${valueParam}, 'YYYY-MM-DD') + INTERVAL '2' day)), false) AS mar,
                 COALESCE(BOOL_OR(p.fecha = (TO_DATE($${valueParam}, 'YYYY-MM-DD') + INTERVAL '3' day)), false) AS mie,
@@ -62,7 +62,7 @@ export class StudentRepository extends Repository {
                 FROM ${this.schema}.${this.tableName} AS a
             LEFT JOIN ${attendanceRepo.schema}.${attendanceRepo.tableName} AS p ON a.dni = p.dni
             ${filterQuery}
-            GROUP BY a.dni, a.nombre, a.apellido
+            GROUP BY a.dni, a.nombre, a.apellido, a.curso
             ${orderBy};
         `;
         const items = await this.pool.query(query, [...filterDict.values, fecha]);

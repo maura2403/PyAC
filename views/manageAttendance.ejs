@@ -36,6 +36,7 @@
                 <%- filterAndSortHeader("DNI",'dni','number',true, true,sortbyParams, filterParams);%>
                 <%- filterAndSortHeader("Nombre",'nombre','text',true, true,sortbyParams, filterParams);%>
                 <%- filterAndSortHeader("Apellido",'apellido','text',true, true,sortbyParams, filterParams);%>
+                <%- filterAndSortHeader("Curso",'curso','text',true, true,sortbyParams, filterParams);%>
                 <th>Lunes</th>
                 <th>Martes</th>
                 <th>Miercoles</th>
@@ -49,6 +50,7 @@
             <td data-key="true"><%= student.dni %></td>
             <td><%= student.nombre %></td>
             <td><%= student.apellido %></td>
+            <td><%= student.curso %></td>
             <td>
                 <input type="checkbox" onclick="handleCheckbox(this)" data-day="Lunes"
                 <%= student.lun ? "checked" : "" %>>
