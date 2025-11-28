@@ -33,5 +33,5 @@ app.use(session({
 app.use(routes);
 
 app.listen(PORT, () => {
-    console.log(`Example app listening on port http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
 });
