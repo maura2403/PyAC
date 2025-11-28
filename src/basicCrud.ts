@@ -2,6 +2,14 @@ import { requireAuth, requireAuthAPI } from "./middleware/auth.js"
 import type { Router } from "express";
 import type { Repository } from "./database/repository.js";
 
+export function getDefaultSort(repository: Repository): Record<string, any> {
+    const primaryKeys = repository.primaryKeys;
+    if (primaryKeys.length > 0) {
+        return { [primaryKeys[0]!]: 'asc' };
+    }
+    return {};
+}
+
 // req.body: Contenido para la DB (objeto en CREATE y UPDATE)
 // req.query: Parametros para filtrar (en el filtros en el READ o PKs en UPDATE y DELETE)
 export function createAPICrud(router: Router, repository: Repository, c: boolean, r: boolean, u:boolean, d:boolean) {
@@ -80,7 +88,10 @@ export function createMainRouteForBasicCRUD(router: Router, repository: Reposito
     router.get(`/app/${repository.tableName}`, requireAuth, async (req, res) => {
         const queryParams = req.query;
         const filterParam = queryParams.filter ? JSON.parse(queryParams.filter as string) : {};
-        const sortParam = queryParams.sortby ? JSON.parse(queryParams.sortby as string) : {};
+        let sortParam = queryParams.sortby ? JSON.parse(queryParams.sortby as string) : {};
+        if (Object.keys(sortParam).length === 0) {
+            sortParam = getDefaultSort(repository);
+        }
 
         const data = await repository.read(filterParam, sortParam);
         const metadata = repository.frontData;

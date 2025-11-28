@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createAPICrud, createMainRouteForBasicCRUD } from "../basicCrud.js"
+import { createAPICrud, createMainRouteForBasicCRUD, getDefaultSort } from "../basicCrud.js"
 import { requireAuth, requireAuthAPI } from "../middleware/auth.js"
 import authApiRoutes from "./authApi.js";
 import authPagesRoutes from "./authPages.js";
@@ -30,7 +30,10 @@ createMainRouteForBasicCRUD(router, levelRepo, "manageLevels");
 router.get("/app/alumno/fijo", requireAuth, async (req, res) => {
     const queryParams = req.query;
     const filterParam = queryParams.filter ? JSON.parse(queryParams.filter as string) : {};
-    const sortParam = queryParams.sortby ? JSON.parse(queryParams.sortby as string) : {};
+    let sortParam = queryParams.sortby ? JSON.parse(queryParams.sortby as string) : {};
+    if (Object.keys(sortParam).length === 0) {
+        sortParam = getDefaultSort(studentRepo);
+    }
     const data = await studentRepo.getFixedStudentsWithDays(filterParam, sortParam);
     res.render('manageFixedStudents', { 'data' : data, 'filterParams': filterParam, 'sortbyParams': sortParam });
 });
@@ -48,7 +51,10 @@ router.get("/app/asistencia", requireAuth, async (req, res) => {
     lastSunday.setDate(lastSunday.getDate() - lastSunday.getDay());
     const queryParams = req.query;
     const filterParam = queryParams.filter ? JSON.parse(queryParams.filter as string) : {};
-    const sortParam = queryParams.sortby ? JSON.parse(queryParams.sortby as string) : {};
+    let sortParam = queryParams.sortby ? JSON.parse(queryParams.sortby as string) : {};
+    if (Object.keys(sortParam).length === 0) {
+        sortParam = getDefaultSort(studentRepo);
+    }
     const data = await studentRepo.getStudentsAttendanceWeek(lastSunday.getFullYear(), lastSunday.getMonth() + 1, lastSunday.getDate(), filterParam, sortParam);
     res.render("manageAttendance", { "sunday" : dateToISOFormat(lastSunday), "data" : data, 'filterParams': filterParam, 'sortbyParams': sortParam  });
 });

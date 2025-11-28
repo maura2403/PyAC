@@ -6,6 +6,12 @@ export abstract class Repository {
     public get frontData(): Record<string, any> {
         return this.model.frontData;
     }
+    public get allColumns(): string[] {
+        return this.model.allColumns;
+    }
+    public get primaryKeys(): string[] {
+        return this.model.primaryKeys;
+    }
     protected abstract readonly model: Model;
     protected readonly pool: Pool;
 
