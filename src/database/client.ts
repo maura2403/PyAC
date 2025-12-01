@@ -1,7 +1,8 @@
-import 'dotenv/config';
 import { Pool } from "pg";
 import type { ClientConfig } from "pg";
+import { dotenvConfig } from "../extra/dotenvConfig.js"
 
+dotenvConfig()
 
 const dbConfig: ClientConfig =
     process.env.DATABASE_URL

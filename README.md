@@ -43,15 +43,16 @@ npm install
 ```
 
 ### 3. Configuración de variables de entorno
-Crear un archivo `.env` en la raíz del proyecto como se indica en las [instrucciones](/doc/DotEnvSetup.md).
-
+Crear un archivo `.env` / `.env.test` en la raíz del proyecto como se indica en las [instrucciones](/doc/DotEnvSetup.md).
+- `.env` se debe utilizar para producción.
+- `.env.test` se debe utilizar para testing.
 
 ## Pasos para correr el proyecto en local
 
 1. Iniciar el servidor:
 
 ```bash
-npm run server
+npm run server:test
 ```
 
 2. Abrir el navegador en la ruta indicada en la consola. Debería ser:
@@ -67,7 +68,7 @@ userRepo.createUser('[USERNAME]', '[PASSWORD]', '[NAME]', '[EMAIL]);
 ```
 al final del archivo [`/src/routes/routes.ts`](/src/routes/routes.ts).
 
-Luego inicial el servidor utilizando `npm run server`, se habrá creado un nuevo usuario de administrador con usuario [USERNAME] y contraseña [PASSWORD].
+Luego inicial el servidor utilizando `npm run server:test`, se habrá creado un nuevo usuario de administrador con usuario [USERNAME] y contraseña [PASSWORD].
 
 **Se recomienda eliminar la linea agregada después de usarla.**
 
@@ -81,8 +82,14 @@ npm run prepare
 
 * **Compilar el proyecto e iniciar el servidor**:
 
+Producción:
 ```bash
 npm run server
+```
+
+Testing:
+```bash
+npm run server:test
 ```
 
 ## Extra
